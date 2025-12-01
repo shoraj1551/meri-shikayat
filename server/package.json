@@ -1,0 +1,36 @@
+{
+    "name": "meri-shikayat-server",
+    "version": "1.0.0",
+    "description": "Backend API for Meri Shikayat complaint registration system",
+    "main": "src/index.js",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon src/index.js",
+        "start": "node src/index.js",
+        "test": "jest",
+        "lint": "eslint src --ext .js"
+    },
+    "keywords": [
+        "complaint",
+        "registration",
+        "backend",
+        "api"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.18.2",
+        "mongoose": "^8.0.0",
+        "dotenv": "^16.3.1",
+        "cors": "^2.8.5",
+        "jsonwebtoken": "^9.0.2",
+        "bcryptjs": "^2.4.3",
+        "multer": "^1.4.5-lts.1",
+        "express-validator": "^7.0.1"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.1",
+        "jest": "^29.7.0",
+        "eslint": "^8.0.0"
+    }
+}
