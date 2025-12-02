@@ -59,7 +59,7 @@ export function renderRegisterPage() {
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Email (Optional)</label>
+                            <label for="email">Email</label>
                             <input 
                                 type="email" 
                                 id="email" 
@@ -70,7 +70,7 @@ export function renderRegisterPage() {
                         </div>
 
                         <div class="form-group">
-                            <label for="phone">Phone Number (Optional)</label>
+                            <label for="phone">Phone Number</label>
                             <input 
                                 type="tel" 
                                 id="phone" 
