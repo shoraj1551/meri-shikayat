@@ -1,28 +1,19 @@
-/**
- * File upload middleware using Multer
- */
-
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+
+// Ensure upload directory exists
+const uploadDir = 'uploads/';
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Configure storage
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        let uploadPath = 'uploads/';
-
-        if (file.mimetype.startsWith('image')) {
-            uploadPath += 'images/';
-        } else if (file.mimetype.startsWith('video')) {
-            uploadPath += 'videos/';
-        } else if (file.mimetype.startsWith('audio')) {
-            uploadPath += 'audio/';
-        } else {
-            uploadPath += 'others/';
-        }
-
-        cb(null, uploadPath);
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
     },
-    filename: (req, file, cb) => {
+    filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
@@ -30,42 +21,26 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req, file, cb) => {
-    // Allowed file types
-    const allowedMimes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'video/mp4',
-        'video/mpeg',
-        'video/quicktime',
-        'audio/mpeg',
-        'audio/wav',
-        'audio/mp3'
+    const allowedTypes = [
+        'image/jpeg', 'image/png', 'image/jpg', // Images
+        'audio/mpeg', 'audio/wav', 'audio/mp3', // Audio
+        'video/mp4', 'video/webm'               // Video
     ];
 
-    if (allowedMimes.includes(file.mimetype)) {
+    if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type. Only images, videos, and audio files are allowed.'), false);
+        cb(new Error('Invalid file type. Only JPEG, PNG, MP3, WAV, MP4, and WebM are allowed.'));
     }
 };
 
-// Create multer instance
-const upload = multer({
+// Limits
+const limits = {
+    fileSize: 50 * 1024 * 1024 // 50MB limit (video can be large)
+};
+
+export const upload = multer({
     storage: storage,
-    limits: {
-        fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024 // 10MB default
-    },
-    fileFilter: fileFilter
+    fileFilter: fileFilter,
+    limits: limits
 });
-
-export const uploadSingle = upload.single('file');
-export const uploadMultiple = upload.array('files', 5); // Max 5 files
-export const uploadFields = upload.fields([
-    { name: 'images', maxCount: 5 },
-    { name: 'videos', maxCount: 2 },
-    { name: 'audio', maxCount: 2 }
-]);
-
-export default upload;

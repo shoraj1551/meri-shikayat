@@ -8,6 +8,7 @@ import { renderLoginPage } from './pages/login.js';
 import { renderRegisterPage } from './pages/register.js';
 import { renderLocationSetupPage } from './pages/location-setup.js';
 import { renderDashboardPage } from './pages/dashboard.js';
+import { renderSubmitComplaintPage } from './pages/submit-complaint.js';
 import { renderAdminLoginPage } from './pages/admin-login.js';
 import { renderAdminRegisterPage } from './pages/admin-register.js';
 import { renderAdminDashboard } from './pages/admin-dashboard.js';
@@ -26,6 +27,7 @@ export function initializeApp() {
     router.register('/register', renderRegisterPage);
     router.register('/location-setup', renderLocationSetupPage);
     router.register('/dashboard', renderDashboardPage);
+    router.register('/submit-complaint', renderSubmitComplaintPage);
 
     // Admin Routes
     router.register('/admin/login', renderAdminLoginPage);

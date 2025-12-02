@@ -1,7 +1,3 @@
-/**
- * Complaint model schema
- */
-
 import mongoose from 'mongoose';
 
 const complaintSchema = new mongoose.Schema({
@@ -10,93 +6,64 @@ const complaintSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    type: {
+        type: String,
+        enum: ['text', 'image', 'audio', 'video'],
+        required: true
+    },
     title: {
         type: String,
         required: [true, 'Title is required'],
         trim: true,
-        maxlength: [200, 'Title cannot exceed 200 characters']
+        maxlength: [100, 'Title cannot exceed 100 characters']
     },
     description: {
         type: String,
         required: [true, 'Description is required'],
-        trim: true,
-        maxlength: [2000, 'Description cannot exceed 2000 characters']
+        trim: true
     },
     category: {
         type: String,
         required: [true, 'Category is required'],
-        enum: ['infrastructure', 'public-service', 'utilities', 'safety', 'environment', 'other']
+        enum: ['Roads', 'Electricity', 'Water', 'Sanitation', 'Waste Management', 'Street Lights', 'Parks', 'Other']
     },
-    priority: {
-        type: String,
-        enum: ['low', 'medium', 'high', 'urgent'],
-        default: 'medium'
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'in-progress', 'resolved', 'rejected'],
-        default: 'pending'
+    mediaUrl: {
+        type: String
     },
     location: {
         address: String,
-        city: String,
-        state: String,
-        pincode: String,
         coordinates: {
-            latitude: Number,
-            longitude: Number
-        }
-    },
-    media: {
-        text: {
-            type: String,
-            maxlength: [5000, 'Text content cannot exceed 5000 characters']
+            lat: Number,
+            lng: Number
         },
-        images: [{
-            url: String,
-            filename: String,
-            uploadedAt: Date
-        }],
-        audio: [{
-            url: String,
-            filename: String,
-            duration: Number,
-            uploadedAt: Date
-        }],
-        video: [{
-            url: String,
-            filename: String,
-            duration: Number,
-            uploadedAt: Date
-        }]
+        pincode: String
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'in_progress', 'resolved', 'rejected'],
+        default: 'pending'
     },
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'Admin'
     },
-    comments: [{
-        user: {
+    adminComments: [{
+        admin: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'Admin'
         },
-        text: String,
+        comment: String,
         createdAt: {
             type: Date,
             default: Date.now
         }
-    }],
-    resolvedAt: Date,
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+    }]
 }, {
     timestamps: true
 });
 
 // Index for faster queries
 complaintSchema.index({ user: 1, status: 1 });
-complaintSchema.index({ category: 1, status: 1 });
-complaintSchema.index({ createdAt: -1 });
+complaintSchema.index({ 'location.pincode': 1 });
 
 export default mongoose.model('Complaint', complaintSchema);

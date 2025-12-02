@@ -11,8 +11,13 @@ export function renderDashboardPage() {
         <div class="dashboard-page">
             <div class="container">
                 <div class="dashboard-header">
-                    <h1>Welcome, ${user.firstName || 'User'}!</h1>
-                    <p>Your dashboard is ready</p>
+                    <div class="header-content">
+                        <h1>Welcome, ${user.firstName || 'User'}!</h1>
+                        <p>Your dashboard is ready</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="window.router.navigate('/submit-complaint')">
+                        + New Complaint
+                    </button>
                 </div>
                 
                 <div class="dashboard-content">

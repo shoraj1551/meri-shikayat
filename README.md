@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.004-blue.svg)
+![Version](https://img.shields.io/badge/version-0.005-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.004  
+**Current Version**: v0.005  
 **Last Updated**: December 2, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -83,7 +83,18 @@ Once both servers are running, you can access:
 
 ## Version History
 
-### v0.004 (Current) - December 2, 2025
+### v0.005 (Current) - December 2, 2025
+**Video Camera Integration & Critical Fixes**
+
+**New Features:**
+- ✅ **Direct Video Recording**: Integrated `getUserMedia` and `MediaRecorder` to allow users to record video complaints directly using their device camera.
+- ✅ **Live Preview**: Added live camera preview during recording and playback preview before submission.
+
+**Bug Fixes:**
+- ✅ **Frontend Loading Fix**: Resolved a critical issue where the application failed to load due to an incorrect named import in `complaint.service.js`.
+- ✅ **Module Exports**: Fixed `client.js` export structure to ensure consistent module loading.
+
+### v0.004 - December 2, 2025
 **Admin System, OTP Authentication & Unified Login**
 
 **Admin System:**

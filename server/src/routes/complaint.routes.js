@@ -1,28 +1,14 @@
-/**
- * Complaint routes
- */
-
 import express from 'express';
-import { protect, authorize } from '../middleware/auth.js';
-import { uploadFields } from '../middleware/upload.js';
-import {
-    createComplaint,
-    getComplaints,
-    getComplaint,
-    updateComplaint,
-    deleteComplaint,
-    addComment
-} from '../controllers/complaint.controller.js';
-import { complaintValidation, validate } from '../utils/validators.js';
+import { createComplaint, getMyComplaints } from '../controllers/complaint.controller.js';
+import { protect } from '../middleware/auth.js';
+import { upload } from '../middleware/upload.js';
 
 const router = express.Router();
 
-router.post('/', protect, uploadFields, complaintValidation, validate, createComplaint);
-router.get('/', protect, getComplaints);
-router.get('/:id', protect, getComplaint);
-router.put('/:id', protect, updateComplaint);
-router.delete('/:id', protect, deleteComplaint);
-router.post('/:id/comments', protect, addComment);
+// Apply protection to all routes
+router.use(protect);
+
+router.post('/', upload.single('media'), createComplaint);
+router.get('/my-complaints', getMyComplaints);
 
 export default router;
-
