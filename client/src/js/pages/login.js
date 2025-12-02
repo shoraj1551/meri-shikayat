@@ -11,6 +11,11 @@ export function renderLoginPage() {
         <div class="auth-page">
             <div class="auth-container">
                 <div class="auth-card">
+                    <div class="auth-header-actions" style="justify-content: flex-end; margin-bottom: 1rem;">
+                        <button class="role-toggle-btn" onclick="window.router.navigate('/admin/login')" title="Switch to Admin Login">
+                            <i class="icon">🛡️</i> Admin Login
+                        </button>
+                    </div>
                     <h2 class="auth-title">Login to Meri Shikayat</h2>
                     <p class="auth-subtitle">Enter your credentials to access your account</p>
                     

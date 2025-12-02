@@ -11,6 +11,11 @@ export function renderRegisterPage() {
         <div class="auth-page">
             <div class="auth-container">
                 <div class="auth-card">
+                    <div class="auth-header-actions" style="justify-content: flex-end; margin-bottom: 1rem;">
+                        <button class="role-toggle-btn" onclick="window.router.navigate('/admin/register')" title="Switch to Admin Registration">
+                            <i class="icon">🛡️</i> Admin Register
+                        </button>
+                    </div>
                     <h2 class="auth-title">Create Your Account</h2>
                     <p class="auth-subtitle">Join Meri Shikayat to register your complaints</p>
                     

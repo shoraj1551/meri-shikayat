@@ -31,7 +31,7 @@ export function renderHomePage() {
                         </p>
                         <div class="hero-actions">
                             <a href="/register" class="btn btn-primary btn-lg">Get Started</a>
-                            <a href="/about" class="btn btn-secondary btn-lg">Learn More</a>
+                            <button id="learnMoreBtn" class="btn btn-secondary btn-lg">Learn More</button>
                         </div>
                     </div>
 
@@ -75,5 +75,10 @@ export function renderHomePage() {
             const path = link.getAttribute('href');
             window.router.navigate(path);
         });
+    });
+
+    // Scroll to features
+    document.getElementById('learnMoreBtn')?.addEventListener('click', () => {
+        document.querySelector('.features').scrollIntoView({ behavior: 'smooth' });
     });
 }
