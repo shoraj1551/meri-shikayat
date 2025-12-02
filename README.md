@@ -1,5 +1,12 @@
 # Meri Shikayat
 
+![Version](https://img.shields.io/badge/version-0.002-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
+
+**Current Version**: v0.002  
+**Last Updated**: December 2, 2025
+
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
 
 ## Features
@@ -73,6 +80,47 @@ Once both servers are running, you can access:
 - **Frontend Application**: [http://localhost:3000](http://localhost:3000)
 - **Backend API**: [http://localhost:5000](http://localhost:5000)
 - **API Health Check**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
+
+## Version History
+
+### v0.002 (Current) - December 2, 2025
+**Complete Development Setup**
+
+**Frontend:**
+- ✅ Premium UI design with gradients and glassmorphism
+- ✅ Home page with hero section and feature cards
+- ✅ Login and registration pages
+- ✅ Client-side routing (SPA)
+- ✅ API services (authentication, complaints)
+- ✅ Smooth animations and responsive design
+
+**Backend:**
+- ✅ Complete authentication system (register, login, logout)
+- ✅ JWT-based authentication with middleware
+- ✅ Complaint CRUD operations
+- ✅ Multi-channel media upload (text, audio, video, images)
+- ✅ File upload middleware with Multer
+- ✅ Input validation with express-validator
+- ✅ MongoDB integration
+- ✅ Comment system for complaints
+
+**Infrastructure:**
+- ✅ Environment configuration
+- ✅ MongoDB Atlas ready
+- ✅ Git repository with dev branch
+- ✅ Comprehensive documentation
+
+### v0.001 - December 2, 2025
+**Initial Project Structure**
+
+- ✅ Basic folder structure (client/server/shared/docs)
+- ✅ MIT License
+- ✅ Package.json for client and server
+- ✅ Database models (User, Complaint)
+- ✅ Middleware setup (auth, upload, validation)
+- ✅ API route structure
+- ✅ Documentation (API.md, ARCHITECTURE.md)
+- ✅ Contributing guidelines
 
 ## License
 
