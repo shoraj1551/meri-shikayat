@@ -61,7 +61,7 @@ export function renderLoginPage() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const identifier = document.getElementById('identifier').value.trim();
+        const identifier = document.getElementById('identifier').value.trim().toLowerCase();
         const password = document.getElementById('password').value;
         const errorMessage = document.getElementById('errorMessage');
 
