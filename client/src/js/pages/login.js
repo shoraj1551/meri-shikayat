@@ -16,15 +16,16 @@ export function renderLoginPage() {
                     
                     <form id="loginForm" class="auth-form">
                         <div class="form-group">
-                            <label for="email">Email</label>
+                            <label for="identifier">Email or Phone Number</label>
                             <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
+                                type="text" 
+                                id="identifier" 
+                                name="identifier" 
                                 class="form-input" 
-                                placeholder="your@email.com"
+                                placeholder="your@email.com or 10-digit phone"
                                 required
                             />
+                            <small class="form-hint">Enter your email or 10-digit phone number</small>
                         </div>
 
                         <div class="form-group">
@@ -60,16 +61,33 @@ export function renderLoginPage() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const email = document.getElementById('email').value;
+        const identifier = document.getElementById('identifier').value.trim();
         const password = document.getElementById('password').value;
         const errorMessage = document.getElementById('errorMessage');
 
+        // Client-side validation
+        const isEmail = /^\S+@\S+\.\S+$/.test(identifier);
+        const isPhone = /^[0-9]{10}$/.test(identifier);
+
+        if (!isEmail && !isPhone) {
+            errorMessage.textContent = 'Please provide a valid email or 10-digit phone number';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
         try {
             errorMessage.style.display = 'none';
-            const response = await authService.login({ email, password });
+            const response = await authService.login({ identifier, password });
 
             if (response.success) {
-                window.router.navigate('/dashboard');
+                // Check if location is set
+                if (!response.data.isLocationSet) {
+                    // Redirect to location setup
+                    window.router.navigate('/location-setup');
+                } else {
+                    // Redirect to dashboard
+                    window.router.navigate('/dashboard');
+                }
             }
         } catch (error) {
             errorMessage.textContent = error.response?.data?.message || 'Login failed. Please try again.';

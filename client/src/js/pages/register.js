@@ -15,32 +15,62 @@ export function renderRegisterPage() {
                     <p class="auth-subtitle">Join Meri Shikayat to register your complaints</p>
                     
                     <form id="registerForm" class="auth-form">
-                        <div class="form-group">
-                            <label for="name">Full Name</label>
-                            <input 
-                                type="text" 
-                                id="name" 
-                                name="name" 
-                                class="form-input" 
-                                placeholder="Enter your full name"
-                                required
-                            />
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input 
+                                    type="text" 
+                                    id="firstName" 
+                                    name="firstName" 
+                                    class="form-input" 
+                                    placeholder="Enter your first name"
+                                    required
+                                    minlength="2"
+                                    maxlength="50"
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input 
+                                    type="text" 
+                                    id="lastName" 
+                                    name="lastName" 
+                                    class="form-input" 
+                                    placeholder="Enter your last name"
+                                    required
+                                    minlength="2"
+                                    maxlength="50"
+                                />
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Email</label>
+                            <label for="dateOfBirth">Date of Birth *</label>
+                            <input 
+                                type="date" 
+                                id="dateOfBirth" 
+                                name="dateOfBirth" 
+                                class="form-input" 
+                                required
+                                max="${new Date(new Date().setFullYear(new Date().getFullYear() - 13)).toISOString().split('T')[0]}"
+                            />
+                            <small class="form-hint">You must be at least 13 years old</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email (Optional)</label>
                             <input 
                                 type="email" 
                                 id="email" 
                                 name="email" 
                                 class="form-input" 
                                 placeholder="your@email.com"
-                                required
                             />
                         </div>
 
                         <div class="form-group">
-                            <label for="phone">Phone Number</label>
+                            <label for="phone">Phone Number (Optional)</label>
                             <input 
                                 type="tel" 
                                 id="phone" 
@@ -48,25 +78,26 @@ export function renderRegisterPage() {
                                 class="form-input" 
                                 placeholder="10-digit phone number"
                                 pattern="[0-9]{10}"
-                                required
+                                maxlength="10"
                             />
+                            <small class="form-hint">At least one contact method (email or phone) is required</small>
                         </div>
 
                         <div class="form-group">
-                            <label for="password">Password</label>
+                            <label for="password">Password *</label>
                             <input 
                                 type="password" 
                                 id="password" 
                                 name="password" 
                                 class="form-input" 
                                 placeholder="At least 6 characters"
-                                minlength="6"
                                 required
+                                minlength="6"
                             />
                         </div>
 
                         <div class="form-group">
-                            <label for="confirmPassword">Confirm Password</label>
+                            <label for="confirmPassword">Confirm Password *</label>
                             <input 
                                 type="password" 
                                 id="confirmPassword" 
@@ -98,12 +129,21 @@ export function renderRegisterPage() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const dateOfBirth = document.getElementById('dateOfBirth').value;
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const errorMessage = document.getElementById('errorMessage');
+
+        // Client-side validation
+        if (!email && !phone) {
+            errorMessage.textContent = 'Please provide either email or phone number';
+            errorMessage.style.display = 'block';
+            return;
+        }
 
         // Validate password match
         if (password !== confirmPassword) {
@@ -112,12 +152,35 @@ export function renderRegisterPage() {
             return;
         }
 
+        // Validate age (13+)
+        const age = Math.floor((new Date() - new Date(dateOfBirth)) / (365.25 * 24 * 60 * 60 * 1000));
+        if (age < 13) {
+            errorMessage.textContent = 'You must be at least 13 years old to register';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
         try {
             errorMessage.style.display = 'none';
-            const response = await authService.register({ name, email, phone, password });
+
+            const userData = {
+                firstName,
+                lastName,
+                dateOfBirth,
+                password
+            };
+
+            // Add email if provided
+            if (email) userData.email = email;
+
+            // Add phone if provided
+            if (phone) userData.phone = phone;
+
+            const response = await authService.register(userData);
 
             if (response.success) {
-                window.router.navigate('/dashboard');
+                // Redirect to location setup page
+                window.router.navigate('/location-setup');
             }
         } catch (error) {
             errorMessage.textContent = error.response?.data?.message || 'Registration failed. Please try again.';

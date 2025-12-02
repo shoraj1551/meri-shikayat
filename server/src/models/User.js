@@ -6,23 +6,39 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-    name: {
+    firstName: {
         type: String,
-        required: [true, 'Name is required'],
+        required: [true, 'First name is required'],
         trim: true,
-        maxlength: [100, 'Name cannot exceed 100 characters']
+        maxlength: [50, 'First name cannot exceed 50 characters']
+    },
+    lastName: {
+        type: String,
+        required: [true, 'Last name is required'],
+        trim: true,
+        maxlength: [50, 'Last name cannot exceed 50 characters']
+    },
+    dateOfBirth: {
+        type: Date,
+        required: [true, 'Date of birth is required'],
+        validate: {
+            validator: function (value) {
+                const age = Math.floor((new Date() - new Date(value)) / (365.25 * 24 * 60 * 60 * 1000));
+                return age >= 13;
+            },
+            message: 'User must be at least 13 years old'
+        }
     },
     email: {
         type: String,
-        required: [true, 'Email is required'],
-        unique: true,
+        sparse: true,
         lowercase: true,
         trim: true,
         match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
     },
     phone: {
         type: String,
-        required: [true, 'Phone number is required'],
+        sparse: true,
         match: [/^[0-9]{10}$/, 'Please provide a valid 10-digit phone number']
     },
     password: {
@@ -30,6 +46,28 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Password is required'],
         minlength: [6, 'Password must be at least 6 characters'],
         select: false
+    },
+    location: {
+        pincode: {
+            type: String,
+            match: [/^[0-9]{6}$/, 'Please provide a valid 6-digit pincode']
+        },
+        village: String,
+        city: String,
+        district: String,
+        state: String,
+        country: {
+            type: String,
+            default: 'India'
+        },
+        coordinates: {
+            latitude: Number,
+            longitude: Number
+        }
+    },
+    isLocationSet: {
+        type: Boolean,
+        default: false
     },
     role: {
         type: String,
@@ -48,6 +86,15 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
+// Validate that at least one contact method is provided
+userSchema.pre('validate', function (next) {
+    if (!this.email && !this.phone) {
+        this.invalidate('email', 'Either email or phone number is required');
+        this.invalidate('phone', 'Either email or phone number is required');
+    }
+    next();
+});
+
 // Hash password before saving
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
@@ -63,5 +110,10 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
+
+// Virtual for full name
+userSchema.virtual('fullName').get(function () {
+    return `${this.firstName} ${this.lastName}`;
+});
 
 export default mongoose.model('User', userSchema);

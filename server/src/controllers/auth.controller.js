@@ -17,20 +17,43 @@ const generateToken = (id) => {
 // @access  Public
 export const register = async (req, res) => {
     try {
-        const { name, email, phone, password } = req.body;
+        const { firstName, lastName, dateOfBirth, email, phone, password } = req.body;
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
+        // Validate at least one contact method
+        if (!email && !phone) {
             return res.status(400).json({
                 success: false,
-                message: 'User with this email already exists'
+                message: 'Either email or phone number is required'
             });
+        }
+
+        // Check if user already exists with email
+        if (email) {
+            const existingUserByEmail = await User.findOne({ email });
+            if (existingUserByEmail) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'User with this email already exists'
+                });
+            }
+        }
+
+        // Check if user already exists with phone
+        if (phone) {
+            const existingUserByPhone = await User.findOne({ phone });
+            if (existingUserByPhone) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'User with this phone number already exists'
+                });
+            }
         }
 
         // Create user
         const user = await User.create({
-            name,
+            firstName,
+            lastName,
+            dateOfBirth,
             email,
             phone,
             password
@@ -45,9 +68,13 @@ export const register = async (req, res) => {
             token,
             data: {
                 id: user._id,
-                name: user.name,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                fullName: user.fullName,
                 email: user.email,
                 phone: user.phone,
+                dateOfBirth: user.dateOfBirth,
+                isLocationSet: user.isLocationSet,
                 role: user.role
             }
         });
@@ -64,18 +91,31 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { identifier, password } = req.body; // identifier can be email or phone
 
         // Validate input
-        if (!email || !password) {
+        if (!identifier || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide email and password'
+                message: 'Please provide email/phone and password'
             });
         }
 
-        // Check for user (include password for comparison)
-        const user = await User.findOne({ email }).select('+password');
+        // Determine if identifier is email or phone
+        const isEmail = /^\S+@\S+\.\S+$/.test(identifier);
+        const isPhone = /^[0-9]{10}$/.test(identifier);
+
+        if (!isEmail && !isPhone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a valid email or 10-digit phone number'
+            });
+        }
+
+        // Find user by email or phone
+        const query = isEmail ? { email: identifier } : { phone: identifier };
+        const user = await User.findOne(query).select('+password');
+
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -101,9 +141,13 @@ export const login = async (req, res) => {
             token,
             data: {
                 id: user._id,
-                name: user.name,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                fullName: user.fullName,
                 email: user.email,
                 phone: user.phone,
+                isLocationSet: user.isLocationSet,
+                location: user.location,
                 role: user.role
             }
         });
