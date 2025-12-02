@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.002-blue.svg)
+![Version](https://img.shields.io/badge/version-0.003-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.002  
+**Current Version**: v0.003  
 **Last Updated**: December 2, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -83,7 +83,38 @@ Once both servers are running, you can access:
 
 ## Version History
 
-### v0.002 (Current) - December 2, 2025
+### v0.003 (Current) - December 2, 2025
+**Enhanced Registration & Login with Location Selection**
+
+**User Experience:**
+- ✅ Split name fields (firstName, lastName)
+- ✅ Date of birth with age validation (13+)
+- ✅ Flexible contact (email OR phone required, not both mandatory)
+- ✅ Case-insensitive email and phone inputs
+- ✅ Improved form design (600px width)
+
+**Location Selection:**
+- ✅ Three methods: Pincode entry, GPS detection, Manual search
+- ✅ India Post API integration for pincode lookup
+- ✅ OpenStreetMap integration for GPS and search
+- ✅ Auto-fill location details with editable preview
+- ✅ Smart routing based on location setup status
+
+**Backend:**
+- ✅ Updated User model with new schema
+- ✅ Location management system with 4 API endpoints
+- ✅ Enhanced authentication (email OR phone login)
+- ✅ Comprehensive validation for all inputs
+- ✅ Axios integration for external APIs
+
+**Frontend:**
+- ✅ Enhanced registration form with DOB picker
+- ✅ Updated login with flexible identifier
+- ✅ Location setup page with 3 selection options
+- ✅ Dashboard placeholder
+- ✅ Premium UI styling with glassmorphism
+
+### v0.002 - December 2, 2025
 **Complete Development Setup**
 
 **Frontend:**
