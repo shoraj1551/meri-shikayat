@@ -70,3 +70,41 @@ export const getMyComplaints = async (req, res) => {
         });
     }
 };
+// @desc    Get nearby complaints based on user's location
+// @route   GET /api/complaints/nearby
+// @access  Private (User)
+export const getNearbyComplaints = async (req, res) => {
+    try {
+        const user = await req.user;
+
+        // If user has no location set, return empty
+        if (!user.location || !user.location.city) {
+            return res.json({
+                success: true,
+                count: 0,
+                data: []
+            });
+        }
+
+        // Find complaints in the same city, excluding user's own complaints
+        const complaints = await Complaint.find({
+            'location.city': user.location.city,
+            user: { $ne: req.user.id }
+        })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .populate('user', 'firstName lastName');
+
+        res.json({
+            success: true,
+            count: complaints.length,
+            data: complaints
+        });
+    } catch (error) {
+        console.error('Get Nearby Complaints Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while fetching nearby complaints'
+        });
+    }
+};

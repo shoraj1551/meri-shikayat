@@ -19,5 +19,14 @@ export const complaintService = {
     async getMyComplaints() {
         const response = await apiClient.get('/complaints/my-complaints');
         return response.data;
+    },
+
+    /**
+     * Get nearby complaints
+     * @returns {Promise<Object>} Response data
+     */
+    async getNearbyComplaints() {
+        const response = await apiClient.get('/complaints/nearby');
+        return response.data;
     }
 };
