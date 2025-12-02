@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.003-blue.svg)
+![Version](https://img.shields.io/badge/version-0.004-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.003  
+**Current Version**: v0.004  
 **Last Updated**: December 2, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -83,7 +83,26 @@ Once both servers are running, you can access:
 
 ## Version History
 
-### v0.003 (Current) - December 2, 2025
+### v0.004 (Current) - December 2, 2025
+**Admin System, OTP Authentication & Unified Login**
+
+**Admin System:**
+- ✅ **Role-Based Access Control (RBAC)**: Super Admin, Manager, Moderator, Viewer roles.
+- ✅ **Approval Workflow**: New admin registrations require Super Admin approval.
+- ✅ **Permission Management**: Granular permissions with request/approval system.
+- ✅ **Admin Dashboard**: Dedicated dashboard with permission-aware navigation.
+
+**Authentication & Security:**
+- ✅ **2-Factor Authentication (OTP)**: Secure admin login with OTP verification.
+- ✅ **Unified Login UI**: Seamless toggle between User and Admin login/registration.
+- ✅ **Password Security**: "Show Password" toggle with auto-hide feature.
+- ✅ **Mandatory Fields**: Enforced Email & Phone for admin registration.
+
+**UI/UX Improvements:**
+- ✅ **Premium Design**: Glassmorphic toggle buttons and refined aesthetics.
+- ✅ **Fixed Navigation**: Corrected broken links on the Home page.
+
+### v0.003 - December 2, 2025
 **Enhanced Registration & Login with Location Selection**
 
 **User Experience:**
