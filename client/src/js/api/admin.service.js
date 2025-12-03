@@ -42,6 +42,11 @@ export const adminService = {
         return response.data;
     },
 
+    async getDashboardStats() {
+        const response = await client.get('/admin/stats');
+        return response.data;
+    },
+
     // Admin Management (Super Admin)
     async getPendingAdmins() {
         const response = await client.get('/admin/pending');

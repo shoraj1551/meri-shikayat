@@ -14,7 +14,8 @@ import {
     requestPermissions,
     getPermissionRequests,
     approvePermissionRequest,
-    rejectPermissionRequest
+    rejectPermissionRequest,
+    getDashboardStats
 } from '../controllers/admin.controller.js';
 import { protectAdmin, requireSuperAdmin } from '../middleware/auth.js';
 
@@ -27,6 +28,7 @@ router.post('/auth/verify-otp', verifyAdminOtp);
 
 // Protected routes
 router.get('/auth/me', protectAdmin, getMe);
+router.get('/stats', protectAdmin, getDashboardStats);
 
 // Permission management (Admin)
 router.post('/request-permissions', protectAdmin, requestPermissions);

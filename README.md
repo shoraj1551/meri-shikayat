@@ -1,11 +1,11 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.005-blue.svg)
+![Version](https://img.shields.io/badge/version-0.006-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.005  
-**Last Updated**: December 2, 2025
+**Current Version**: v0.006  
+**Last Updated**: December 3, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
 
@@ -83,7 +83,34 @@ Once both servers are running, you can access:
 
 ## Version History
 
-### v0.005 (Current) - December 2, 2025
+### v0.006 (Current) - December 3, 2025
+**Admin Dashboard Enhancement & Notification System**
+
+**Admin Dashboard:**
+- ✅ **Glassmorphism UI**: Premium glassmorphic design for all admin pages with animations and hover effects
+- ✅ **Enhanced Dashboard**: Animated stat cards with real-time data (Total Complaints, Pending, Resolved, Active Users)
+- ✅ **Pending Admins Management**: Card-based layout with detailed admin information and smooth animations
+- ✅ **Permission Requests**: Dedicated page for Super Admin to manage permission requests
+- ✅ **Responsive Design**: Mobile-first design with breakpoints for tablets and desktops
+
+**Notification System:**
+- ✅ **Email Notifications**: Professional email templates for admin approval/rejection
+- ✅ **SMS Notifications**: Concise SMS messages for mobile alerts
+- ✅ **Approval Workflow**: Modal dialog for role selection with email/SMS notification
+- ✅ **Rejection Workflow**: Modal dialog with mandatory 20-character reason and validation
+- ✅ **Console Logging**: Notifications logged for testing (ready for Nodemailer/Twilio integration)
+
+**UI/UX Improvements:**
+- ✅ **Modal Dialogs**: Glassmorphic modals for approval/rejection with smooth animations
+- ✅ **Form Validation**: Real-time character counter and validation for rejection reasons
+- ✅ **Success Messages**: Clear feedback confirming notification delivery
+- ✅ **CSS Architecture**: Organized modal styles integrated into main.css
+
+**Bug Fixes:**
+- ✅ **CSS Loading Error**: Fixed null character corruption in main.css caused by PowerShell append
+- ✅ **Dashboard Routing**: Added missing route for permission requests page
+
+### v0.005 - December 2, 2025
 **Video Camera Integration & Critical Fixes**
 
 **New Features:**

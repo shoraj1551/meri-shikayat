@@ -14,6 +14,7 @@ import { renderAdminRegisterPage } from './pages/admin-register.js';
 import { renderAdminDashboard } from './pages/admin-dashboard.js';
 import { renderAdminPendingPage } from './pages/admin-pending.js';
 import { renderAdminPermissionsPage } from './pages/admin-permissions.js';
+import { renderPermissionRequestsPage } from './pages/admin-permission-requests.js';
 
 export function initializeApp() {
     console.log('Meri Shikayat application initialized');
@@ -35,7 +36,7 @@ export function initializeApp() {
     router.register('/admin/dashboard', renderAdminDashboard);
     router.register('/admin/pending', renderAdminPendingPage);
     router.register('/admin/my-permissions', renderAdminPermissionsPage);
-    router.register('/admin/permission-requests', renderAdminPermissionsPage);
+    router.register('/admin/permission-requests', renderPermissionRequestsPage);
 
     // Initialize router
     router.init();

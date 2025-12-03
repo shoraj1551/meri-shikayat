@@ -1,21 +1,22 @@
 /**
- * Admin Dashboard
+ * Admin Dashboard - Enhanced UI
  */
 
 import { adminService } from '../api/admin.service.js';
 
-export function renderAdminDashboard() {
+export async function renderAdminDashboard() {
     const app = document.getElementById('app');
     const admin = adminService.getCurrentAdmin();
 
     if (!admin) {
-        window.router.navigate('/admin/login');
+        window.location.href = '/admin/login';
         return;
     }
 
     // Helper to check permission
     const hasPermission = (perm) => admin.role === 'super_admin' || (admin.permissions && admin.permissions[perm]);
 
+    // Initial Render with Loading Stats
     app.innerHTML = `
         <div class="dashboard-layout admin-theme">
             <!-- Sidebar -->
@@ -77,39 +78,59 @@ export function renderAdminDashboard() {
 
                 <div class="dashboard-grid">
                     <!-- Welcome Card -->
-                    <div class="card welcome-card admin-card">
-                        <div class="card-content">
-                            <h2>Welcome back, ${admin.firstName}!</h2>
-                            <p>You are logged in as <strong>${admin.role.replace('_', ' ')}</strong>.</p>
-                            <p>Admin ID: ${admin.adminId}</p>
-                        </div>
+                    <div class="glass-card welcome-card-admin">
+                        <div class="welcome-icon">👋</div>
+                        <h2>Welcome back, ${admin.firstName}!</h2>
+                        <p class="role-badge ${admin.role === 'super_admin' ? 'super-admin-badge' : 'admin-badge-role'}">${admin.role.replace('_', ' ')}</p>
+                        <p class="admin-id">Admin ID: ${admin.adminId}</p>
                     </div>
 
-                    <!-- Stats Cards (Placeholder) -->
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">New Complaints</div>
+                    <!-- Stats Cards -->
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-value">...</div>
+                            <div class="stat-label">Total Complaints</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Pending Reviews</div>
+                        <div class="stat-card glass-card pending">
+                            <div class="stat-icon">⏳</div>
+                            <div class="stat-value">...</div>
+                            <div class="stat-label">Pending</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-value">0</div>
+                        <div class="stat-card glass-card resolved">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-value">...</div>
+                            <div class="stat-label">Resolved</div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-value">...</div>
                             <div class="stat-label">Active Users</div>
                         </div>
                     </div>
 
                     <!-- Quick Actions -->
-                    <div class="card admin-card">
+                    <div class="glass-card quick-actions-card">
                         <h3>Quick Actions</h3>
                         <div class="action-buttons">
                             ${hasPermission('viewComplaints') ? `
-                            <button class="btn btn-primary" onclick="window.router.navigate('/admin/complaints')">View Complaints</button>
+                            <button class="btn btn-primary action-btn" onclick="window.router.navigate('/admin/complaints')">
+                                <span class="btn-icon">📝</span>
+                                View Complaints
+                            </button>
                             ` : ''}
                             
-                            <button class="btn btn-outline" onclick="window.router.navigate('/admin/my-permissions')">Request Access</button>
+                            ${hasPermission('manageAdmins') ? `
+                            <button class="btn btn-primary action-btn" onclick="window.router.navigate('/admin/pending')">
+                                <span class="btn-icon">⏳</span>
+                                Pending Admins
+                            </button>
+                            ` : ''}
+                            
+                            <button class="btn btn-outline action-btn" onclick="window.router.navigate('/admin/my-permissions')">
+                                <span class="btn-icon">🔑</span>
+                                Request Access
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -117,10 +138,47 @@ export function renderAdminDashboard() {
         </div>
     `;
 
+    // Fetch and Update Stats with animation
+    try {
+        const response = await adminService.getDashboardStats();
+        if (response.success) {
+            const stats = response.data;
+            const statsGrid = document.getElementById('statsGrid');
+
+            // Animate stats update
+            setTimeout(() => {
+                statsGrid.innerHTML = `
+                    <div class="stat-card glass-card stat-animate">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value">${stats.totalComplaints}</div>
+                        <div class="stat-label">Total Complaints</div>
+                    </div>
+                    <div class="stat-card glass-card pending stat-animate" style="animation-delay: 0.1s">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-value">${stats.pendingComplaints}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card glass-card resolved stat-animate" style="animation-delay: 0.2s">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value">${stats.resolvedComplaints}</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                    <div class="stat-card glass-card stat-animate" style="animation-delay: 0.3s">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-value">${stats.activeUsers}</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                `;
+            }, 300);
+        }
+    } catch (error) {
+        console.error('Failed to load stats:', error);
+    }
+
     // Handle logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         await adminService.logout();
-        window.router.navigate('/admin/login');
+        window.location.href = '/admin/login';
     });
 
     // Handle navigation

@@ -97,30 +97,80 @@ export function renderAdminLoginPage() {
 
     // Handle form submission
     const form = document.getElementById('adminLoginForm');
+    let isOtpStep = false;
+    let adminId = null;
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const identifier = document.getElementById('identifier').value.trim().toLowerCase();
-        const password = document.getElementById('password').value;
+        const identifierInput = document.getElementById('identifier');
+        const passwordInput = document.getElementById('password');
         const errorMessage = document.getElementById('errorMessage');
         const submitBtn = form.querySelector('button[type="submit"]');
 
         try {
             errorMessage.style.display = 'none';
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Authenticating...';
 
-            const response = await adminService.login({ identifier, password });
+            if (!isOtpStep) {
+                // Step 1: Login with credentials
+                submitBtn.textContent = 'Authenticating...';
+                const identifier = identifierInput.value.trim().toLowerCase();
+                const password = passwordInput.value;
 
-            if (response.success) {
-                // Redirect to admin dashboard
-                window.router.navigate('/admin/dashboard');
+                const response = await adminService.login({ identifier, password });
+
+                if (response.success && response.requireOtp) {
+                    // Switch to OTP step
+                    isOtpStep = true;
+                    adminId = response.adminId;
+
+                    // Hide credentials fields
+                    form.querySelector('.form-group:nth-child(1)').style.display = 'none';
+                    form.querySelector('.form-group:nth-child(2)').style.display = 'none';
+
+                    // Show OTP field
+                    let otpGroup = document.getElementById('otpGroup');
+                    if (!otpGroup) {
+                        otpGroup = document.createElement('div');
+                        otpGroup.id = 'otpGroup';
+                        otpGroup.className = 'form-group';
+                        otpGroup.innerHTML = `
+                            <label for="otp">Enter OTP</label>
+                            <input 
+                                type="text" 
+                                id="otp" 
+                                name="otp" 
+                                class="form-input" 
+                                placeholder="Enter 6-digit OTP"
+                                maxlength="6"
+                                required
+                            />
+                            <p class="form-hint">Check your server console for the OTP (Simulation)</p>
+                        `;
+                        form.insertBefore(otpGroup, errorMessage);
+                    }
+
+                    submitBtn.textContent = 'Verify OTP';
+                    submitBtn.disabled = false;
+                    document.getElementById('otp').focus();
+                }
+            } else {
+                // Step 2: Verify OTP
+                submitBtn.textContent = 'Verifying...';
+                const otp = document.getElementById('otp').value.trim();
+
+                const response = await adminService.verifyOtp(adminId, otp);
+
+                if (response.success) {
+                    window.location.href = '/admin/dashboard';
+                }
             }
         } catch (error) {
-            errorMessage.textContent = error.response?.data?.message || 'Login failed. Please check your credentials.';
+            errorMessage.textContent = error.response?.data?.message || 'Authentication failed. Please try again.';
             errorMessage.style.display = 'block';
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Login to Dashboard';
+            submitBtn.textContent = isOtpStep ? 'Verify OTP' : 'Login to Dashboard';
         }
     });
 
