@@ -114,9 +114,12 @@ export const login = async (req, res) => {
 
         // Find user by email or phone
         const query = isEmail ? { email: identifier } : { phone: identifier };
+        console.log('Login attempt:', { identifier, isEmail, isPhone });
+
         const user = await User.findOne(query).select('+password');
 
         if (!user) {
+            console.log('User not found');
             return res.status(401).json({
                 success: false,
                 message: 'Invalid credentials'
@@ -125,6 +128,8 @@ export const login = async (req, res) => {
 
         // Check password
         const isPasswordMatch = await user.comparePassword(password);
+        console.log('Password match:', isPasswordMatch);
+
         if (!isPasswordMatch) {
             return res.status(401).json({
                 success: false,
