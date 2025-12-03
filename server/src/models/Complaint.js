@@ -43,6 +43,11 @@ const complaintSchema = new mongoose.Schema({
         enum: ['pending', 'in_progress', 'resolved', 'rejected'],
         default: 'pending'
     },
+    priority: {
+        type: String,
+        enum: ['low', 'medium', 'high'],
+        default: 'medium'
+    },
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin'
@@ -57,6 +62,29 @@ const complaintSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         }
+    }],
+    internalNotes: [{
+        note: String,
+        addedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Admin'
+        },
+        addedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    statusHistory: [{
+        status: String,
+        changedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Admin'
+        },
+        changedAt: {
+            type: Date,
+            default: Date.now
+        },
+        reason: String
     }]
 }, {
     timestamps: true
