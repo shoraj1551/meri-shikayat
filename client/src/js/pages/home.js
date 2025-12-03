@@ -129,6 +129,111 @@ export function renderHomePage() {
                 </div>
             </section>
 
+            <!-- Working with Local Authorities Section -->
+            <section class="authorities-section">
+                <div class="container">
+                    <h2 class="section-title">Working with Your Local Authorities</h2>
+                    <p class="section-subtitle">Meri Shikayat partners with official government bodies to ensure your issues are addressed effectively.</p>
+                    <div class="authorities-logos">
+                        <div class="authority-logo">
+                            <div class="logo-placeholder">🏛️</div>
+                            <span>Municipal Corporation</span>
+                        </div>
+                        <div class="authority-logo">
+                            <div class="logo-placeholder">🏗️</div>
+                            <span>Public Works Dept</span>
+                        </div>
+                        <div class="authority-logo">
+                            <div class="logo-placeholder">👮</div>
+                            <span>Local Police</span>
+                        </div>
+                        <div class="authority-logo">
+                            <div class="logo-placeholder">💧</div>
+                            <span>Water Board</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Community Impact Section -->
+            <section class="impact-section">
+                <div class="container">
+                    <h2 class="section-title">Recent Community Impact</h2>
+                    <div class="impact-feed">
+                        <div class="impact-card resolved">
+                            <div class="impact-header">
+                                <span class="status-badge resolved">Resolved</span>
+                                <span class="timestamp">1 hour ago</span>
+                            </div>
+                            <p class="impact-text">Pothole repaired on MG Road (Sector 12).</p>
+                        </div>
+                        <div class="impact-card in-progress">
+                            <div class="impact-header">
+                                <span class="status-badge in-progress">In Progress</span>
+                                <span class="timestamp">3 hours ago</span>
+                            </div>
+                            <p class="impact-text">Streetlight issue reported near City Park.</p>
+                        </div>
+                        <div class="impact-card resolved">
+                            <div class="impact-header">
+                                <span class="status-badge resolved">Resolved</span>
+                                <span class="timestamp">Yesterday</span>
+                            </div>
+                            <p class="impact-text">Waste collection improved in Ward 5.</p>
+                        </div>
+                        <div class="impact-card new">
+                            <div class="impact-header">
+                                <span class="status-badge new">New Complaint</span>
+                                <span class="timestamp">Yesterday</span>
+                            </div>
+                            <p class="impact-text">Water leakage reported on Main Street.</p>
+                        </div>
+                        <div class="impact-card resolved">
+                            <div class="impact-header">
+                                <span class="status-badge resolved">Resolved</span>
+                                <span class="timestamp">2 days ago</span>
+                            </div>
+                            <p class="impact-text">Public sanitation improved in Market Area.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scope of Service Section -->
+            <section class="scope-section">
+                <div class="container">
+                    <h2 class="section-title">What Meri Shikayat Can Help With</h2>
+                    <div class="scope-grid">
+                        <div class="scope-column yes-scope">
+                            <div class="scope-header">
+                                <span class="scope-icon">✅</span>
+                                <h3>What We Address</h3>
+                            </div>
+                            <ul class="scope-list">
+                                <li>Roads & Infrastructure (Potholes, broken footpaths)</li>
+                                <li>Sanitation & Waste Management (Garbage, drainage)</li>
+                                <li>Public Utilities (Streetlights, water leaks)</li>
+                                <li>Public Safety (Non-emergency concerns)</li>
+                                <li>Parks & Public Spaces Maintenance</li>
+                            </ul>
+                        </div>
+                        <div class="scope-column no-scope">
+                            <div class="scope-header">
+                                <span class="scope-icon">❌</span>
+                                <h3>What We Don't Address</h3>
+                            </div>
+                            <ul class="scope-list">
+                                <li>Private Disputes</li>
+                                <li>Financial Complaints</li>
+                                <li class="emergency-item">Medical Emergencies (Call 102/108)</li>
+                                <li class="emergency-item">Police Emergencies (Call 100)</li>
+                                <li>Legal Matters & Court Cases</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Enhanced Footer -->
             <!-- Enhanced Footer -->
             <footer class="enhanced-footer">
