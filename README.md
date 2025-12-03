@@ -81,6 +81,20 @@ Once both servers are running, you can access:
 - **Backend API**: [http://localhost:5000](http://localhost:5000)
 - **API Health Check**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
+## Branching Strategy
+
+We follow a three-tier branching strategy for controlled deployments:
+
+```
+dev → UAT → main
+```
+
+- **dev**: Active development (unstable)
+- **uat**: User Acceptance Testing (stable)
+- **main**: Production (very stable)
+
+For detailed information about our branching strategy, merge pipeline, and deployment process, see [BRANCHING_STRATEGY.md](docs/BRANCHING_STRATEGY.md).
+
 ## Version History
 
 ### v0.006 (Current) - December 3, 2025
