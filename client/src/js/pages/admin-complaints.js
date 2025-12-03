@@ -289,36 +289,166 @@ function clearFilters() {
 let currentComplaintId = null;
 
 window.viewComplaint = async function (id) {
-    // Implement in next task (A6)
-    alert('Complaint detail view - Coming in next task');
-};
-
-window.openStatusModal = function (id, currentStatus) {
     currentComplaintId = id;
-    document.getElementById('newStatus').value = currentStatus;
-    document.getElementById('statusReason').value = '';
-    document.getElementById('statusUpdateModal').style.display = 'flex';
-};
+    const modalContent = document.getElementById('complaintDetailContent');
+    const modal = document.getElementById('complaintDetailModal');
 
-window.closeStatusModal = function () {
-    document.getElementById('statusUpdateModal').style.display = 'none';
-    currentComplaintId = null;
-};
-
-window.confirmStatusUpdate = async function () {
-    const status = document.getElementById('newStatus').value;
-    const reason = document.getElementById('statusReason').value;
+    modalContent.innerHTML = '<div class="loading-spinner">Loading details...</div>';
+    modal.style.display = 'flex';
 
     try {
-        await complaintAdminService.updateComplaintStatus(currentComplaintId, status, reason);
-        closeStatusModal();
-        alert('✅ Status updated successfully');
-        loadComplaints(currentPage);
+        const response = await complaintAdminService.getComplaintById(id);
+        renderComplaintDetail(response.data);
     } catch (error) {
-        alert('❌ Failed to update status: ' + (error.response?.data?.message || error.message));
+        modalContent.innerHTML = `
+            <div class="error-message">
+                Failed to load complaint details: ${error.response?.data?.message || error.message}
+            </div>
+        `;
     }
 };
 
+function renderComplaintDetail(complaint) {
+    const content = document.getElementById('complaintDetailContent');
+
+    // Format dates
+    const createdDate = new Date(complaint.createdAt).toLocaleString();
+
+    // Media HTML
+    let mediaHtml = '';
+    if (complaint.mediaUrl) {
+        if (complaint.type === 'image') {
+            mediaHtml = `<img src="${complaint.mediaUrl}" alt="Complaint Image" class="detail-media-img">`;
+        } else if (complaint.type === 'video') {
+            mediaHtml = `
+                <video controls class="detail-media-video">
+                    <source src="${complaint.mediaUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>`;
+        } else if (complaint.type === 'audio') {
+            mediaHtml = `
+                <audio controls class="detail-media-audio">
+                    <source src="${complaint.mediaUrl}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>`;
+        }
+    }
+
+    // Status History HTML
+    const historyHtml = complaint.statusHistory.map(history => `
+        <div class="history-item">
+            <div class="history-marker"></div>
+            <div class="history-content">
+                <p class="history-status status-${history.status}">${history.status.replace('_', ' ').toUpperCase()}</p>
+                <p class="history-meta">
+                    by ${history.changedBy?.firstName || 'System'} ${history.changedBy?.lastName || ''} 
+                    on ${new Date(history.changedAt).toLocaleString()}
+                </p>
+                ${history.reason ? `<p class="history-reason">"${history.reason}"</p>` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    // Internal Notes HTML
+    const notesHtml = complaint.internalNotes.map(note => `
+        <div class="note-item glass-card">
+            <p class="note-text">${note.note}</p>
+            <p class="note-meta">
+                ${note.addedBy?.firstName} ${note.addedBy?.lastName} • 
+                ${new Date(note.addedAt).toLocaleString()}
+            </p>
+        </div>
+    `).join('');
+
+    content.innerHTML = `
+        <div class="detail-grid">
+            <div class="detail-main">
+                <div class="detail-section glass-card">
+                    <div class="detail-header-row">
+                        <span class="status-badge status-${complaint.status}">${complaint.status.replace('_', ' ')}</span>
+                        <span class="priority-badge priority-${complaint.priority}">${complaint.priority}</span>
+                        <span class="category-badge">${complaint.category}</span>
+                    </div>
+                    <h2 class="detail-title">${complaint.title}</h2>
+                    <p class="detail-description">${complaint.description}</p>
+                    
+                    ${mediaHtml ? `<div class="detail-media-container">${mediaHtml}</div>` : ''}
+                </div>
+
+                <div class="detail-section glass-card">
+                    <h3>Status History</h3>
+                    <div class="status-timeline">
+                        ${historyHtml}
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-sidebar">
+                <div class="detail-section glass-card">
+                    <h3>User Information</h3>
+                    <div class="info-row">
+                        <span class="label">Name:</span>
+                        <span class="value">${complaint.user.firstName} ${complaint.user.lastName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Email:</span>
+                        <span class="value">${complaint.user.email || 'N/A'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone:</span>
+                        <span class="value">${complaint.user.phone || 'N/A'}</span>
+                    </div>
+                </div>
+
+                <div class="detail-section glass-card">
+                    <h3>Location</h3>
+                    <div class="info-row">
+                        <span class="label">Pincode:</span>
+                        <span class="value">${complaint.location?.pincode || 'N/A'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Address:</span>
+                        <span class="value">${complaint.location?.address || 'N/A'}</span>
+                    </div>
+                    ${complaint.location?.coordinates?.lat ? `
+                        <a href="https://www.google.com/maps?q=${complaint.location.coordinates.lat},${complaint.location.coordinates.lng}" 
+                           target="_blank" class="btn btn-sm btn-outline mt-2 w-100">
+                           View on Map
+                        </a>
+                    ` : ''}
+                </div>
+
+                <div class="detail-section glass-card">
+                    <h3>Internal Notes</h3>
+                    <div class="notes-list">
+                        ${notesHtml.length ? notesHtml : '<p class="text-muted">No internal notes yet.</p>'}
+                    </div>
+                    
+                    <form id="addNoteForm" class="add-note-form mt-3">
+                        <textarea id="newNoteText" class="form-input" rows="2" placeholder="Add an internal note..." required></textarea>
+                        <button type="submit" class="btn btn-sm btn-primary mt-2">Add Note</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add event listener for note submission
+    document.getElementById('addNoteForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const noteText = document.getElementById('newNoteText').value;
+
+        try {
+            await complaintAdminService.addInternalNote(complaint._id, noteText);
+            // Refresh details
+            window.viewComplaint(complaint._id);
+        } catch (error) {
+            alert('Failed to add note: ' + (error.response?.data?.message || error.message));
+        }
+    });
+}
+
 window.closeComplaintModal = function () {
     document.getElementById('complaintDetailModal').style.display = 'none';
+    currentComplaintId = null;
 };

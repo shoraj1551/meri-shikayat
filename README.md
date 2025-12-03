@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.006-blue.svg)
+![Version](https://img.shields.io/badge/version-0.007-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.006  
+**Current Version**: v0.007  
 **Last Updated**: December 3, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -83,7 +83,25 @@ Once both servers are running, you can access:
 
 ## Version History
 
-### v0.006 (Current) - December 3, 2025
+### v0.007 (Current) - December 3, 2025
+**Admin Complaint Detail View**
+
+**New Features:**
+- ✅ **Complaint Detail Modal**: Comprehensive detail view for complaints in admin panel
+- ✅ **Media Display**: Support for viewing images, videos, and audio attachments
+- ✅ **Status History Timeline**: Visual timeline showing all status changes with reasons
+- ✅ **Internal Notes**: View and add internal notes directly from detail view
+- ✅ **User Information**: Display complete user details (name, email, phone)
+- ✅ **Location Details**: Show address, pincode, and Google Maps integration
+- ✅ **Responsive Grid Layout**: Two-column layout (desktop) with mobile-first design
+
+**UI/UX Improvements:**
+- ✅ **Grid Layout**: Main content area with sidebar for quick info access
+- ✅ **Timeline Visualization**: Clean timeline with markers for status changes
+- ✅ **Real-time Updates**: Notes added instantly without page refresh
+- ✅ **Modal Close**: Easy-to-use close button with hover effects
+
+### v0.006 - December 3, 2025
 **Admin Dashboard Enhancement & Notification System**
 
 **Admin Dashboard:**
