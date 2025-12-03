@@ -17,6 +17,14 @@ import {
     rejectPermissionRequest,
     getDashboardStats
 } from '../controllers/admin.controller.js';
+import {
+    getComplaints,
+    getComplaintById,
+    updateComplaintStatus,
+    assignComplaint,
+    addInternalNote,
+    updateComplaintPriority
+} from '../controllers/complaint-admin.controller.js';
 import { protectAdmin, requireSuperAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -41,5 +49,13 @@ router.put('/reject/:id', protectAdmin, requireSuperAdmin, rejectAdmin);
 router.get('/permission-requests', protectAdmin, requireSuperAdmin, getPermissionRequests);
 router.put('/permission-requests/:id/approve', protectAdmin, requireSuperAdmin, approvePermissionRequest);
 router.put('/permission-requests/:id/reject', protectAdmin, requireSuperAdmin, rejectPermissionRequest);
+
+// Complaint management routes
+router.get('/complaints', protectAdmin, getComplaints);
+router.get('/complaints/:id', protectAdmin, getComplaintById);
+router.put('/complaints/:id/status', protectAdmin, updateComplaintStatus);
+router.put('/complaints/:id/assign', protectAdmin, assignComplaint);
+router.post('/complaints/:id/notes', protectAdmin, addInternalNote);
+router.put('/complaints/:id/priority', protectAdmin, updateComplaintPriority);
 
 export default router;

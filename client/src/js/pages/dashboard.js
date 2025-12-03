@@ -58,7 +58,7 @@ export async function renderDashboardPage() {
                             <button class="btn btn-primary btn-block" onclick="window.router.navigate('/submit-complaint')">
                                 + New Complaint
                             </button>
-                            <button class="btn btn-secondary btn-block">
+                            <button class="btn btn-secondary btn-block" onclick="window.router.navigate('/profile')">
                                 View Profile
                             </button>
                         </div>
