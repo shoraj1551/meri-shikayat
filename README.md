@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0084-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0085-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0084  
+**Current Version**: v0.0085  
 **Last Updated**: December 4, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -72,7 +72,23 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0084 (Current) - December 4, 2025
+### v0.0085 (Current) - December 4, 2025
+**Functional Testing - Legal Pages Implementation**
+
+**New Features:**
+- ✅ **Privacy Policy Page**: Comprehensive privacy policy with 9 sections covering data collection, usage, security, and user rights
+- ✅ **Terms of Service Page**: Detailed terms with 13 sections including user responsibilities, prohibited activities, and liability
+- ✅ **Community Guidelines Page**: Clear community standards with 10 sections on respectful communication and platform usage
+- ✅ **Professional Styling**: Dark header design with "Back to Home" navigation
+- ✅ **Responsive Layout**: Mobile-friendly legal pages with proper formatting
+
+**Technical:**
+- Created three new page components (privacy.js, terms.js, guidelines.js)
+- Added legal page CSS styles to main.css
+- Integrated routes in app.js router
+- Placeholder content ready for customization
+
+### v0.0084 - December 4, 2025
 **UI Refinements - Button Consistency & Social Media Integration**
 
 **Enhancements:**

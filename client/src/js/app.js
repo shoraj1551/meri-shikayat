@@ -20,6 +20,9 @@ import { renderProfilePage } from './pages/profile.js';
 import { renderComplaintQuickPage } from './pages/complaint-quick.js';
 import { renderRegistrationGatewayPage } from './pages/registration-gateway.js';
 import { renderComplaintForm } from './pages/complaint-form.js';
+import { renderPrivacyPage } from './pages/privacy.js';
+import { renderTermsPage } from './pages/terms.js';
+import { renderGuidelinesPage } from './pages/guidelines.js';
 
 export function initializeApp() {
     console.log('Meri Shikayat application initialized');
@@ -46,6 +49,11 @@ export function initializeApp() {
     router.register('/admin/pending', renderAdminPendingPage);
     router.register('/admin/my-permissions', renderAdminPermissionsPage);
     router.register('/admin/permission-requests', renderPermissionRequestsPage);
+
+    // Legal Pages
+    router.register('/privacy', renderPrivacyPage);
+    router.register('/terms', renderTermsPage);
+    router.register('/guidelines', renderGuidelinesPage);
 
     // Initialize router
     router.init();

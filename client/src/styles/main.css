@@ -2259,3 +2259,110 @@ p {
         grid-template-columns: 1fr;
     }
 }
+/* ============================================
+   LEGAL PAGES STYLES
+   ============================================ */
+
+.legal-page {
+    min-height: 100vh;
+    background: var(--bg-secondary);
+}
+
+.legal-header {
+    background: var(--bg-dark);
+    color: white;
+    padding: var(--spacing-2xl) 0;
+    text-align: center;
+}
+
+.legal-header h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    margin-bottom: var(--spacing-sm);
+}
+
+.last-updated {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--font-size-sm);
+}
+
+.back-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+    color: white;
+}
+
+.legal-content {
+    padding: var(--spacing-2xl) 0;
+}
+
+.legal-content .container {
+    max-width: 800px;
+}
+
+.legal-section {
+    margin-bottom: var(--spacing-2xl);
+    background: white;
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.legal-section h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+.legal-section p {
+    line-height: 1.8;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.legal-section ul {
+    margin-left: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.legal-section li {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.legal-section strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.guidelines-footer {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: linear-gradient(135deg, rgba(102, 51, 153, 0.05) 0%, rgba(153, 102, 204, 0.05) 100%);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.guidelines-footer em {
+    font-size: var(--font-size-lg);
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .legal-section {
+        padding: var(--spacing-md);
+    }
+    
+    .legal-header h1 {
+        font-size: var(--font-size-2xl);
+    }
+}
