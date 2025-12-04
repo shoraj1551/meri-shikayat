@@ -5,6 +5,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { connectDatabase } from './config/database.js';
 import authRoutes from './routes/auth.routes.js';
 import complaintRoutes from './routes/complaint.routes.js';
@@ -25,6 +26,19 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (uploads)
 app.use('/uploads', express.static('uploads'));
+
+// Database connection middleware for Vercel
+app.use(async (req, res, next) => {
+    if (mongoose.connection.readyState === 0) {
+        try {
+            await connectDatabase();
+        } catch (error) {
+            console.error('Database connection failed:', error);
+            return res.status(500).json({ error: 'Database connection failed' });
+        }
+    }
+    next();
+});
 
 // Routes
 app.get('/api/health', (req, res) => {
@@ -47,18 +61,22 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start server
-const startServer = async () => {
-    try {
-        await connectDatabase();
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-            console.log(`Environment: ${process.env.NODE_ENV}`);
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
-    }
-};
+// Export app for Vercel
+export default app;
 
-startServer();
+// Start server locally
+if (process.env.NODE_ENV !== 'production') {
+    const startServer = async () => {
+        try {
+            await connectDatabase();
+            app.listen(PORT, () => {
+                console.log(`Server running on port ${PORT}`);
+                console.log(`Environment: ${process.env.NODE_ENV}`);
+            });
+        } catch (error) {
+            console.error('Failed to start server:', error);
+            process.exit(1);
+        }
+    };
+    startServer();
+}
