@@ -66,6 +66,7 @@ export function renderHowItWorksPage() {
                     <section class="visual-graph-section animate-fade-up">
                         <h2>Complaint Routing Architecture</h2>
                         <div class="routing-graph-horizontal">
+                            <!-- Forward Flow -->
                             <div class="flow-step">
                                 <div class="graph-node user">USER</div>
                             </div>
@@ -79,15 +80,35 @@ export function renderHowItWorksPage() {
                             </div>
                             <div class="flow-arrow">→</div>
                             <div class="flow-step">
-                                <div class="graph-node-group">
-                                    <div class="graph-node action">ACKNOWLEDGE</div>
-                                    <div class="graph-node action">UPDATE STATUS</div>
-                                    <div class="graph-node action">COMPLETED</div>
-                                </div>
+                                <div class="graph-node action">ACKNOWLEDGE</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node action">UPDATE STATUS</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node action">COMPLETED</div>
                             </div>
                         </div>
-                        <div class="flow-return">
-                            <p class="return-text">FROM COMPLETED TO GO BACK TO MERI SHIKAYAT, AND THEN IT IS UPDATED BACK TO USER, USER VERIFY THE PROOF AND THEN CLOSE</p>
+                        
+                        <!-- Return Flow -->
+                        <div class="routing-graph-return">
+                            <div class="flow-step">
+                                <div class="graph-node action-complete">COMPLETED</div>
+                            </div>
+                            <div class="flow-arrow-return">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node platform-return">MERI SHIKAYAT</div>
+                            </div>
+                            <div class="flow-arrow-return">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node user-verify">USER<br/><span style="font-size: 0.7em;">(VERIFY PROOF)</span></div>
+                            </div>
+                            <div class="flow-arrow-return">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node close">CLOSE</div>
+                            </div>
                         </div>
                     </section>
 
