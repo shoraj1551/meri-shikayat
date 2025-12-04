@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0083-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0084-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0083  
+**Current Version**: v0.0084  
 **Last Updated**: December 4, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -72,7 +72,22 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0083 (Current) - December 4, 2025
+### v0.0084 (Current) - December 4, 2025
+**UI Refinements - Button Consistency & Social Media Integration**
+
+**Enhancements:**
+- ✅ **Button Consistency**: Made "How It Works" button match primary CTA styling for visual consistency
+- ✅ **Social Media Icons**: Added professional SVG icons for Facebook, Instagram, YouTube, and LinkedIn
+- ✅ **Follow Us Tagline**: Clear call-to-action above social media links
+- ✅ **Icon Animations**: Smooth scale-up hover effect for better UX
+- ✅ **Accessibility**: Proper aria-labels and external link handling
+
+**Technical:**
+- Replaced emoji placeholders with scalable SVG icons
+- Added hover animations using CSS transforms
+- Implemented proper link security (target="_blank", rel="noopener noreferrer")
+
+### v0.0083 - December 4, 2025
 **Homepage UI/UX Refinements - Dynamic Content & Dark Theme**
 
 **Enhancements:**
