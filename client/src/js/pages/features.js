@@ -100,7 +100,6 @@ export function renderFeaturesPage() {
     // Add event listener for register button
     app.querySelector('.btn-primary').addEventListener('click', (e) => {
         e.preventDefault();
-        window.history.pushState({}, '', '/register');
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.router.navigate('/register');
     });
 }

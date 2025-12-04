@@ -137,14 +137,12 @@ export function renderHowItWorksPage() {
     // Add event listener for back link
     app.querySelector('.back-link').addEventListener('click', (e) => {
         e.preventDefault();
-        window.history.pushState({}, '', '/');
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.router.navigate('/');
     });
 
     // Add event listener for register button
     app.querySelector('.btn-primary').addEventListener('click', (e) => {
         e.preventDefault();
-        window.history.pushState({}, '', '/register');
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.router.navigate('/register');
     });
 }
