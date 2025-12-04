@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0085-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0086-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0085  
+**Current Version**: v0.0086  
 **Last Updated**: December 4, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -72,7 +72,23 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0085 (Current) - December 4, 2025
+### v0.0086 (Current) - December 4, 2025
+**Support Pages & FAQ Grid Layout**
+
+**New Features:**
+- ✅ **Help Center**: Comprehensive guide on registration, complaint submission, and troubleshooting
+- ✅ **FAQ Page**: Grid-based layout with 20+ Q&As organized by category
+- ✅ **Contact Us Page**: Multi-channel support info including email, phone, and live chat details
+- ✅ **Grid Layout for FAQ**: Modern 2-3 column grid design for better readability
+- ✅ **Responsive Design**: All support pages fully optimized for mobile and desktop
+
+**Technical:**
+- Created `help.js`, `faq.js`, and `contact.js` components
+- Implemented CSS Grid for FAQ cards with hover effects
+- Integrated new routes in `app.js`
+- Added comprehensive placeholder content for all support sections
+
+### v0.0085 - December 4, 2025
 **Functional Testing - Legal Pages Implementation**
 
 **New Features:**
