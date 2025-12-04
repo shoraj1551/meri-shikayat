@@ -10,55 +10,49 @@ export function renderComplaintForm() {
         <div class="complaint-form-page">
             <!-- Progress Indicator -->
             <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-step active">
-                        <div class="step-number">1</div>
-                        <div class="step-label">Details</div>
-                    </div>
-                    <div class="progress-line"></div>
-                    <div class="progress-step">
-                        <div class="step-number">2</div>
-                        <div class="step-label">Register</div>
-                    </div>
-                    <div class="progress-line"></div>
-                    <div class="progress-step">
-                        <div class="step-number">3</div>
-                        <div class="step-label">Submit</div>
-                    </div>
+                <div class="progress-header">
+                    <span class="step-count">Step 1 of 3</span>
+                    <h2 class="step-title">Complaint Details</h2>
+                </div>
+                <div class="progress-bar-linear">
+                    <div class="progress-fill" style="width: 33%"></div>
                 </div>
             </div>
 
             <!-- Form Container -->
             <div class="form-container">
-                <div class="form-header">
-                    <h1>File Your Complaint</h1>
-                    <p>Help us understand your issue by providing the details below</p>
-                </div>
-
                 <form id="complaintForm" class="complaint-form">
                     <!-- Category Selector -->
                     <div class="form-group">
-                        <label class="form-label required">Complaint Category</label>
+                        <label class="form-label required">Select Category</label>
+                        <div class="category-search">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="form-input" placeholder="Search categories...">
+                        </div>
                         <div class="category-grid" id="categoryGrid">
-                            <div class="category-card" data-category="roads">
-                                <div class="category-icon">🚧</div>
-                                <div class="category-name">Roads & Infrastructure</div>
-                            </div>
                             <div class="category-card" data-category="sanitation">
                                 <div class="category-icon">🗑️</div>
-                                <div class="category-name">Sanitation & Waste</div>
+                                <div class="category-name">Sanitation</div>
                             </div>
-                            <div class="category-card" data-category="utilities">
+                            <div class="category-card" data-category="roads">
+                                <div class="category-icon">🚧</div>
+                                <div class="category-name">Roads</div>
+                            </div>
+                            <div class="category-card" data-category="electricity">
                                 <div class="category-icon">💡</div>
-                                <div class="category-name">Public Utilities</div>
+                                <div class="category-name">Electricity</div>
                             </div>
-                            <div class="category-card" data-category="safety">
-                                <div class="category-icon">🚨</div>
-                                <div class="category-name">Public Safety</div>
+                            <div class="category-card" data-category="water">
+                                <div class="category-icon">💧</div>
+                                <div class="category-name">Water</div>
                             </div>
-                            <div class="category-card" data-category="parks">
-                                <div class="category-icon">🌳</div>
-                                <div class="category-name">Parks & Public Spaces</div>
+                            <div class="category-card" data-category="police">
+                                <div class="category-icon">👮</div>
+                                <div class="category-name">Police</div>
+                            </div>
+                            <div class="category-card" data-category="other">
+                                <div class="category-icon">📦</div>
+                                <div class="category-name">Other</div>
                             </div>
                         </div>
                         <div class="error-message" id="categoryError"></div>
@@ -66,45 +60,67 @@ export function renderComplaintForm() {
 
                     <!-- Location Input -->
                     <div class="form-group">
-                        <label for="location" class="form-label required">Location</label>
+                        <label for="location" class="form-label required">Location of Issue</label>
                         <div class="location-input-group">
                             <input 
                                 type="text" 
                                 id="location" 
                                 class="form-input" 
-                                placeholder="Enter the location of the issue"
+                                placeholder="Enter location"
                             />
                             <button type="button" class="btn-location" id="useLocationBtn">
                                 📍 Use My Current Location
                             </button>
                         </div>
                         <div class="map-placeholder">
-                            <p>🗺️ Map integration placeholder</p>
+                            <p>🗺️ Map View</p>
                         </div>
                         <div class="error-message" id="locationError"></div>
                     </div>
 
                     <!-- Description Field -->
                     <div class="form-group">
-                        <label for="description" class="form-label required">Description</label>
+                        <label for="description" class="form-label required">Describe the Issue</label>
                         <textarea 
                             id="description" 
                             class="form-textarea" 
-                            placeholder="Describe your issue in detail (minimum 50 characters)"
+                            placeholder="Describe your issue in detail..."
                             rows="5"
                         ></textarea>
                         <div class="char-counter">
-                            <span id="charCount">0</span>/50 characters
+                            <span id="charCount">0</span>/500 characters
                         </div>
                         <div class="error-message" id="descriptionError"></div>
                     </div>
 
+                    <!-- Media Attachment Section -->
+                    <div class="form-group">
+                        <label class="form-label">Add Evidence (Optional)</label>
+                        <div class="media-options">
+                            <button type="button" class="media-btn">
+                                <span class="media-icon">📷</span>
+                                <span>Camera</span>
+                            </button>
+                            <button type="button" class="media-btn">
+                                <span class="media-icon">📹</span>
+                                <span>Video</span>
+                            </button>
+                            <button type="button" class="media-btn">
+                                <span class="media-icon">🎤</span>
+                                <span>Audio</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <div class="form-actions">
-                        <a href="/" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary" id="reviewContinueBtn">
-                            Review & Continue
+                        <button type="submit" class="btn btn-primary btn-block" id="reviewContinueBtn">
+                            Next Step
                         </button>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <p>By submitting, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
                     </div>
                 </form>
             </div>
