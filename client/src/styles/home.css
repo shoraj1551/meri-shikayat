@@ -848,3 +848,26 @@
     background-color: var(--primary-dark);
     color: white;
 }
+.social-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.social-tagline {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    font-weight: 600;
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform var(--transition-fast);
+}
+
+.social-links a:hover .social-icon {
+    transform: scale(1.2);
+}
