@@ -3361,3 +3361,152 @@ p {
     }
 }
 
+
+/* VERTICAL ROUTING DIAGRAM - MATCHING USER SKETCH */
+
+.routing-diagram-vertical {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: var(--spacing-md) !important;
+    padding: var(--spacing-3xl) var(--spacing-xl) !important;
+    background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-radius: var(--radius-xl) !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+}
+
+/* Node Styles */
+.diagram-node {
+    background: white !important;
+    border-radius: var(--radius-lg) !important;
+    padding: var(--spacing-lg) var(--spacing-xl) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    text-align: center !important;
+    min-width: 180px !important;
+    transition: all 0.3s ease !important;
+}
+
+.diagram-node:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 20px rgba(102, 51, 153, 0.2) !important;
+}
+
+.node-icon {
+    font-size: 2.5rem !important;
+    margin-bottom: var(--spacing-xs) !important;
+}
+
+.node-label {
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    color: var(--text-primary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.node-sublabel {
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: var(--spacing-xs) !important;
+}
+
+/* User Nodes */
+.user-node, .user-node-end {
+    background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%) !important;
+    border: 3px solid #3b82f6 !important;
+}
+
+/* Platform Nodes */
+.platform-node, .platform-node-return {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%) !important;
+    color: white !important;
+    min-width: 220px !important;
+    border: 3px solid #5b21b6 !important;
+}
+
+.platform-node .node-label,
+.platform-node .node-sublabel,
+.platform-node-return .node-label,
+.platform-node-return .node-sublabel {
+    color: white !important;
+}
+
+/* Department Nodes Container */
+.diagram-departments {
+    display: flex !important;
+    gap: var(--spacing-md) !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    margin: var(--spacing-md) 0 !important;
+}
+
+.dept-node {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+    border: 3px solid #f59e0b !important;
+    min-width: 140px !important;
+}
+
+/* Arrows */
+.diagram-arrow-down, .diagram-arrow-up {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: var(--spacing-xs) !important;
+    position: relative !important;
+}
+
+.arrow-line {
+    width: 3px !important;
+    height: 40px !important;
+    background: linear-gradient(180deg, var(--primary-color) 0%, #8b5cf6 100%) !important;
+    border-radius: 2px !important;
+}
+
+.arrow-head {
+    font-size: 1.5rem !important;
+    color: var(--primary-color) !important;
+    animation: bounce-arrow 2s ease-in-out infinite !important;
+}
+
+@keyframes bounce-arrow {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.arrow-label {
+    font-size: 0.8rem !important;
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    background: white !important;
+    padding: var(--spacing-xs) var(--spacing-sm) !important;
+    border-radius: var(--radius-md) !important;
+    border: 2px solid #e0e7ff !important;
+    max-width: 200px !important;
+    line-height: 1.4 !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .routing-diagram-vertical {
+        padding: var(--spacing-xl) var(--spacing-md) !important;
+    }
+    
+    .diagram-departments {
+        flex-direction: column !important;
+    }
+    
+    .diagram-node {
+        min-width: 150px !important;
+    }
+    
+    .dept-node {
+        min-width: 120px !important;
+    }
+}
+

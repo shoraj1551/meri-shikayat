@@ -65,50 +65,78 @@ export function renderHowItWorksPage() {
                     <!-- Visual Graph Section -->
                     <section class="visual-graph-section animate-fade-up">
                         <h2>Complaint Routing Architecture</h2>
-                        <div class="routing-graph-horizontal">
-                            <!-- Forward Flow -->
-                            <div class="flow-step">
-                                <div class="graph-node user">USER</div>
+                        <div class="routing-diagram-vertical">
+                            
+                            <!-- User (Start) -->
+                            <div class="diagram-node user-node">
+                                <div class="node-icon">📱</div>
+                                <div class="node-label">USER</div>
                             </div>
-                            <div class="flow-arrow">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node platform">MERI SHIKAYAT</div>
+                            
+                            <!-- Arrow Down -->
+                            <div class="diagram-arrow-down">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▼</div>
                             </div>
-                            <div class="flow-arrow">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node dept">RESPECTIVE DEPARTMENT</div>
+                            
+                            <!-- Meri Shikayat Platform -->
+                            <div class="diagram-node platform-node">
+                                <div class="node-icon">💻</div>
+                                <div class="node-label">MERI SHIKAYAT</div>
+                                <div class="node-sublabel">Platform</div>
                             </div>
-                            <div class="flow-arrow">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node action">ACKNOWLEDGE</div>
+                            
+                            <!-- Arrow Up to Departments -->
+                            <div class="diagram-arrow-up">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▲</div>
+                                <div class="arrow-label">Routed with Acknowledgement</div>
                             </div>
-                            <div class="flow-arrow">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node action">UPDATE STATUS</div>
+                            
+                            <!-- Multiple Departments -->
+                            <div class="diagram-departments">
+                                <div class="diagram-node dept-node">
+                                    <div class="node-label">Department 1</div>
+                                    <div class="node-sublabel">Sanitation</div>
+                                </div>
+                                <div class="diagram-node dept-node">
+                                    <div class="node-label">Department 2</div>
+                                    <div class="node-sublabel">Road Works</div>
+                                </div>
+                                <div class="diagram-node dept-node">
+                                    <div class="node-label">Department 3</div>
+                                    <div class="node-sublabel">Water Supply</div>
+                                </div>
                             </div>
-                            <div class="flow-arrow">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node action">COMPLETED</div>
+                            
+                            <!-- Arrow Down from Departments -->
+                            <div class="diagram-arrow-down">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▼</div>
+                                <div class="arrow-label">Pending Update, Completed,<br/>Completed with Proof</div>
                             </div>
-                        </div>
-                        
-                        <!-- Return Flow -->
-                        <div class="routing-graph-return">
-                            <div class="flow-step">
-                                <div class="graph-node action-complete">COMPLETED</div>
+                            
+                            <!-- Meri Shikayat Platform (Return) -->
+                            <div class="diagram-node platform-node-return">
+                                <div class="node-icon">💻</div>
+                                <div class="node-label">MERI SHIKAYAT</div>
+                                <div class="node-sublabel">Update & Tracking</div>
                             </div>
-                            <div class="flow-arrow-return">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node platform-return">MERI SHIKAYAT</div>
+                            
+                            <!-- Arrow Down to User -->
+                            <div class="diagram-arrow-down">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▼</div>
+                                <div class="arrow-label">Notification</div>
                             </div>
-                            <div class="flow-arrow-return">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node user-verify">USER<br/><span style="font-size: 0.7em;">(VERIFY PROOF)</span></div>
+                            
+                            <!-- User (End) -->
+                            <div class="diagram-node user-node-end">
+                                <div class="node-icon">📱</div>
+                                <div class="node-label">USER</div>
+                                <div class="node-sublabel">Selection and Close</div>
                             </div>
-                            <div class="flow-arrow-return">→</div>
-                            <div class="flow-step">
-                                <div class="graph-node close">CLOSE</div>
-                            </div>
+                            
                         </div>
                     </section>
 
