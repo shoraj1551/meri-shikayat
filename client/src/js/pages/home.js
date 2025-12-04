@@ -16,11 +16,12 @@ export function renderHomePage() {
                             <p class="tagline">Your Voice, Our Priority</p>
                         </div>
                         <div class="nav-actions">
-                            <div class="language-selector">
-                                <button class="lang-option active" data-lang="en">English</button>
-                                <button class="lang-option" data-lang="hi">हिन्दी</button>
+                            <div class="language-toggle">
+                                <button class="lang-btn active" data-lang="en">English</button>
+                                <span class="lang-divider">|</span>
+                                <button class="lang-btn" data-lang="hi">हिन्दी</button>
                             </div>
-                            <a href="/login" class="btn btn-outline">Login</a>
+                            <a href="/login" class="btn btn-outline-light">Login</a>
                             <a href="/register" class="btn btn-primary">Register</a>
                         </div>
                     </nav>
@@ -159,41 +160,83 @@ export function renderHomePage() {
             <section class="impact-section">
                 <div class="container">
                     <h2 class="section-title">Recent Community Impact</h2>
-                    <div class="impact-feed">
-                        <div class="impact-card resolved">
-                            <div class="impact-header">
-                                <span class="status-badge resolved">Resolved</span>
-                                <span class="timestamp">1 hour ago</span>
+                    <div class="impact-feed-container">
+                        <div class="impact-feed" id="impactFeed">
+                            <!-- Dynamic content will be populated/scrolled here -->
+                            <div class="impact-card resolved">
+                                <div class="impact-header">
+                                    <span class="status-badge resolved">Resolved</span>
+                                    <span class="timestamp">1 hour ago</span>
+                                </div>
+                                <p class="impact-text">Pothole repaired on MG Road (Sector 12).</p>
                             </div>
-                            <p class="impact-text">Pothole repaired on MG Road (Sector 12).</p>
+                            <div class="impact-card in-progress">
+                                <div class="impact-header">
+                                    <span class="status-badge in-progress">In Progress</span>
+                                    <span class="timestamp">3 hours ago</span>
+                                </div>
+                                <p class="impact-text">Streetlight issue reported near City Park.</p>
+                            </div>
+                            <div class="impact-card resolved">
+                                <div class="impact-header">
+                                    <span class="status-badge resolved">Resolved</span>
+                                    <span class="timestamp">Yesterday</span>
+                                </div>
+                                <p class="impact-text">Waste collection improved in Ward 5.</p>
+                            </div>
+                            <div class="impact-card new">
+                                <div class="impact-header">
+                                    <span class="status-badge new">New Complaint</span>
+                                    <span class="timestamp">Yesterday</span>
+                                </div>
+                                <p class="impact-text">Water leakage reported on Main Street.</p>
+                            </div>
+                            <div class="impact-card resolved">
+                                <div class="impact-header">
+                                    <span class="status-badge resolved">Resolved</span>
+                                    <span class="timestamp">2 days ago</span>
+                                </div>
+                                <p class="impact-text">Public sanitation improved in Market Area.</p>
+                            </div>
                         </div>
-                        <div class="impact-card in-progress">
-                            <div class="impact-header">
-                                <span class="status-badge in-progress">In Progress</span>
-                                <span class="timestamp">3 hours ago</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Feedback Section -->
+            <section class="feedback-section">
+                <div class="container">
+                    <h2 class="section-title">Citizen Voices</h2>
+                    <div class="feedback-carousel">
+                        <div class="feedback-card active">
+                            <p class="feedback-text">"Finally a way to get potholes fixed! The response was quicker than I expected."</p>
+                            <div class="feedback-author">
+                                <div class="author-avatar">👤</div>
+                                <div class="author-info">
+                                    <h4>Rahul Sharma</h4>
+                                    <span>Resident, Sector 4</span>
+                                </div>
                             </div>
-                            <p class="impact-text">Streetlight issue reported near City Park.</p>
                         </div>
-                        <div class="impact-card resolved">
-                            <div class="impact-header">
-                                <span class="status-badge resolved">Resolved</span>
-                                <span class="timestamp">Yesterday</span>
+                        <div class="feedback-card">
+                            <p class="feedback-text">"The video upload feature makes it so easy to show the exact problem. Great initiative!"</p>
+                            <div class="feedback-author">
+                                <div class="author-avatar">👤</div>
+                                <div class="author-info">
+                                    <h4>Priya Singh</h4>
+                                    <span>Resident, Ward 12</span>
+                                </div>
                             </div>
-                            <p class="impact-text">Waste collection improved in Ward 5.</p>
                         </div>
-                        <div class="impact-card new">
-                            <div class="impact-header">
-                                <span class="status-badge new">New Complaint</span>
-                                <span class="timestamp">Yesterday</span>
+                        <div class="feedback-card">
+                            <p class="feedback-text">"I can see my complaint status in real-time. Very transparent process."</p>
+                            <div class="feedback-author">
+                                <div class="author-avatar">👤</div>
+                                <div class="author-info">
+                                    <h4>Amit Patel</h4>
+                                    <span>Shop Owner, Main Market</span>
+                                </div>
                             </div>
-                            <p class="impact-text">Water leakage reported on Main Street.</p>
-                        </div>
-                        <div class="impact-card resolved">
-                            <div class="impact-header">
-                                <span class="status-badge resolved">Resolved</span>
-                                <span class="timestamp">2 days ago</span>
-                            </div>
-                            <p class="impact-text">Public sanitation improved in Market Area.</p>
                         </div>
                     </div>
                 </div>
@@ -234,15 +277,14 @@ export function renderHomePage() {
                 </div>
             </section>
 
-            <!-- Enhanced Footer -->
-            <!-- Enhanced Footer -->
+            <!-- Enhanced Footer (Dark Theme & Parallel Layout) -->
             <footer class="enhanced-footer">
                 <div class="container">
                     <div class="footer-grid">
                         <div class="footer-col">
                             <div class="footer-logo">
                                 <h2>मेरी शिकायत</h2>
-                                <p>Empowering citizens to resolve local issues effectively.</p>
+                                <p>Empowering citizens to resolve local issues effectively. Your voice matters.</p>
                             </div>
                         </div>
                         <div class="footer-col">
@@ -292,16 +334,27 @@ export function renderHomePage() {
         });
     });
 
-    // Language selector toggle
-    const langOptions = app.querySelectorAll('.lang-option');
-    langOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            langOptions.forEach(opt => opt.classList.remove('active'));
-            option.classList.add('active');
-            // TODO: Implement actual language switching in future version
-            console.log('Language switched to:', option.dataset.lang);
+    // Language selector toggle logic
+    const langBtns = app.querySelectorAll('.lang-btn');
+    langBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            langBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // TODO: Implement actual language switching
+            console.log('Language switched to:', btn.dataset.lang);
         });
     });
+
+    // Feedback Carousel Logic
+    const feedbackCards = app.querySelectorAll('.feedback-card');
+    if (feedbackCards.length > 0) {
+        let currentFeedback = 0;
+        setInterval(() => {
+            feedbackCards[currentFeedback].classList.remove('active');
+            currentFeedback = (currentFeedback + 1) % feedbackCards.length;
+            feedbackCards[currentFeedback].classList.add('active');
+        }, 5000); // Switch every 5 seconds
+    }
 
     // Scroll to "How It Works" section
     document.getElementById('howItWorksBtn')?.addEventListener('click', () => {
