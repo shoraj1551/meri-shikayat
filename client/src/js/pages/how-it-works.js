@@ -65,24 +65,29 @@ export function renderHowItWorksPage() {
                     <!-- Visual Graph Section -->
                     <section class="visual-graph-section animate-fade-up">
                         <h2>Complaint Routing Architecture</h2>
-                        <div class="routing-graph">
-                            <div class="graph-node user">User</div>
-                            <div class="graph-arrow">↓</div>
-                            <div class="graph-node platform">Meri Shikayat Platform</div>
-                            <div class="graph-branches">
-                                <div class="branch">
-                                    <div class="graph-arrow">↙</div>
-                                    <div class="graph-node dept">Sanitation Dept</div>
-                                </div>
-                                <div class="branch">
-                                    <div class="graph-arrow">↓</div>
-                                    <div class="graph-node dept">Road Works</div>
-                                </div>
-                                <div class="branch">
-                                    <div class="graph-arrow">↘</div>
-                                    <div class="graph-node dept">Water Supply</div>
+                        <div class="routing-graph-horizontal">
+                            <div class="flow-step">
+                                <div class="graph-node user">USER</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node platform">MERI SHIKAYAT</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node dept">RESPECTIVE DEPARTMENT</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="graph-node-group">
+                                    <div class="graph-node action">ACKNOWLEDGE</div>
+                                    <div class="graph-node action">UPDATE STATUS</div>
+                                    <div class="graph-node action">COMPLETED</div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="flow-return">
+                            <p class="return-text">FROM COMPLETED TO GO BACK TO MERI SHIKAYAT, AND THEN IT IS UPDATED BACK TO USER, USER VERIFY THE PROOF AND THEN CLOSE</p>
                         </div>
                     </section>
 
