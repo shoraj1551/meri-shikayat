@@ -2366,3 +2366,63 @@ p {
         font-size: var(--font-size-2xl);
     }
 }
+
+/* ============================================
+   FAQ GRID STYLES
+   ============================================ */
+
+.faq-category-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: var(--spacing-2xl) 0 var(--spacing-lg);
+    text-align: center;
+}
+
+.faq-category-title:first-child {
+    margin-top: 0;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.faq-card {
+    background: white;
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--primary-color);
+    transition: all var(--transition-base);
+}
+
+.faq-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.faq-card h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.faq-card p {
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .faq-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .faq-category-title {
+        font-size: var(--font-size-xl);
+    }
+}
