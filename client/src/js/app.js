@@ -19,6 +19,7 @@ import { renderAdminComplaintsPage } from './pages/admin-complaints.js';
 import { renderProfilePage } from './pages/profile.js';
 import { renderComplaintQuickPage } from './pages/complaint-quick.js';
 import { renderRegistrationGatewayPage } from './pages/registration-gateway.js';
+import { renderComplaintForm } from './pages/complaint-form.js';
 
 export function initializeApp() {
     console.log('Meri Shikayat application initialized');
@@ -34,7 +35,7 @@ export function initializeApp() {
     router.register('/dashboard', renderDashboardPage);
     router.register('/submit-complaint', renderSubmitComplaintPage);
     router.register('/profile', renderProfilePage);
-    router.register('/file-complaint', renderComplaintQuickPage);
+    router.register('/file-complaint', renderComplaintForm);
     router.register('/register-gateway', renderRegistrationGatewayPage);
 
     // Admin Routes

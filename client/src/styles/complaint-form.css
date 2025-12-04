@@ -1,0 +1,347 @@
+/**
+ * Complaint Form Styles
+ * Step 1 of 3 - Initial Complaint Form
+ */
+
+.complaint-form-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem 0;
+}
+
+/* ============================================
+   PROGRESS INDICATOR
+   ============================================ */
+
+.progress-container {
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+}
+
+.progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+    transition: all var(--transition-base);
+}
+
+.progress-step.active .step-number {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.step-label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.progress-step.active .step-label {
+    color: var(--primary-color);
+}
+
+.progress-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border-color);
+    margin: 0 1rem;
+    max-width: 100px;
+}
+
+/* ============================================
+   FORM CONTAINER
+   ============================================ */
+
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-header h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+}
+
+.complaint-form {
+    background: white;
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: var(--font-size-base);
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: #ef4444;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* ============================================
+   CATEGORY SELECTOR
+   ============================================ */
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.category-card {
+    padding: 1.5rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background: white;
+}
+
+.category-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.category-card.selected {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.05);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.category-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.category-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   LOCATION INPUT
+   ============================================ */
+
+.location-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.location-input-group .form-input {
+    flex: 1;
+}
+
+.btn-location {
+    padding: 0.875rem 1.5rem;
+    background: white;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+}
+
+.btn-location:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.map-placeholder {
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+}
+
+/* ============================================
+   CHARACTER COUNTER
+   ============================================ */
+
+.char-counter {
+    text-align: right;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+/* ============================================
+   ERROR MESSAGES
+   ============================================ */
+
+.error-message {
+    color: #ef4444;
+    font-size: var(--font-size-sm);
+    margin-top: 0.5rem;
+    font-weight: 500;
+    min-height: 1.25rem;
+}
+
+/* ============================================
+   FORM ACTIONS
+   ============================================ */
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-secondary {
+    padding: 0.875rem 2rem;
+    background: white;
+    border: 2px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-secondary:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .progress-bar {
+        padding: 1.5rem 1rem;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+    }
+
+    .progress-line {
+        max-width: 40px;
+        margin: 0 0.5rem;
+    }
+
+    .complaint-form {
+        padding: 1.5rem;
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .location-input-group {
+        flex-direction: column;
+    }
+
+    .btn-location {
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn,
+    .form-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
