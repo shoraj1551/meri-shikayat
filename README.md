@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0087-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0088-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0087  
+**Current Version**: v0.0088  
 **Last Updated**: December 4, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -72,7 +72,17 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0087 (Current) - December 4, 2025
+### v0.0088 (Current) - December 4, 2025
+**Platform Pages (How It Works & Features)**
+
+**New Features:**
+- ✅ **How It Works Page**: Animated process flow showing the 4-step complaint resolution journey
+- ✅ **Features Page**: Modern bento-grid layout showcasing platform capabilities
+- ✅ **Visual Animations**: Scroll-triggered fade-up and slide-in effects for premium feel
+- ✅ **Interactive Elements**: Hover effects on cards and process steps
+- ✅ **Routing Graph**: Visual architecture diagram of complaint routing
+
+### v0.0087 - December 4, 2025
 **Authentication UI Polish**
 
 **Enhancements:**

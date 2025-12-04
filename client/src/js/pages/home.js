@@ -39,7 +39,7 @@ export function renderHomePage() {
                         </p>
                         <div class="hero-cta-group">
                             <a href="/file-complaint" class="btn btn-primary btn-lg">File Your First Complaint</a>
-                            <button id="howItWorksBtn" class="btn btn-primary btn-lg">How It Works</button>
+                            <a href="/how-it-works" class="btn btn-primary btn-lg">How It Works</a>
                         </div>
                     </div>
                 </div>
