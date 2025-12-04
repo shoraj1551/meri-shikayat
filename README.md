@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0089-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0090-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0089  
+**Current Version**: v0.0090  
 **Last Updated**: December 5, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -72,7 +72,16 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0089 (Current) - December 5, 2025
+### v0.0090 (Current) - December 5, 2025
+**Vercel Deployment Configuration**
+
+**New Features:**
+- ✅ **Full Stack Deployment**: Configured project for seamless deployment on Vercel (Frontend + Backend)
+- ✅ **Serverless Adaptation**: Optimized Express backend to run as Vercel Serverless Functions
+- ✅ **Build Configuration**: Added root `package.json` and `vercel.json` for automated builds
+- ✅ **Monorepo Support**: Structured project to handle both client and server dependencies in a single deployment
+
+### v0.0089 - December 5, 2025
 **Platform Pages UI & Routing Architecture**
 
 **New Features:**
