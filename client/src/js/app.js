@@ -26,6 +26,8 @@ import { renderGuidelinesPage } from './pages/guidelines.js';
 import { renderHelpPage } from './pages/help.js';
 import { renderFAQPage } from './pages/faq.js';
 import { renderContactPage } from './pages/contact.js';
+import { renderHowItWorksPage } from './pages/how-it-works.js';
+import { renderFeaturesPage } from './pages/features.js';
 
 export function initializeApp() {
     console.log('Meri Shikayat application initialized');
@@ -62,6 +64,10 @@ export function initializeApp() {
     router.register('/help', renderHelpPage);
     router.register('/faq', renderFAQPage);
     router.register('/contact', renderContactPage);
+
+    // Platform Pages
+    router.register('/how-it-works', renderHowItWorksPage);
+    router.register('/features', renderFeaturesPage);
 
     // Initialize router
     router.init();
