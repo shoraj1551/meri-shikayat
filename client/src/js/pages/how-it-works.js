@@ -65,24 +65,78 @@ export function renderHowItWorksPage() {
                     <!-- Visual Graph Section -->
                     <section class="visual-graph-section animate-fade-up">
                         <h2>Complaint Routing Architecture</h2>
-                        <div class="routing-graph">
-                            <div class="graph-node user">User</div>
-                            <div class="graph-arrow">↓</div>
-                            <div class="graph-node platform">Meri Shikayat Platform</div>
-                            <div class="graph-branches">
-                                <div class="branch">
-                                    <div class="graph-arrow">↙</div>
-                                    <div class="graph-node dept">Sanitation Dept</div>
+                        <div class="routing-diagram-vertical">
+                            
+                            <!-- User (Start) -->
+                            <div class="diagram-node user-node">
+                                <div class="node-icon">📱</div>
+                                <div class="node-label">USER</div>
+                            </div>
+                            
+                            <!-- Arrow Down -->
+                            <div class="diagram-arrow-down">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▼</div>
+                            </div>
+                            
+                            <!-- Meri Shikayat Platform -->
+                            <div class="diagram-node platform-node">
+                                <div class="node-icon">💻</div>
+                                <div class="node-label">MERI SHIKAYAT</div>
+                                <div class="node-sublabel">Platform</div>
+                            </div>
+                            
+                            <!-- Arrow Up to Departments -->
+                            <div class="diagram-arrow-up">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▲</div>
+                                <div class="arrow-label">Routed with Acknowledgement</div>
+                            </div>
+                            
+                            <!-- Multiple Departments -->
+                            <div class="diagram-departments">
+                                <div class="diagram-node dept-node">
+                                    <div class="node-label">Department 1</div>
+                                    <div class="node-sublabel">Sanitation</div>
                                 </div>
-                                <div class="branch">
-                                    <div class="graph-arrow">↓</div>
-                                    <div class="graph-node dept">Road Works</div>
+                                <div class="diagram-node dept-node">
+                                    <div class="node-label">Department 2</div>
+                                    <div class="node-sublabel">Road Works</div>
                                 </div>
-                                <div class="branch">
-                                    <div class="graph-arrow">↘</div>
-                                    <div class="graph-node dept">Water Supply</div>
+                                <div class="diagram-node dept-node">
+                                    <div class="node-label">Department 3</div>
+                                    <div class="node-sublabel">Water Supply</div>
                                 </div>
                             </div>
+                            
+                            <!-- Arrow Down from Departments -->
+                            <div class="diagram-arrow-down">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▼</div>
+                                <div class="arrow-label">Pending Update, Completed,<br/>Completed with Proof</div>
+                            </div>
+                            
+                            <!-- Meri Shikayat Platform (Return) -->
+                            <div class="diagram-node platform-node-return">
+                                <div class="node-icon">💻</div>
+                                <div class="node-label">MERI SHIKAYAT</div>
+                                <div class="node-sublabel">Update & Tracking</div>
+                            </div>
+                            
+                            <!-- Arrow Down to User -->
+                            <div class="diagram-arrow-down">
+                                <div class="arrow-line"></div>
+                                <div class="arrow-head">▼</div>
+                                <div class="arrow-label">Notification</div>
+                            </div>
+                            
+                            <!-- User (End) -->
+                            <div class="diagram-node user-node-end">
+                                <div class="node-icon">📱</div>
+                                <div class="node-label">USER</div>
+                                <div class="node-sublabel">Selection and Close</div>
+                            </div>
+                            
                         </div>
                     </section>
 
