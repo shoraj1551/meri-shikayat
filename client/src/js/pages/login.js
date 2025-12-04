@@ -11,7 +11,8 @@ export function renderLoginPage() {
         <div class="auth-page">
             <div class="auth-container">
                 <div class="auth-card">
-                    <div class="auth-header-actions" style="justify-content: flex-end; margin-bottom: 1rem;">
+                    <div class="auth-header-actions">
+                        <a href="/" class="auth-back-link">← Back to Home</a>
                         <button class="role-toggle-btn" onclick="window.router.navigate('/admin/login')" title="Switch to Admin Login">
                             <i class="icon">🛡️</i> Admin Login
                         </button>
@@ -104,5 +105,11 @@ export function renderLoginPage() {
     app.querySelector('a[href="/register"]').addEventListener('click', (e) => {
         e.preventDefault();
         window.router.navigate('/register');
+    });
+
+    // Add event listener for back link
+    app.querySelector('.auth-back-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.router.navigate('/');
     });
 }
