@@ -94,8 +94,7 @@ export function renderFeaturesPage() {
     // Add event listener for back link
     app.querySelector('.back-link').addEventListener('click', (e) => {
         e.preventDefault();
-        window.history.pushState({}, '', '/');
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.router.navigate('/');
     });
 
     // Add event listener for register button
