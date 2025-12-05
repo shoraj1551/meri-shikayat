@@ -89,8 +89,9 @@ export function renderLoginPage() {
     `;
 
     // Initialize form enhancements
-    initFloatingLabels('loginForm');
-    initFocusAnimations('loginForm');
+    // Floating labels disabled due to alignment issues with current HTML structure
+    // initFloatingLabels('loginForm');
+    // initFocusAnimations('loginForm');
     initPasswordToggle('password', 'togglePassword');
     initIdentifierValidation('identifier');
 

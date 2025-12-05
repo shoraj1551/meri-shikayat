@@ -80,8 +80,9 @@ export function renderAdminLoginPage() {
     `;
 
     // Initialize form enhancements
-    initFloatingLabels('adminLoginForm');
-    initFocusAnimations('adminLoginForm');
+    // Floating labels disabled due to alignment issues
+    // initFloatingLabels('adminLoginForm');
+    // initFocusAnimations('adminLoginForm');
     initPasswordToggle('password', 'togglePassword');
     initIdentifierValidation('identifier');
 

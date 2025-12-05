@@ -170,8 +170,9 @@ export function renderRegisterPage() {
     `;
 
     // Initialize form enhancements
-    initFloatingLabels('registerForm');
-    initFocusAnimations('registerForm');
+    // Floating labels disabled due to alignment issues
+    // initFloatingLabels('registerForm');
+    // initFocusAnimations('registerForm');
     initPasswordToggle('password', 'togglePassword');
     initPasswordToggle('confirmPassword', 'toggleConfirmPassword');
     initPasswordStrength('password', 'passwordStrength');
