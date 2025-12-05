@@ -5,19 +5,30 @@
 
 import nodemailer from 'nodemailer';
 
-// Create transporter
-const transporter = nodemailer.createTransporter({
-    service: process.env.EMAIL_SERVICE || 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
+// Create transporter (only if email credentials are configured)
+let transporter = null;
+
+if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    transporter = nodemailer.createTransporter({
+        service: process.env.EMAIL_SERVICE || 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+} else {
+    console.warn('⚠️  Email service not configured. Set EMAIL_USER and EMAIL_PASSWORD in .env');
+}
 
 /**
  * Send OTP email for password reset
  */
 export async function sendPasswordResetOTP(email, otp, firstName) {
+    if (!transporter) {
+        console.log(`📧 Email not configured. OTP for ${email}: ${otp}`);
+        return { success: true, messageId: 'demo-mode' };
+    }
+
     const mailOptions = {
         from: `Meri Shikayat <${process.env.EMAIL_USER}>`,
         to: email,
