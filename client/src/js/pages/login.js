@@ -1,3 +1,15 @@
+import { authService } from '../api/auth.service.js';
+import {
+    initPasswordToggle,
+    initIdentifierValidation,
+    initFloatingLabels,
+    initFocusAnimations,
+    isValidEmail,
+    isValidPhone,
+    showError,
+    hideError
+} from '../utils/form-utils.js';
+
 export function renderLoginPage() {
     const app = document.getElementById('app');
 
