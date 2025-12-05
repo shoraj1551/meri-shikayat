@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0091-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0092-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0091  
+**Current Version**: v0.0092  
 **Last Updated**: December 5, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -72,7 +72,29 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0091 (Current) - December 5, 2025
+### v0.0092 (Current) - December 5, 2025
+**Advanced Form UX - Phase 2 & 3**
+
+**Phase 2 - Visual Enhancements:**
+- ✅ **Floating Labels**: Modern floating label animations on all forms
+- ✅ **Enhanced Focus States**: Ripple effects and smooth transitions
+- ✅ **OTP Timer**: 5-minute countdown with resend functionality (admin login)
+- ✅ **Smooth Transitions**: Fade animations between form states
+- ✅ **Improved Checkboxes**: Custom styled checkboxes with animations
+
+**Phase 3 - Complaint Form Enhancements:**
+- ✅ **Draft Auto-Save**: Auto-saves complaint drafts every 2 seconds
+- ✅ **Enhanced Character Counter**: Color-coded feedback (red/orange/green)
+- ✅ **Draft Recovery**: Auto-loads saved drafts on page refresh
+- ✅ **Visual Save Indicator**: Animated feedback for draft saves
+
+**Technical Improvements:**
+- Added `initFloatingLabels()` and `initFocusAnimations()` utilities
+- Enhanced CSS with advanced animations and transitions
+- Improved form state management
+- localStorage integration for draft persistence
+
+### v0.0091 - December 5, 2025
 **Form Improvements & UX Enhancements**
 
 **New Features:**
