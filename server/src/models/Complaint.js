@@ -27,9 +27,10 @@ const complaintSchema = new mongoose.Schema({
         ref: 'Category',
         required: [true, 'Category is required']
     },
-    mediaUrl: {
-        type: String
-    },
+    media: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Media'
+    }],
     location: {
         address: String,
         coordinates: {
@@ -94,5 +95,6 @@ const complaintSchema = new mongoose.Schema({
 complaintSchema.index({ user: 1, status: 1 });
 complaintSchema.index({ 'location.pincode': 1 });
 complaintSchema.index({ category: 1 });
+complaintSchema.index({ media: 1 });
 
 export default mongoose.model('Complaint', complaintSchema);
