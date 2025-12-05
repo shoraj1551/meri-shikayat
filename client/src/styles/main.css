@@ -3510,3 +3510,203 @@ p {
     }
 }
 
+
+/* FORM IMPROVEMENTS - ENHANCED STYLES */
+
+/* Password Toggle Button */
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 4px 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Input Icons (Success/Error) */
+.form-group {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    right: 12px;
+    top: 38px;
+    font-size: 1.2rem;
+    pointer-events: none;
+}
+
+.success-icon {
+    color: var(--success-color, #10b981);
+}
+
+.error-icon {
+    color: var(--error-color, #ef4444);
+}
+
+/* Input Validation States */
+.form-input.valid {
+    border-color: var(--success-color, #10b981);
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.form-input.invalid {
+    border-color: var(--error-color, #ef4444);
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* Checkbox Label */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.checkbox-label input[type=\"checkbox\"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.checkbox-label:hover {
+    color: var(--text-primary);
+}
+
+/* Forgot Password Link */
+.forgot-password-link {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.forgot-password-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* Button Loading State */
+.btn-loader {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Form Row */
+.form-row {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* Password Strength Indicator */
+.password-strength {
+    margin-top: 8px;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-strength-bar.weak {
+    width: 33%;
+    background-color: #ef4444;
+}
+
+.password-strength-bar.medium {
+    width: 66%;
+    background-color: #f59e0b;
+}
+
+.password-strength-bar.strong {
+    width: 100%;
+    background-color: #10b981;
+}
+
+.password-strength-text {
+    font-size: 0.85rem;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.password-strength-text.weak {
+    color: #ef4444;
+}
+
+.password-strength-text.medium {
+    color: #f59e0b;
+}
+
+.password-strength-text.strong {
+    color: #10b981;
+}
+
+/* Password Requirements */
+.password-requirements {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0 0;
+}
+
+.password-requirements li {
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.password-requirements li::before {
+    content: '○';
+    color: #9ca3af;
+}
+
+.password-requirements li.met::before {
+    content: '✓';
+    color: #10b981;
+}
+
