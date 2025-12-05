@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0093-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0094-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0093  
+**Current Version**: v0.0094  
 **Last Updated**: December 5, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -53,14 +53,16 @@ npm run dev
 | 🗺️ **Location Services** | GPS, pincode & manual location selection |
 | 🔐 **Remember Me** | Persistent login with refresh tokens |
 | 🔑 **Password Recovery** | 3-step OTP-based password reset |
+| 🌍 **Multi-Environment** | Dev, UAT, and Production deployments |
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+), Vite
 - **Backend**: Node.js, Express
-- **Database**: MongoDB
+- **Database**: MongoDB (10 models with indexes)
 - **Authentication**: JWT + Refresh Tokens + OTP (2FA)
 - **Email**: NodeMailer
+- **Deployment**: Vercel (Multi-environment)
 - **File Storage**: Multer (Cloud-ready)
 
 ## 📁 Project Structure
@@ -69,13 +71,55 @@ npm run dev
 meri-shikayat/
 ├── client/              # Frontend (Vite + Vanilla JS)
 ├── server/              # Backend API (Express)
-├── shared/              # Shared utilities
+│   ├── src/
+│   │   ├── models/      # 10 MongoDB models
+│   │   ├── seeds/       # Database seeders
+│   │   ├── services/    # Business logic
+│   │   └── controllers/ # Route handlers
+├── vercel.json          # Production config
+├── vercel.dev.json      # Development config
+├── vercel.uat.json      # UAT config
 └── docs/                # Documentation
 ```
 
 ## 📋 Recent Updates
 
-### v0.0093 (Current) - December 5, 2025
+### v0.0094 (Current) - December 5, 2025
+**Multi-Environment Deployment & Complete Database Schema**
+
+**Vercel Deployment:**
+- ✅ **3 Environment Configs**: Separate configs for dev, UAT, and production
+- ✅ **Auto-Deployment**: Branch-specific automatic deployments
+- ✅ **Environment Variables**: Isolated settings per environment
+- ✅ **Complete Setup Guide**: Step-by-step Vercel deployment instructions
+
+**Database Models (10 Total):**
+- ✅ **Category Model**: Complaint categorization with icons and colors
+- ✅ **Department Model**: Government departments with routing logic
+- ✅ **Media Model**: File upload tracking (images, videos, audio, documents)
+- ✅ **Notification Model**: User and admin notifications with TTL
+- ✅ **AuditLog Model**: System-wide audit trail with 90-day retention
+- ✅ **Session Model**: Active session tracking with device info
+- ✅ **OTPLog Model**: OTP audit trail for security compliance
+
+**Database Enhancements:**
+- ✅ **Indexes**: Performance-optimized queries on all models
+- ✅ **TTL Indexes**: Auto-delete old logs and expired sessions
+- ✅ **Validation**: Comprehensive data validation rules
+- ✅ **Helper Methods**: Built-in model methods for common operations
+
+**Seed Data:**
+- ✅ **Development Seeds**: 10 test users, 5 admins, 10 categories, 5 departments
+- ✅ **UAT Seeds**: 50 realistic users, 10 admins, production-like data
+- ✅ **Environment-Aware**: Automatic seeding based on NODE_ENV
+- ✅ **NPM Scripts**: `npm run seed:dev` and `npm run seed:uat`
+
+**Documentation:**
+- ✅ **VERCEL_SETUP.md**: Complete Vercel deployment guide
+- ✅ **DEPLOYMENT.md**: General deployment documentation
+- ✅ **Enhanced .env.example**: All environment variables documented
+
+### v0.0093 - December 5, 2025
 **Complete Authentication System - Remember Me & Forgot Password**
 
 **Frontend Features:**
@@ -101,16 +145,6 @@ meri-shikayat/
 - ✅ **Email Service**: Beautiful HTML emails via NodeMailer
 - ✅ **Rate Limiters**: Login (10/15min), Register (5/hour), Password Reset (3/hour)
 - ✅ **Account Security**: Failed login tracking, automatic locking, session management
-
-**Database Updates:**
-- ✅ **User Model**: Added refreshTokens array, password reset fields, security fields
-- ✅ **Token Storage**: Device tracking, expiry management
-- ✅ **OTP Tracking**: Attempt counting, expiry timestamps
-
-**Documentation:**
-- ✅ **Testing Guide**: Complete setup instructions for email/SMS testing
-- ✅ **API Documentation**: All endpoints with request/response examples
-- ✅ **Implementation Plans**: Detailed architecture and security considerations
 
 ### v0.0092 - December 5, 2025
 **Advanced Form UX - Phase 2 & 3**
