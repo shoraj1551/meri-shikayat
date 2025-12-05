@@ -1,15 +1,4 @@
 
-import { authService } from '../api/auth.service.js';
-import {
-    initPasswordToggle,
-    initPasswordStrength,
-    initPasswordRequirements,
-    isValidEmail,
-    isValidPhone,
-    showError,
-    hideError
-} from '../utils/form-utils.js';
-
 export function renderRegisterPage() {
     const app = document.getElementById('app');
 
@@ -181,6 +170,8 @@ export function renderRegisterPage() {
     `;
 
     // Initialize form enhancements
+    initFloatingLabels('registerForm');
+    initFocusAnimations('registerForm');
     initPasswordToggle('password', 'togglePassword');
     initPasswordToggle('confirmPassword', 'toggleConfirmPassword');
     initPasswordStrength('password', 'passwordStrength');

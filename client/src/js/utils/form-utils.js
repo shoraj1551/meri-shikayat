@@ -259,3 +259,76 @@ export function hideSuccess(elementId) {
         element.style.display = 'none';
     }
 }
+
+/**
+ * Initialize floating label behavior
+ * @param {string} formId - ID of the form to apply floating labels
+ */
+export function initFloatingLabels(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const formGroups = form.querySelectorAll('.form-group');
+    
+    formGroups.forEach(group => {
+        const input = group.querySelector('input, textarea');
+        const label = group.querySelector('label');
+        
+        if (!input || !label) return;
+        
+        // Add floating-label class
+        group.classList.add('floating-label');
+        
+        // Check if input has value on load
+        if (input.value) {
+            input.classList.add('has-value');
+        }
+        
+        // Update on input
+        input.addEventListener('input', () => {
+            if (input.value) {
+                input.classList.add('has-value');
+            } else {
+                input.classList.remove('has-value');
+            }
+        });
+        
+        // Update on blur
+        input.addEventListener('blur', () => {
+            if (input.value) {
+                input.classList.add('has-value');
+            } else {
+                input.classList.remove('has-value');
+            }
+        });
+    });
+}
+
+/**
+ * Add enhanced focus animations to inputs
+ * @param {string} formId - ID of the form
+ */
+export function initFocusAnimations(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const inputs = form.querySelectorAll('input, textarea');
+    
+    inputs.forEach(input => {
+        // Add focus class on focus
+        input.addEventListener('focus', () => {
+            const formGroup = input.closest('.form-group');
+            if (formGroup) {
+                formGroup.classList.add('focused');
+            }
+        });
+        
+        // Remove focus class on blur
+        input.addEventListener('blur', () => {
+            const formGroup = input.closest('.form-group');
+            if (formGroup) {
+                formGroup.classList.remove('focused');
+            }
+        });
+    });
+}

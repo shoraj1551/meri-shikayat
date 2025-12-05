@@ -1,14 +1,3 @@
-
-import { adminService } from '../api/admin.service.js';
-import {
-    initPasswordToggle,
-    initPasswordStrength,
-    initPasswordRequirements,
-    isValidEmail,
-    isValidPhone,
-    showError,
-    hideError,
-    showSuccess
 } from '../utils/form-utils.js';
 
 export function renderAdminRegisterPage() {
@@ -123,6 +112,8 @@ export function renderAdminRegisterPage() {
     `;
 
     // Initialize form enhancements
+    initFloatingLabels('adminRegisterForm');
+    initFocusAnimations('adminRegisterForm');
     initPasswordToggle('password', 'togglePassword');
     initPasswordToggle('confirmPassword', 'toggleConfirmPassword');
     initPasswordStrength('password', 'passwordStrength');

@@ -1,14 +1,3 @@
-
-import { adminService } from '../api/admin.service.js';
-import {
-    initPasswordToggle,
-    initIdentifierValidation,
-    isValidEmail,
-    isValidPhone,
-    showError,
-    hideError
-} from '../utils/form-utils.js';
-
 export function renderAdminLoginPage() {
     const app = document.getElementById('app');
 
@@ -91,6 +80,8 @@ export function renderAdminLoginPage() {
     `;
 
     // Initialize form enhancements
+    initFloatingLabels('adminLoginForm');
+    initFocusAnimations('adminLoginForm');
     initPasswordToggle('password', 'togglePassword');
     initIdentifierValidation('identifier');
 
