@@ -115,7 +115,10 @@ export function renderComplaintForm() {
                     <!-- Submit Button -->
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-block" id="reviewContinueBtn">
-                            Next Step
+                            <span class="btn-text">Next Step</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner"></span> Processing...
+                            </span>
                         </button>
                     </div>
                     
@@ -178,55 +181,6 @@ function initializeComplaintForm() {
                 }
             );
         } else {
-            alert('Geolocation is not supported by your browser');
-        }
-    });
-
-    // Form submission
-    const form = document.getElementById('complaintForm');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        let isValid = true;
-
-        // Validate category
-        if (!selectedCategory) {
-            document.getElementById('categoryError').textContent = 'Please select a complaint category';
-            isValid = false;
-        }
-
-        // Validate location
-        if (!locationInput.value.trim()) {
-            document.getElementById('locationError').textContent = 'Please enter your location or use current location';
-            isValid = false;
-        }
-
-        // Validate description
-        const descLength = description.value.trim().length;
-        if (descLength < 50) {
-            document.getElementById('descriptionError').textContent =
-                `Please provide at least 50 characters describing your issue (currently: ${descLength}/50)`;
-            isValid = false;
-        }
-
-        // If valid, navigate to registration gateway
-        if (isValid) {
-            // Store complaint data in sessionStorage
-            sessionStorage.setItem('complaintData', JSON.stringify({
-                category: selectedCategory,
-                location: locationInput.value,
-                description: description.value
-            }));
-
-            // Navigate to registration gateway
-            window.router.navigate('/register?step=complaint');
-        }
-    });
-
-    // Clear location error on input
-    locationInput.addEventListener('input', () => {
-        if (locationInput.value.trim()) {
-            document.getElementById('locationError').textContent = '';
         }
     });
 }
