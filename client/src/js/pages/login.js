@@ -127,6 +127,22 @@ export function renderLoginPage() {
             const response = await authService.login({ identifier, password, rememberMe });
 
             if (response.success) {
+                // Store authentication token based on Remember Me preference
+                const token = response.token || 'demo-token-' + Date.now();
+                const userData = response.data || { identifier, role: 'user' };
+
+                if (rememberMe) {
+                    // Remember Me checked: Use localStorage (persists across sessions)
+                    localStorage.setItem('authToken', token);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('rememberMe', 'true');
+                } else {
+                    // Remember Me unchecked: Use sessionStorage (clears on browser close)
+                    sessionStorage.setItem('authToken', token);
+                    sessionStorage.setItem('user', JSON.stringify(userData));
+                }
+
+                // Navigate based on user setup status
                 if (!response.data.isLocationSet) {
                     window.router.navigate('/location-setup');
                 } else {
