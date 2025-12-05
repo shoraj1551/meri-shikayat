@@ -1,8 +1,13 @@
-/**
- * Admin Login Page
- */
 
 import { adminService } from '../api/admin.service.js';
+import {
+    initPasswordToggle,
+    initIdentifierValidation,
+    isValidEmail,
+    isValidPhone,
+    showError,
+    hideError
+} from '../utils/form-utils.js';
 
 export function renderAdminLoginPage() {
     const app = document.getElementById('app');
@@ -20,7 +25,7 @@ export function renderAdminLoginPage() {
                     <h2 class="auth-title">Admin Login</h2>
                     <p class="auth-subtitle">Secure access for authorized personnel only</p>
                     
-                    <form id="adminLoginForm" class="auth-form">
+                    <form id="adminLoginForm" class="auth-form" autocomplete="on">
                         <div class="form-group">
                             <label for="identifier">Email or Phone</label>
                             <input 
@@ -29,8 +34,11 @@ export function renderAdminLoginPage() {
                                 name="identifier" 
                                 class="form-input" 
                                 placeholder="Enter email or phone"
+                                autocomplete="username"
                                 required
                             />
+                            <span class="input-icon success-icon" style="display: none;">✓</span>
+                            <span class="input-icon error-icon" style="display: none;">✗</span>
                         </div>
 
                         <div class="form-group">
@@ -42,18 +50,30 @@ export function renderAdminLoginPage() {
                                     name="password" 
                                     class="form-input" 
                                     placeholder="Enter your password"
+                                    autocomplete="current-password"
                                     required
                                 />
-                                <button type="button" class="password-toggle" id="togglePassword" tabindex="-1">
-                                    👁️
+                                <button type="button" class="password-toggle" id="togglePassword" tabindex="-1" title="Show password">
+                                    <span class="toggle-icon">👁️</span>
                                 </button>
                             </div>
                         </div>
 
+                        <div class="form-row" style="justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="rememberMe" name="rememberMe">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="/forgot-password" class="forgot-password-link">Forgot Password?</a>
+                        </div>
+
                         <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-                        <button type="submit" class="btn btn-primary btn-block admin-btn">
-                            Login to Dashboard
+                        <button type="submit" class="btn btn-primary btn-block admin-btn" id="adminLoginBtn">
+                            <span class="btn-text">Login to Dashboard</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner"></span> Authenticating...
+                            </span>
                         </button>
                     </form>
 
@@ -70,33 +90,15 @@ export function renderAdminLoginPage() {
         </div>
     `;
 
-    // Handle Password Toggle
-    const toggleBtn = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    let hideTimeout;
-
-    toggleBtn.addEventListener('mousedown', (e) => {
-        e.preventDefault(); // Prevent focus loss
-        passwordInput.type = 'text';
-        toggleBtn.textContent = '🔒';
-
-        // Auto hide after 1 second (as requested)
-        clearTimeout(hideTimeout);
-        hideTimeout = setTimeout(() => {
-            passwordInput.type = 'password';
-            toggleBtn.textContent = '👁️';
-        }, 1000);
-    });
-
-    // Also handle click for mobile/touch or if mousedown doesn't fire as expected
-    toggleBtn.addEventListener('mouseup', (e) => {
-        e.preventDefault();
-        // Optional: Immediately hide on release if we want "hold to view" behavior
-        // But user asked for "option to see... and hide again", auto-hide is safer
-    });
+    // Initialize form enhancements
+    initPasswordToggle('password', 'togglePassword');
+    initIdentifierValidation('identifier');
 
     // Handle form submission
     const form = document.getElementById('adminLoginForm');
+    const submitBtn = document.getElementById('adminLoginBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
     let isOtpStep = false;
     let adminId = null;
 
@@ -105,20 +107,20 @@ export function renderAdminLoginPage() {
 
         const identifierInput = document.getElementById('identifier');
         const passwordInput = document.getElementById('password');
-        const errorMessage = document.getElementById('errorMessage');
-        const submitBtn = form.querySelector('button[type="submit"]');
 
         try {
-            errorMessage.style.display = 'none';
+            hideError('errorMessage');
             submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'inline-flex';
 
             if (!isOtpStep) {
                 // Step 1: Login with credentials
-                submitBtn.textContent = 'Authenticating...';
                 const identifier = identifierInput.value.trim().toLowerCase();
                 const password = passwordInput.value;
+                const rememberMe = document.getElementById('rememberMe').checked;
 
-                const response = await adminService.login({ identifier, password });
+                const response = await adminService.login({ identifier, password, rememberMe });
 
                 if (response.success && response.requireOtp) {
                     // Switch to OTP step
@@ -128,6 +130,7 @@ export function renderAdminLoginPage() {
                     // Hide credentials fields
                     form.querySelector('.form-group:nth-child(1)').style.display = 'none';
                     form.querySelector('.form-group:nth-child(2)').style.display = 'none';
+                    form.querySelector('.form-row').style.display = 'none';
 
                     // Show OTP field
                     let otpGroup = document.getElementById('otpGroup');
@@ -135,6 +138,7 @@ export function renderAdminLoginPage() {
                         otpGroup = document.createElement('div');
                         otpGroup.id = 'otpGroup';
                         otpGroup.className = 'form-group';
+                        otpGroup.style.animation = 'slideIn 0.3s ease';
                         otpGroup.innerHTML = `
                             <label for="otp">Enter OTP</label>
                             <input 
@@ -144,20 +148,24 @@ export function renderAdminLoginPage() {
                                 class="form-input" 
                                 placeholder="Enter 6-digit OTP"
                                 maxlength="6"
+                                autocomplete="one-time-code"
                                 required
                             />
                             <p class="form-hint">Check your server console for the OTP (Simulation)</p>
                         `;
-                        form.insertBefore(otpGroup, errorMessage);
+                        const errorMsg = document.getElementById('errorMessage');
+                        form.insertBefore(otpGroup, errorMsg);
                     }
 
-                    submitBtn.textContent = 'Verify OTP';
+                    btnText.textContent = 'Verify OTP';
                     submitBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnLoader.style.display = 'none';
                     document.getElementById('otp').focus();
                 }
             } else {
                 // Step 2: Verify OTP
-                submitBtn.textContent = 'Verifying...';
+                btnText.textContent = 'Verifying...';
                 const otp = document.getElementById('otp').value.trim();
 
                 const response = await adminService.verifyOtp(adminId, otp);
@@ -167,10 +175,11 @@ export function renderAdminLoginPage() {
                 }
             }
         } catch (error) {
-            errorMessage.textContent = error.response?.data?.message || 'Authentication failed. Please try again.';
-            errorMessage.style.display = 'block';
+            showError('errorMessage', error.response?.data?.message || 'Authentication failed. Please try again.');
             submitBtn.disabled = false;
-            submitBtn.textContent = isOtpStep ? 'Verify OTP' : 'Login to Dashboard';
+            btnText.style.display = 'inline';
+            btnLoader.style.display = 'none';
+            btnText.textContent = isOtpStep ? 'Verify OTP' : 'Login to Dashboard';
         }
     });
 
