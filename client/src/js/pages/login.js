@@ -1,8 +1,13 @@
-/**
- * Login page component
- */
 
 import { authService } from '../api/auth.service.js';
+import {
+    initPasswordToggle,
+    initIdentifierValidation,
+    isValidEmail,
+    isValidPhone,
+    showError,
+    hideError
+} from '../utils/form-utils.js';
 
 export function renderLoginPage() {
     const app = document.getElementById('app');
@@ -82,50 +87,17 @@ export function renderLoginPage() {
         </div>
     `;
 
-
-    // Password toggle functionality
-    const toggleBtn = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-
-    toggleBtn.addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-        toggleBtn.querySelector('.toggle-icon').textContent = type === 'password' ? '👁️' : '🔒';
-        toggleBtn.title = type === 'password' ? 'Show password' : 'Hide password';
-    });
-
-    // Real-time validation for identifier
-    const identifierInput = document.getElementById('identifier');
-    const successIcon = document.querySelector('.success-icon');
-    const errorIcon = document.querySelector('.error-icon');
-
-    identifierInput.addEventListener('input', () => {
-        const value = identifierInput.value.trim();
-        const isEmail = /^\S+@\S+\.\S+$/.test(value);
-        const isPhone = /^[0-9]{10}$/.test(value);
-
-        if (value.length === 0) {
-            successIcon.style.display = 'none';
-            errorIcon.style.display = 'none';
-            identifierInput.classList.remove('valid', 'invalid');
-        } else if (isEmail || isPhone) {
-            successIcon.style.display = 'block';
-            errorIcon.style.display = 'none';
-            identifierInput.classList.add('valid');
-            identifierInput.classList.remove('invalid');
-        } else {
-            successIcon.style.display = 'none';
-            errorIcon.style.display = 'block';
-            identifierInput.classList.add('invalid');
-            identifierInput.classList.remove('valid');
-        }
-    });
+    // Initialize form enhancements
+    initPasswordToggle('password', 'togglePassword');
+    initIdentifierValidation('identifier');
 
     // Handle form submission
     const form = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const btnText = loginBtn.querySelector('.btn-text');
     const btnLoader = loginBtn.querySelector('.btn-loader');
+    const identifierInput = document.getElementById('identifier');
+    const passwordInput = document.getElementById('password');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -133,22 +105,17 @@ export function renderLoginPage() {
         const identifier = identifierInput.value.trim().toLowerCase();
         const password = passwordInput.value;
         const rememberMe = document.getElementById('rememberMe').checked;
-        const errorMessage = document.getElementById('errorMessage');
 
         // Client-side validation
-        const isEmail = /^\S+@\S+\.\S+$/.test(identifier);
-        const isPhone = /^[0-9]{10}$/.test(identifier);
-
-        if (!isEmail && !isPhone) {
-            errorMessage.textContent = 'Please provide a valid email or 10-digit phone number';
-            errorMessage.style.display = 'block';
+        if (!isValidEmail(identifier) && !isValidPhone(identifier)) {
+            showError('errorMessage', 'Please provide a valid email or 10-digit phone number');
             identifierInput.focus();
             return;
         }
 
         try {
             // Show loading state
-            errorMessage.style.display = 'none';
+            hideError('errorMessage');
             loginBtn.disabled = true;
             btnText.style.display = 'none';
             btnLoader.style.display = 'inline-flex';
@@ -156,18 +123,14 @@ export function renderLoginPage() {
             const response = await authService.login({ identifier, password, rememberMe });
 
             if (response.success) {
-                // Check if location is set
                 if (!response.data.isLocationSet) {
-                    // Redirect to location setup
                     window.router.navigate('/location-setup');
                 } else {
-                    // Redirect to dashboard
                     window.router.navigate('/dashboard');
                 }
             }
         } catch (error) {
-            errorMessage.textContent = error.response?.data?.message || 'Login failed. Please try again.';
-            errorMessage.style.display = 'block';
+            showError('errorMessage', error.response?.data?.message || 'Login failed. Please try again.');
 
             // Reset button state
             loginBtn.disabled = false;
