@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0092-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0093-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0092  
+**Current Version**: v0.0093  
 **Last Updated**: December 5, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -51,13 +51,16 @@ npm run dev
 | 📊 **Dashboard** | Track and manage complaints |
 | 🔔 **Notifications** | Email/SMS alerts for status updates |
 | 🗺️ **Location Services** | GPS, pincode & manual location selection |
+| 🔐 **Remember Me** | Persistent login with refresh tokens |
+| 🔑 **Password Recovery** | 3-step OTP-based password reset |
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+), Vite
 - **Backend**: Node.js, Express
 - **Database**: MongoDB
-- **Authentication**: JWT + OTP (2FA)
+- **Authentication**: JWT + Refresh Tokens + OTP (2FA)
+- **Email**: NodeMailer
 - **File Storage**: Multer (Cloud-ready)
 
 ## 📁 Project Structure
@@ -72,7 +75,44 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0092 (Current) - December 5, 2025
+### v0.0093 (Current) - December 5, 2025
+**Complete Authentication System - Remember Me & Forgot Password**
+
+**Frontend Features:**
+- ✅ **Remember Me**: Token-based persistent login with localStorage/sessionStorage
+- ✅ **Forgot Password Flow**: Complete 3-step process (Request → Verify OTP → Reset)
+- ✅ **OTP Verification Page**: 5-minute countdown timer with resend functionality
+- ✅ **Password Reset Page**: New password entry with strength validation
+- ✅ **Form Alignment Fixes**: Disabled floating labels for better UX
+- ✅ **Auto-login**: Automatic authentication on app load with valid tokens
+
+**Backend APIs:**
+- ✅ **Enhanced Login**: Refresh token generation, account locking (5 attempts)
+- ✅ **Refresh Token Endpoint**: Token rotation for security
+- ✅ **Enhanced Logout**: Single device or all devices logout
+- ✅ **Forgot Password**: OTP generation with email delivery
+- ✅ **Verify OTP**: OTP validation with attempt limiting (5 max)
+- ✅ **Reset Password**: Secure password update with token verification
+- ✅ **Rate Limiting**: Protection against abuse (3 requests/hour for password reset)
+
+**Services & Security:**
+- ✅ **Token Service**: JWT access (15min), refresh (30d), reset (10min) tokens
+- ✅ **OTP Service**: Generation, hashing, verification with bcrypt
+- ✅ **Email Service**: Beautiful HTML emails via NodeMailer
+- ✅ **Rate Limiters**: Login (10/15min), Register (5/hour), Password Reset (3/hour)
+- ✅ **Account Security**: Failed login tracking, automatic locking, session management
+
+**Database Updates:**
+- ✅ **User Model**: Added refreshTokens array, password reset fields, security fields
+- ✅ **Token Storage**: Device tracking, expiry management
+- ✅ **OTP Tracking**: Attempt counting, expiry timestamps
+
+**Documentation:**
+- ✅ **Testing Guide**: Complete setup instructions for email/SMS testing
+- ✅ **API Documentation**: All endpoints with request/response examples
+- ✅ **Implementation Plans**: Detailed architecture and security considerations
+
+### v0.0092 - December 5, 2025
 **Advanced Form UX - Phase 2 & 3**
 
 **Phase 2 - Visual Enhancements:**

@@ -91,7 +91,7 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
     try {
-        const { identifier, password } = req.body; // identifier can be email or phone
+        const { identifier, password, rememberMe = false } = req.body;
 
         // Validate input
         if (!identifier || !password) {
@@ -114,36 +114,83 @@ export const login = async (req, res) => {
 
         // Find user by email or phone
         const query = isEmail ? { email: identifier } : { phone: identifier };
-        console.log('Login attempt:', { identifier, isEmail, isPhone });
-
         const user = await User.findOne(query).select('+password');
 
         if (!user) {
-            console.log('User not found');
             return res.status(401).json({
                 success: false,
                 message: 'Invalid credentials'
+            });
+        }
+
+        // Check if account is locked
+        if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
+            const minutesLeft = Math.ceil((user.accountLockedUntil - new Date()) / 60000);
+            return res.status(403).json({
+                success: false,
+                message: `Account is locked. Please try again in ${minutesLeft} minutes.`
             });
         }
 
         // Check password
         const isPasswordMatch = await user.comparePassword(password);
-        console.log('Password match:', isPasswordMatch);
 
         if (!isPasswordMatch) {
+            // Increment failed login attempts
+            user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+
+            // Lock account after 5 failed attempts
+            if (user.failedLoginAttempts >= 5) {
+                user.accountLockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+                await user.save();
+
+                return res.status(403).json({
+                    success: false,
+                    message: 'Account locked due to too many failed login attempts. Please try again in 30 minutes.'
+                });
+            }
+
+            await user.save();
+
             return res.status(401).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: `Invalid credentials. ${5 - user.failedLoginAttempts} attempts remaining.`
             });
         }
 
-        // Generate token
-        const token = generateToken(user._id);
+        // Reset failed login attempts on successful login
+        user.failedLoginAttempts = 0;
+        user.accountLockedUntil = undefined;
 
-        res.status(200).json({
+        // Generate access token (always)
+        const accessToken = generateToken(user._id);
+
+        // Generate refresh token if Remember Me is checked
+        let refreshToken = null;
+        if (rememberMe) {
+            const { generateRefreshToken, getTokenExpiryDate } = await import('../services/token.service.js');
+            const { token, tokenId } = generateRefreshToken(user);
+            refreshToken = token;
+
+            // Store refresh token in database
+            user.refreshTokens.push({
+                token: tokenId,
+                expiresAt: getTokenExpiryDate(),
+                deviceInfo: req.headers['user-agent'] || 'Unknown'
+            });
+
+            // Limit to 5 devices
+            if (user.refreshTokens.length > 5) {
+                user.refreshTokens = user.refreshTokens.slice(-5);
+            }
+        }
+
+        await user.save();
+
+        const response = {
             success: true,
             message: 'User logged in successfully',
-            token,
+            token: accessToken,
             data: {
                 id: user._id,
                 firstName: user.firstName,
@@ -155,8 +202,15 @@ export const login = async (req, res) => {
                 location: user.location,
                 role: user.role
             }
-        });
+        };
+
+        if (refreshToken) {
+            response.refreshToken = refreshToken;
+        }
+
+        res.status(200).json(response);
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({
             success: false,
             message: error.message
@@ -187,11 +241,118 @@ export const getMe = async (req, res) => {
 // @access  Private
 export const logout = async (req, res) => {
     try {
+        const { refreshToken, logoutAll = false } = req.body;
+        const userId = req.user.id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        if (logoutAll) {
+            // Logout from all devices
+            user.refreshTokens = [];
+        } else if (refreshToken) {
+            // Logout from current device only
+            const { verifyRefreshToken } = await import('../services/token.service.js');
+            try {
+                const decoded = verifyRefreshToken(refreshToken);
+                user.refreshTokens = user.refreshTokens.filter(
+                    rt => rt.token !== decoded.tokenId
+                );
+            } catch (error) {
+                // Token invalid, but still allow logout
+            }
+        }
+
+        await user.save();
+
         res.status(200).json({
             success: true,
-            message: 'User logged out successfully'
+            message: logoutAll ? 'Logged out from all devices' : 'User logged out successfully'
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// @desc    Refresh access token
+// @route   POST /api/auth/refresh-token
+// @access  Public
+export const refreshAccessToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(400).json({
+                success: false,
+                message: 'Refresh token is required'
+            });
+        }
+
+        // Verify refresh token
+        const { verifyRefreshToken, generateRefreshToken, generateAccessToken, getTokenExpiryDate } = await import('../services/token.service.js');
+
+        let decoded;
+        try {
+            decoded = verifyRefreshToken(refreshToken);
+        } catch (error) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid or expired refresh token'
+            });
+        }
+
+        // Find user and check if token exists
+        const user = await User.findById(decoded.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Check if refresh token exists in database
+        const tokenExists = user.refreshTokens.some(rt => rt.token === decoded.tokenId);
+
+        if (!tokenExists) {
+            return res.status(401).json({
+                success: false,
+                message: 'Refresh token not found or has been revoked'
+            });
+        }
+
+        // Generate new access token
+        const newAccessToken = generateAccessToken(user);
+
+        // Rotate refresh token (security best practice)
+        const { token: newRefreshToken, tokenId: newTokenId } = generateRefreshToken(user);
+
+        // Remove old refresh token and add new one
+        user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== decoded.tokenId);
+        user.refreshTokens.push({
+            token: newTokenId,
+            expiresAt: getTokenExpiryDate(),
+            deviceInfo: req.headers['user-agent'] || 'Unknown'
+        });
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        });
+    } catch (error) {
+        console.error('Refresh token error:', error);
         res.status(500).json({
             success: false,
             message: error.message

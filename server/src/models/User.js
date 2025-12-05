@@ -78,6 +78,37 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    // Remember Me - Refresh Tokens
+    refreshTokens: [{
+        token: {
+            type: String,
+            required: true
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        },
+        expiresAt: {
+            type: Date,
+            required: true
+        },
+        deviceInfo: String
+    }],
+    // Password Reset
+    passwordResetOTP: String,
+    passwordResetOTPExpiry: Date,
+    passwordResetAttempts: {
+        type: Number,
+        default: 0
+    },
+    lastPasswordResetRequest: Date,
+    // Security
+    lastPasswordChange: Date,
+    failedLoginAttempts: {
+        type: Number,
+        default: 0
+    },
+    accountLockedUntil: Date,
     createdAt: {
         type: Date,
         default: Date.now

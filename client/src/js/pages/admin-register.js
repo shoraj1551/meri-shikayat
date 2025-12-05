@@ -124,8 +124,9 @@ export function renderAdminRegisterPage() {
     `;
 
     // Initialize form enhancements
-    initFloatingLabels('adminRegisterForm');
-    initFocusAnimations('adminRegisterForm');
+    // Floating labels disabled due to alignment issues
+    // initFloatingLabels('adminRegisterForm');
+    // initFocusAnimations('adminRegisterForm');
     initPasswordToggle('password', 'togglePassword');
     initPasswordToggle('confirmPassword', 'toggleConfirmPassword');
     initPasswordStrength('password', 'passwordStrength');
