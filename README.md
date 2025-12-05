@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0094-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0095-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0094  
+**Current Version**: v0.0095  
 **Last Updated**: December 5, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -84,7 +84,30 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0094 (Current) - December 5, 2025
+### v0.0095 (Current) - December 5, 2025
+**Critical Bug Fixes - Auth Service & Category Schema**
+
+**Bug Fixes:**
+- 🐛 **Fixed Missing Auth Imports**: Added missing import statements in `register.js` for `authService` and form utilities
+  - Registration page was broken due to missing imports
+  - Added imports for: `authService`, `initPasswordToggle`, `initPasswordStrength`, `isValidEmail`, `isValidPhone`, `showError`, `hideError`
+  - All auth pages now load without console errors
+  
+- 🐛 **Fixed Category Schema Mismatch**: Converted Complaint category from hardcoded string enum to Category ObjectId reference
+  - Changed category field from `String` to `ObjectId` reference
+  - Added category index for better query performance
+  - Updated all controllers to populate category data (icons, colors, departments)
+  - Seed data Categories are now actually used instead of being wasted
+  - **Breaking Change**: Frontend needs updates to send category ObjectIds
+  - **Note**: Tests need updating to use Category ObjectIds
+
+**Technical Changes:**
+- Modified: `client/src/js/pages/register.js` (10 insertions)
+- Modified: `server/src/models/Complaint.js` (schema change + index)
+- Modified: `server/src/controllers/complaint.controller.js` (2 populate calls)
+- Modified: `server/src/controllers/complaint-admin.controller.js` (2 populate calls)
+
+### v0.0094 - December 5, 2025
 **Multi-Environment Deployment & Complete Database Schema**
 
 **Vercel Deployment:**
