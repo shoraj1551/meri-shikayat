@@ -8,7 +8,10 @@
         "dev": "nodemon src/index.js",
         "start": "node src/index.js",
         "test": "jest",
-        "lint": "eslint src --ext .js"
+        "lint": "eslint src --ext .js",
+        "seed": "node src/seeds/seed.js",
+        "seed:dev": "NODE_ENV=development node src/seeds/seed.js",
+        "seed:uat": "NODE_ENV=staging node src/seeds/seed.js"
     },
     "keywords": [
         "complaint",
