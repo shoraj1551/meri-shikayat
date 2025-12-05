@@ -1,10 +1,10 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0090-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0091-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0090  
+**Current Version**: v0.0091  
 **Last Updated**: December 5, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
@@ -72,7 +72,25 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0090 (Current) - December 5, 2025
+### v0.0091 (Current) - December 5, 2025
+**Form Improvements & UX Enhancements**
+
+**New Features:**
+- ✅ **Password Visibility Toggles**: All password fields now have show/hide buttons
+- ✅ **Real-time Validation**: Instant feedback with success/error icons on all forms
+- ✅ **Password Strength Indicators**: Visual strength meter for registration forms
+- ✅ **Password Requirements**: Clear checklist showing password criteria
+- ✅ **Loading States**: Professional loading animations on all submit buttons
+- ✅ **Autocomplete Attributes**: Improved browser autofill support
+- ✅ **Forgot Password Links**: Added to both user and admin login
+- ✅ **Remember Me Checkboxes**: Session persistence options
+- ✅ **Terms & Conditions**: Required checkboxes with links on registration forms
+- ✅ **Form Utilities Library**: Reusable components for consistent UX
+
+**Forms Enhanced:**
+- User Login, Admin Login, User Register, Admin Register, Complaint Forms
+
+### v0.0090 - December 5, 2025
 **Vercel Deployment Configuration**
 
 **New Features:**
