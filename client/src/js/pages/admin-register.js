@@ -1,3 +1,15 @@
+import { adminService } from '../api/admin.service.js';
+import {
+    initPasswordToggle,
+    initPasswordStrength,
+    initPasswordRequirements,
+    initFloatingLabels,
+    initFocusAnimations,
+    isValidEmail,
+    isValidPhone,
+    showError,
+    hideError,
+    showSuccess
 } from '../utils/form-utils.js';
 
 export function renderAdminRegisterPage() {
