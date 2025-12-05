@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "name": "meri-shikayat-prod",
+    "name": "meri-shikayat-uat",
     "builds": [
         {
             "src": "client/package.json",
@@ -25,11 +25,11 @@
         }
     ],
     "env": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "staging"
     },
     "build": {
         "env": {
-            "NODE_ENV": "production"
+            "NODE_ENV": "staging"
         }
     }
 }
