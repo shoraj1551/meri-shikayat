@@ -118,41 +118,122 @@ export function renderAdminLoginPage() {
                     isOtpStep = true;
                     adminId = response.adminId;
 
-                    // Hide credentials fields
-                    form.querySelector('.form-group:nth-child(1)').style.display = 'none';
-                    form.querySelector('.form-group:nth-child(2)').style.display = 'none';
-                    form.querySelector('.form-row').style.display = 'none';
+                    // Hide credentials fields with fade out
+                    const credFields = [
+                        form.querySelector('.form-group:nth-child(1)'),
+                        form.querySelector('.form-group:nth-child(2)'),
+                        form.querySelector('.form-row')
+                    ];
 
-                    // Show OTP field
-                    let otpGroup = document.getElementById('otpGroup');
-                    if (!otpGroup) {
-                        otpGroup = document.createElement('div');
-                        otpGroup.id = 'otpGroup';
-                        otpGroup.className = 'form-group';
-                        otpGroup.style.animation = 'slideIn 0.3s ease';
-                        otpGroup.innerHTML = `
-                            <label for="otp">Enter OTP</label>
-                            <input 
-                                type="text" 
-                                id="otp" 
-                                name="otp" 
-                                class="form-input" 
-                                placeholder="Enter 6-digit OTP"
-                                maxlength="6"
-                                autocomplete="one-time-code"
-                                required
-                            />
-                            <p class="form-hint">Check your server console for the OTP (Simulation)</p>
-                        `;
-                        const errorMsg = document.getElementById('errorMessage');
-                        form.insertBefore(otpGroup, errorMsg);
-                    }
+                    credFields.forEach(field => {
+                        field.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        field.style.opacity = '0';
+                        field.style.transform = 'translateY(-10px)';
+                    });
 
-                    btnText.textContent = 'Verify OTP';
-                    submitBtn.disabled = false;
-                    btnText.style.display = 'inline';
-                    btnLoader.style.display = 'none';
-                    document.getElementById('otp').focus();
+                    setTimeout(() => {
+                        credFields.forEach(field => field.style.display = 'none');
+
+                        // Show OTP field with fade in
+                        let otpGroup = document.getElementById('otpGroup');
+                        if (!otpGroup) {
+                            otpGroup = document.createElement('div');
+                            otpGroup.id = 'otpGroup';
+                            otpGroup.className = 'form-group';
+                            otpGroup.style.opacity = '0';
+                            otpGroup.style.transform = 'translateY(10px)';
+                            otpGroup.innerHTML = `
+                                <label for="otp">Enter OTP</label>
+                                <input 
+                                    type="text" 
+                                    id="otp" 
+                                    name="otp" 
+                                    class="form-input" 
+                                    placeholder="Enter 6-digit OTP"
+                                    maxlength="6"
+                                    autocomplete="one-time-code"
+                                    required
+                                />
+                                <div class="otp-info">
+                                    <p class="form-hint">Check your server console for the OTP (Simulation)</p>
+                                    <div class="otp-timer" id="otpTimer">
+                                        <span class="timer-icon">⏱️</span>
+                                        <span class="timer-text">OTP expires in <strong id="timerCount">5:00</strong></span>
+                                    </div>
+                                    <button type="button" class="btn-resend-otp" id="resendOtpBtn" disabled>
+                                        <span class="resend-icon">🔄</span> Resend OTP
+                                    </button>
+                                </div>
+                            `;
+                            const errorMsg = document.getElementById('errorMessage');
+                            form.insertBefore(otpGroup, errorMsg);
+
+                            // Trigger fade in animation
+                            setTimeout(() => {
+                                otpGroup.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                                otpGroup.style.opacity = '1';
+                                otpGroup.style.transform = 'translateY(0)';
+                            }, 50);
+                        }
+
+                        // Start OTP timer (5 minutes)
+                        let timeLeft = 300; // 5 minutes in seconds
+                        const timerElement = document.getElementById('timerCount');
+                        const resendBtn = document.getElementById('resendOtpBtn');
+
+                        const timerInterval = setInterval(() => {
+                            timeLeft--;
+                            const minutes = Math.floor(timeLeft / 60);
+                            const seconds = timeLeft % 60;
+                            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                            if (timeLeft <= 0) {
+                                clearInterval(timerInterval);
+                                timerElement.textContent = 'Expired';
+                                timerElement.style.color = '#ef4444';
+                                resendBtn.disabled = false;
+                                resendBtn.style.opacity = '1';
+                                resendBtn.style.cursor = 'pointer';
+                            }
+                        }, 1000);
+
+                        // Handle resend OTP
+                        resendBtn.addEventListener('click', async () => {
+                            try {
+                                resendBtn.disabled = true;
+                                resendBtn.innerHTML = '<span class="spinner"></span> Sending...';
+
+                                // Call resend OTP API
+                                const response = await adminService.login({
+                                    identifier: identifierInput.value.trim().toLowerCase(),
+                                    password: passwordInput.value,
+                                    rememberMe: false
+                                });
+
+                                if (response.success) {
+                                    // Reset timer
+                                    timeLeft = 300;
+                                    timerElement.style.color = '';
+                                    resendBtn.innerHTML = '<span class="resend-icon">🔄</span> Resend OTP';
+                                    resendBtn.disabled = true;
+                                    resendBtn.style.opacity = '0.5';
+
+                                    showError('errorMessage', '✅ New OTP sent! Check your console.');
+                                    setTimeout(() => hideError('errorMessage'), 3000);
+                                }
+                            } catch (error) {
+                                resendBtn.disabled = false;
+                                resendBtn.innerHTML = '<span class="resend-icon">🔄</span> Resend OTP';
+                                showError('errorMessage', 'Failed to resend OTP. Please try again.');
+                            }
+                        });
+
+                        btnText.textContent = 'Verify OTP';
+                        submitBtn.disabled = false;
+                        btnText.style.display = 'inline';
+                        btnLoader.style.display = 'none';
+                        document.getElementById('otp').focus();
+                    }, 300);
                 }
             } else {
                 // Step 2: Verify OTP

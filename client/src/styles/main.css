@@ -3917,3 +3917,92 @@ p {
     }
 }
 
+
+/* OTP Timer and Resend Styles */
+.otp-info {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.otp-timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.timer-icon {
+    font-size: 1.2rem;
+}
+
+.timer-text {
+    color: var(--text-primary, #1f2937);
+}
+
+.timer-text strong {
+    color: var(--primary-color, #3b82f6);
+    font-weight: 600;
+}
+
+.btn-resend-otp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: transparent;
+    border: 2px solid var(--primary-color, #3b82f6);
+    color: var(--primary-color, #3b82f6);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.5;
+}
+
+.btn-resend-otp:not(:disabled):hover {
+    background: var(--primary-color, #3b82f6);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-resend-otp:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.resend-icon {
+    font-size: 1rem;
+}
+
+/* Fade transitions */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
