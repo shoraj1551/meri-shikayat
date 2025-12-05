@@ -4006,3 +4006,51 @@ p {
     }
 }
 
+
+/* Auto-Save Indicator */
+.auto-save-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+    color: #059669;
+    animation: slideInDown 0.3s ease;
+}
+
+.save-icon {
+    font-size: 1.1rem;
+}
+
+.save-text {
+    font-weight: 500;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Character Counter Enhancements */
+.char-counter {
+    margin-top: 8px;
+    font-size: 0.875rem;
+    text-align: right;
+    transition: color 0.3s ease;
+}
+
+.char-counter span {
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
