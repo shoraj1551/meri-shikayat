@@ -23,9 +23,9 @@ const complaintSchema = new mongoose.Schema({
         trim: true
     },
     category: {
-        type: String,
-        required: [true, 'Category is required'],
-        enum: ['Roads', 'Electricity', 'Water', 'Sanitation', 'Waste Management', 'Street Lights', 'Parks', 'Other']
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: [true, 'Category is required']
     },
     mediaUrl: {
         type: String
@@ -93,5 +93,6 @@ const complaintSchema = new mongoose.Schema({
 // Index for faster queries
 complaintSchema.index({ user: 1, status: 1 });
 complaintSchema.index({ 'location.pincode': 1 });
+complaintSchema.index({ category: 1 });
 
 export default mongoose.model('Complaint', complaintSchema);

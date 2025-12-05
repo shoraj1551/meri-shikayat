@@ -55,6 +55,7 @@ export const createComplaint = async (req, res) => {
 export const getMyComplaints = async (req, res) => {
     try {
         const complaints = await Complaint.find({ user: req.user.id })
+            .populate('category')
             .sort({ createdAt: -1 });
 
         res.json({
@@ -91,6 +92,7 @@ export const getNearbyComplaints = async (req, res) => {
             'location.city': user.location.city,
             user: { $ne: req.user.id }
         })
+            .populate('category')
             .sort({ createdAt: -1 })
             .limit(5)
             .populate('user', 'firstName lastName');
