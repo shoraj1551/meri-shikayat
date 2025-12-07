@@ -90,8 +90,8 @@ export function renderLoginPage() {
 
     // Initialize form enhancements
     // Floating labels disabled due to alignment issues with current HTML structure
-    // initFloatingLabels('loginForm');
-    // initFocusAnimations('loginForm');
+    initFloatingLabels('loginForm');
+    initFocusAnimations('loginForm');
     initPasswordToggle('password', 'togglePassword');
     initIdentifierValidation('identifier');
 

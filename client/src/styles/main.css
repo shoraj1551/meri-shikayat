@@ -3728,8 +3728,8 @@ p {
 .form-group.floating-label label {
     position: absolute;
     left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 12px;
+    transform: translateY(0);
     background: var(--bg-primary, #ffffff);
     padding: 0 4px;
     color: var(--text-secondary, #6b7280);
@@ -3744,8 +3744,8 @@ p {
 .form-group.floating-label input.has-value + label,
 .form-group.floating-label textarea:focus + label,
 .form-group.floating-label textarea:not(:placeholder-shown) + label {
-    top: 0;
-    transform: translateY(-50%);
+    top: -10px;
+    transform: translateY(0);
     font-size: 0.75rem;
     color: var(--primary-color, #3b82f6);
     font-weight: 500;

@@ -125,7 +125,8 @@ export function renderAdminRegisterPage() {
 
     // Initialize form enhancements
     // Floating labels disabled due to alignment issues
-    // initFloatingLabels('adminRegisterForm');
+    initFloatingLabels('adminRegisterForm');
+    initFocusAnimations('adminRegisterForm');
     // initFocusAnimations('adminRegisterForm');
     initPasswordToggle('password', 'togglePassword');
     initPasswordToggle('confirmPassword', 'toggleConfirmPassword');

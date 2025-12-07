@@ -81,7 +81,8 @@ export function renderAdminLoginPage() {
 
     // Initialize form enhancements
     // Floating labels disabled due to alignment issues
-    // initFloatingLabels('adminLoginForm');
+    initFloatingLabels('adminLoginForm');
+    initFocusAnimations('adminLoginForm');
     // initFocusAnimations('adminLoginForm');
     initPasswordToggle('password', 'togglePassword');
     initIdentifierValidation('identifier');
