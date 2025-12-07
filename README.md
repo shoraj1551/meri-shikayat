@@ -1,11 +1,11 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0095-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0096-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
-**Current Version**: v0.0095  
-**Last Updated**: December 5, 2025
+**Current Version**: v0.0096  
+**Last Updated**: December 6, 2025
 
 A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
 
@@ -84,7 +84,28 @@ meri-shikayat/
 
 ## 📋 Recent Updates
 
-### v0.0095 (Current) - December 5, 2025
+### v0.0096 (Current) - December 6, 2025
+**Feature Enhancements & UX Fixes**
+
+**New Features:**
+- ✨ **Department Reference**: Added `department` field to Complaint model with auto-assignment logic
+  - Complaints can now be routed to specific government departments
+  - Added department index for performance
+  - Updated controllers to populate department data
+- ✨ **Media Model Integration**: Integrated `Media` model with Complaint
+  - Replaced simple `mediaUrl` string with `media` array of ObjectIds
+  - Captures rich metadata: file type, size, mimeType, original name
+  - Supports multiple file attachments (future-proof)
+  - Auto-detects media type (image, video, audio, document)
+
+**Bug Fixes & UX Improvements:**
+- 🐛 **Fixed Floating Labels**: Re-enabled floating labels and focus animations in all auth forms (Login, Register, Admin)
+  - Restored Phase 2 visual enhancements
+- 🐛 **Fixed CSS Regression**: Resolved alignment issue where labels were "out of sync"
+  - Adjusted CSS positioning for floating labels in `main.css`
+- ✅ **Verified Login Page**: Confirmed correct imports and functionality
+
+### v0.0095 - December 5, 2025
 **Critical Bug Fixes - Auth Service & Category Schema**
 
 **Bug Fixes:**
