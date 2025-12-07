@@ -32,4 +32,4 @@ afterAll(async () => {
 });
 
 // Increase timeout for database operations
-jest.setTimeout(10000);
+// jest.setTimeout(10000);

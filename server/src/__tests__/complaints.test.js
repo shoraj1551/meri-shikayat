@@ -4,10 +4,12 @@
  */
 
 import request from 'supertest';
+import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors';
 import authRoutes from '../routes/auth.routes.js';
 import complaintRoutes from '../routes/complaint.routes.js';
+import Category from '../models/Category.js';
 import './setup.js';
 
 // Create test app
@@ -20,14 +22,26 @@ app.use('/api/complaints', complaintRoutes);
 describe('Complaint Creation Tests', () => {
     let authToken;
     let userId;
+    let categoryId;
 
     // Register and login a user before tests
     beforeEach(async () => {
+        // Create a test category
+        const category = await Category.create({
+            name: 'Roads',
+            description: 'Road related issues',
+            icon: '🛣️',
+            color: '#000000'
+        });
+        categoryId = category._id;
+
         const userData = {
-            name: 'Test User',
+            firstName: 'Test',
+            lastName: 'User',
             email: 'complaintuser@example.com',
             password: 'Test@123',
             phone: '9876543210',
+            dateOfBirth: '1990-01-01',
             location: {
                 address: 'Test Address, Mumbai',
                 coordinates: {
@@ -41,14 +55,17 @@ describe('Complaint Creation Tests', () => {
             .post('/api/auth/register')
             .send(userData);
 
+
+
         authToken = response.body.token;
-        userId = response.body.user._id;
+        userId = response.body.data.id;
     });
 
     describe('POST /api/complaints - Valid Complaint Creation', () => {
         it('should create a complaint with all required data', async () => {
             const complaintData = {
-                category: 'roads',
+                category: categoryId,
+                title: 'Test Complaint',
                 location: {
                     address: 'MG Road, Mumbai',
                     coordinates: {
@@ -68,14 +85,14 @@ describe('Complaint Creation Tests', () => {
 
             // Verify response structure
             expect(response.body).toHaveProperty('success', true);
-            expect(response.body).toHaveProperty('complaint');
+            expect(response.body).toHaveProperty('data');
 
             // Verify complaint data
-            const complaint = response.body.complaint;
+            const complaint = response.body.data;
             expect(complaint).toHaveProperty('_id');
-            expect(complaint).toHaveProperty('category', complaintData.category);
+            expect(complaint.category.toString()).toBe(complaintData.category.toString());
             expect(complaint).toHaveProperty('description', complaintData.description);
-            expect(complaint).toHaveProperty('status', 'Pending');
+            expect(complaint).toHaveProperty('status', 'pending');
             expect(complaint).toHaveProperty('user', userId);
 
             // Verify location data
@@ -86,7 +103,8 @@ describe('Complaint Creation Tests', () => {
 
         it('should create a complaint and persist it in database', async () => {
             const complaintData = {
-                category: 'sanitation',
+                category: categoryId,
+                title: 'Test Complaint',
                 location: {
                     address: 'Park Street, Mumbai',
                     coordinates: {
@@ -98,28 +116,24 @@ describe('Complaint Creation Tests', () => {
                 type: 'text'
             };
 
-            const createResponse = await request(app)
+            await request(app)
                 .post('/api/complaints')
                 .set('Authorization', `Bearer ${authToken}`)
-                .send(complaintData);
+                .send(complaintData)
+                .expect(201);
 
-            const complaintId = createResponse.body.complaint._id;
-
-            // Fetch the complaint to verify persistence
-            const fetchResponse = await request(app)
-                .get(`/api/complaints/${complaintId}`)
-                .set('Authorization', `Bearer ${authToken}`)
-                .expect(200);
-
-            expect(fetchResponse.body.complaint).toHaveProperty('_id', complaintId);
-            expect(fetchResponse.body.complaint).toHaveProperty('description', complaintData.description);
+            // Verify database persistence
+            const savedComplaint = await mongoose.model('Complaint').findOne({ description: complaintData.description });
+            expect(savedComplaint).toBeTruthy();
+            expect(savedComplaint.category.toString()).toBe(complaintData.category.toString());
         });
     });
 
-    describe('POST /api/complaints - Missing Data Rejection', () => {
+    describe('POST /api/complaints - Validation Tests', () => {
         it('should reject complaint without location coordinates', async () => {
             const incompleteData = {
-                category: 'roads',
+                category: categoryId,
+                title: 'Test Complaint',
                 location: {
                     address: 'MG Road, Mumbai'
                     // Missing coordinates
@@ -166,7 +180,8 @@ describe('Complaint Creation Tests', () => {
 
         it('should reject complaint without description', async () => {
             const incompleteData = {
-                category: 'roads',
+                category: categoryId,
+                title: 'Test Complaint',
                 location: {
                     address: 'MG Road, Mumbai',
                     coordinates: {

@@ -113,6 +113,18 @@ const seedDepartments = async (categories) => {
 
     const createdDepartments = await Department.insertMany(departments);
     console.log(`✅ Created ${createdDepartments.length} departments`);
+
+    // Link categories back to departments
+    for (const dept of createdDepartments) {
+        if (dept.categories && dept.categories.length > 0) {
+            await Category.updateMany(
+                { _id: { $in: dept.categories } },
+                { $set: { department: dept._id } }
+            );
+        }
+    }
+    console.log('✅ Linked categories to departments');
+
     return createdDepartments;
 };
 
@@ -153,7 +165,7 @@ const seedDevelopment = async () => {
             phone: `98765431${i.toString().padStart(2, '0')}`,
             password: 'Admin@123',
             dateOfBirth: new Date('1985-01-01'),
-            role: 'admin',
+            role: 'super_admin',
             isVerified: true
         });
     }
@@ -207,7 +219,7 @@ const seedUAT = async () => {
             phone: `8${Math.floor(100000000 + Math.random() * 900000000)}`,
             password: 'Admin@123',
             dateOfBirth: new Date(1975 + Math.floor(Math.random() * 25), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1),
-            role: 'admin',
+            role: 'super_admin',
             isVerified: true
         });
     }

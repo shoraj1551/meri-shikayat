@@ -68,6 +68,13 @@ export const createComplaint = async (req, res) => {
         });
     } catch (error) {
         console.error('Create Complaint Error:', error);
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({
+                success: false,
+                message: messages.join(', ')
+            });
+        }
         res.status(500).json({
             success: false,
             message: 'Server error while creating complaint',
@@ -83,6 +90,7 @@ export const getMyComplaints = async (req, res) => {
     try {
         const complaints = await Complaint.find({ user: req.user.id })
             .populate('category')
+            .populate('department')
             .populate('media')
             .sort({ createdAt: -1 });
 
@@ -121,6 +129,7 @@ export const getNearbyComplaints = async (req, res) => {
             user: { $ne: req.user.id }
         })
             .populate('category')
+            .populate('department')
             .populate('media')
             .sort({ createdAt: -1 })
             .limit(5)
