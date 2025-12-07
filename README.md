@@ -1,74 +1,40 @@
 # Meri Shikayat
 
-![Version](https://img.shields.io/badge/version-0.0097-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Status](https://img.shields.io/badge/status-active-success.svg)
+Meri Shikayat is a citizen grievance redressal platform designed to bridge the gap between citizens and municipal authorities. It allows users to report issues like potholes, garbage, and street light failures, track their status, and ensures accountability through a transparent process.
 
-**Current Version**: v0.0097
-**Last Updated**: December 7, 2025
+## Features
 
-A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
+- **Citizen Reporting**: Submit complaints with text, images, audio, and video.
+- **Location Tracking**: Auto-detect location for accurate issue reporting.
+- **Real-time Status**: Track complaint progress from 'Pending' to 'Resolved'.
+- **Admin Dashboard**: Manage, assign, and update complaints efficiently.
+- **Department Integration**: Auto-routing of complaints to relevant departments (PWD, Water, Sanitation, etc.).
 
-## 🚀 Quick Start
+## Tech Stack
 
-### Prerequisites
-- Node.js (v16+)
-- MongoDB (v5+)
-- npm or yarn
-
-### Installation & Running
-
-```bash
-# Clone the repository
-git clone <repository-url>
-
-# Install & run backend
-cd server
-npm install
-npm run dev
-
-# Install & run frontend (new terminal)
-cd client
-npm install
-npm run dev
-```
-
-**Access Points:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-- Health Check: http://localhost:5000/api/health
-
-## ✨ Key Features
-
-- 📝 **Multi-channel Complaints**: Text, Audio, Video, Image support
-- 👤 **User Management**: Registration, Profiles, Authentication
-- 👨‍💼 **Admin System**: RBAC, Dashboard, Status Management
-- 🗺️ **Location Services**: GPS & Manual selection
-- 🔔 **Notifications**: Email/SMS alerts
-- 🌍 **Multi-Environment**: Dev, UAT, Production support
-
-## 🛠️ Tech Stack
-
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+), Vite
-- **Backend**: Node.js, Express
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3 (Modern, Responsive)
+- **Backend**: Node.js, Express.js
 - **Database**: MongoDB
-- **Authentication**: JWT + Refresh Tokens + OTP
-- **Deployment**: Vercel
+- **Authentication**: JWT (JSON Web Tokens)
 
-## 📁 Project Structure
+## Getting Started
 
-```
-meri-shikayat/
-├── client/              # Frontend (Vite + Vanilla JS)
-├── server/              # Backend API (Express)
-├── vercel.json          # Production config
-└── docs/                # Documentation
-```
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/shoraj1551/meri-shikayat.git
+    ```
 
-## 📄 License
+2.  **Install Dependencies**
+    ```bash
+    npm run install-all
+    ```
 
-MIT License - see [LICENSE](LICENSE) file for details.
+3.  **Environment Setup**
+    - Create `.env` in `server/` and `client/` based on `.env.example`.
 
-## 🤝 Contributing
+4.  **Run the Application**
+    - Development: `npm run dev` (if script exists) or run client and server separately.
 
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
+## License
+
+This project is licensed under the ISC License.
