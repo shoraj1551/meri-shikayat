@@ -1,4 +1,5 @@
 # Meri Shikayat
+![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
 
 Meri Shikayat is a citizen grievance redressal platform designed to bridge the gap between citizens and municipal authorities. It allows users to report issues like potholes, garbage, and street light failures, track their status, and ensures accountability through a transparent process.
 
@@ -33,7 +34,16 @@ Meri Shikayat is a citizen grievance redressal platform designed to bridge the g
     - Create `.env` in `server/` and `client/` based on `.env.example`.
 
 4.  **Run the Application**
-    - Development: `npm run dev` (if script exists) or run client and server separately.
+    - **Server**:
+      ```bash
+      cd server
+      npm run dev
+      ```
+    - **Client**:
+      ```bash
+      cd client
+      npm run dev
+      ```
 
 ## License
 
