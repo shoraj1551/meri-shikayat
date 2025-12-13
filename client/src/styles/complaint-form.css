@@ -1,0 +1,351 @@
+/**
+ * Complaint Form Styles
+ * Step 1 of 3 - Initial Complaint Form
+ */
+
+.complaint-form-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem 0;
+}
+
+/* ============================================
+   PROGRESS INDICATOR (LINEAR)
+   ============================================ */
+
+.progress-container {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    padding: 0 1rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.step-count {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.step-title {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.progress-bar-linear {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-base);
+}
+
+/* ============================================
+   FORM CONTAINER
+   ============================================ */
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.complaint-form {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: var(--font-size-sm);
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: #ef4444;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    background: var(--bg-secondary);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ============================================
+   CATEGORY SELECTOR
+   ============================================ */
+
+.category-search {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+.category-search .form-input {
+    padding-left: 2.5rem;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.category-card {
+    padding: 1rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.category-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.category-card.selected {
+    border-color: var(--primary-color);
+    background: rgba(102, 51, 153, 0.05);
+    /* Light purple bg */
+    box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+.category-icon {
+    font-size: 1.75rem;
+}
+
+.category-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+/* ============================================
+   LOCATION INPUT
+   ============================================ */
+
+.location-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.location-input-group .form-input {
+    flex: 1;
+}
+
+.btn-location {
+    padding: 0 1rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    color: var(--primary-color);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.btn-location:hover {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.map-placeholder {
+    background: var(--bg-secondary);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   MEDIA OPTIONS
+   ============================================ */
+
+.media-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.media-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.media-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.05);
+    transform: translateY(-2px);
+}
+
+.media-icon {
+    font-size: 1.5rem;
+}
+
+.media-btn span:last-child {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   CHARACTER COUNTER
+   ============================================ */
+
+.char-counter {
+    text-align: right;
+    font-size: var(--font-size-xs);
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+/* ============================================
+   ERROR MESSAGES
+   ============================================ */
+
+.error-message {
+    color: #ef4444;
+    font-size: var(--font-size-xs);
+    margin-top: 0.25rem;
+    font-weight: 500;
+    min-height: 1rem;
+}
+
+/* ============================================
+   FORM ACTIONS & FOOTER
+   ============================================ */
+
+.form-actions {
+    margin-top: 2rem;
+}
+
+.btn-block {
+    width: 100%;
+    display: block;
+    padding: 1rem;
+    font-size: var(--font-size-base);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: var(--font-size-xs);
+    color: var(--text-light);
+}
+
+.form-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 600px) {
+    .complaint-form-page {
+        padding: 1rem 0;
+    }
+
+    .complaint-form {
+        padding: 1.5rem;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+        /* Keep 3 columns even on mobile for 6 items */
+    }
+
+    .location-input-group {
+        flex-direction: column;
+    }
+
+    .btn-location {
+        padding: 0.75rem;
+        justify-content: center;
+    }
+}

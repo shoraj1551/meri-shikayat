@@ -19,6 +19,18 @@ import { renderAdminComplaintsPage } from './pages/admin-complaints.js';
 import { renderProfilePage } from './pages/profile.js';
 import { renderComplaintQuickPage } from './pages/complaint-quick.js';
 import { renderRegistrationGatewayPage } from './pages/registration-gateway.js';
+import { renderComplaintForm } from './pages/complaint-form.js';
+import { renderPrivacyPage } from './pages/privacy.js';
+import { renderTermsPage } from './pages/terms.js';
+import { renderGuidelinesPage } from './pages/guidelines.js';
+import { renderHelpPage } from './pages/help.js';
+import { renderFAQPage } from './pages/faq.js';
+import { renderContactPage } from './pages/contact.js';
+import { renderHowItWorksPage } from './pages/how-it-works.js';
+import { renderFeaturesPage } from './pages/features.js';
+import { renderForgotPasswordPage } from './pages/forgot-password.js';
+import { renderForgotPasswordVerifyPage } from './pages/forgot-password-verify.js';
+import { renderForgotPasswordResetPage } from './pages/forgot-password-reset.js';
 
 export function initializeApp() {
     console.log('Meri Shikayat application initialized');
@@ -29,12 +41,15 @@ export function initializeApp() {
     // Register routes
     router.register('/', renderHomePage);
     router.register('/login', renderLoginPage);
+    router.register('/forgot-password', renderForgotPasswordPage);
+    router.register('/forgot-password-verify', renderForgotPasswordVerifyPage);
+    router.register('/forgot-password-reset', renderForgotPasswordResetPage);
     router.register('/register', renderRegisterPage);
     router.register('/location-setup', renderLocationSetupPage);
     router.register('/dashboard', renderDashboardPage);
     router.register('/submit-complaint', renderSubmitComplaintPage);
     router.register('/profile', renderProfilePage);
-    router.register('/file-complaint', renderComplaintQuickPage);
+    router.register('/file-complaint', renderComplaintForm);
     router.register('/register-gateway', renderRegistrationGatewayPage);
 
     // Admin Routes
@@ -45,6 +60,20 @@ export function initializeApp() {
     router.register('/admin/pending', renderAdminPendingPage);
     router.register('/admin/my-permissions', renderAdminPermissionsPage);
     router.register('/admin/permission-requests', renderPermissionRequestsPage);
+
+    // Legal Pages
+    router.register('/privacy', renderPrivacyPage);
+    router.register('/terms', renderTermsPage);
+    router.register('/guidelines', renderGuidelinesPage);
+
+    // Support Pages
+    router.register('/help', renderHelpPage);
+    router.register('/faq', renderFAQPage);
+    router.register('/contact', renderContactPage);
+
+    // Platform Pages
+    router.register('/how-it-works', renderHowItWorksPage);
+    router.register('/features', renderFeaturesPage);
 
     // Initialize router
     router.init();

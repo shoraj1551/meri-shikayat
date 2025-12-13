@@ -1,166 +1,50 @@
 # Meri Shikayat
+![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
 
-![Version](https://img.shields.io/badge/version-0.0081-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Status](https://img.shields.io/badge/status-active-success.svg)
+Meri Shikayat is a citizen grievance redressal platform designed to bridge the gap between citizens and municipal authorities. It allows users to report issues like potholes, garbage, and street light failures, track their status, and ensures accountability through a transparent process.
 
-**Current Version**: v0.0081  
-**Last Updated**: December 3, 2025
+## Features
 
-A comprehensive complaint registration system that allows users to submit complaints through multiple channels including text, audio, video, and images.
+- **Citizen Reporting**: Submit complaints with text, images, audio, and video.
+- **Location Tracking**: Auto-detect location for accurate issue reporting.
+- **Real-time Status**: Track complaint progress from 'Pending' to 'Resolved'.
+- **Admin Dashboard**: Manage, assign, and update complaints efficiently.
+- **Department Integration**: Auto-routing of complaints to relevant departments (PWD, Water, Sanitation, etc.).
 
-## 🚀 Quick Start
+## Tech Stack
 
-### Prerequisites
-- Node.js (v16+)
-- MongoDB (v5+)
-- npm or yarn
-
-### Installation & Running
-
-```bash
-# Clone the repository
-git clone <repository-url>
-
-# Install & run backend
-cd server
-npm install
-npm run dev
-
-# Install & run frontend (new terminal)
-cd client
-npm install
-npm run dev
-```
-
-**Access Points:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-- Health Check: http://localhost:5000/api/health
-
-## ✨ Key Features
-
-| Feature | Description |
-|---------|-------------|
-| 📝 **Text Complaints** | Submit detailed written complaints |
-| 🎤 **Audio Complaints** | Record and submit voice complaints |
-| 📹 **Video Complaints** | Upload or record video evidence |
-| 📷 **Image Complaints** | Attach photos to support complaints |
-| 👤 **User Management** | Registration, authentication & profiles |
-| 👨‍💼 **Admin System** | Role-based access control (RBAC) |
-| 📊 **Dashboard** | Track and manage complaints |
-| 🔔 **Notifications** | Email/SMS alerts for status updates |
-| 🗺️ **Location Services** | GPS, pincode & manual location selection |
-
-<<<<<<< HEAD
-## Branching Strategy
-
-We follow a three-tier branching strategy for controlled deployments:
-
-```
-dev → UAT → main
-```
-
-- **dev**: Active development (unstable)
-- **uat**: User Acceptance Testing (stable)
-- **main**: Production (very stable)
-
-For detailed information about our branching strategy, merge pipeline, and deployment process, see [BRANCHING_STRATEGY.md](docs/BRANCHING_STRATEGY.md).
-
-## Version History
-=======
-## 🛠️ Tech Stack
->>>>>>> dev
-
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+), Vite
-- **Backend**: Node.js, Express
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3 (Modern, Responsive)
+- **Backend**: Node.js, Express.js
 - **Database**: MongoDB
-- **Authentication**: JWT + OTP (2FA)
-- **File Storage**: Multer (Cloud-ready)
+- **Authentication**: JWT (JSON Web Tokens)
 
-## 📁 Project Structure
+## Getting Started
 
-```
-meri-shikayat/
-├── client/              # Frontend (Vite + Vanilla JS)
-├── server/              # Backend API (Express)
-├── shared/              # Shared utilities
-└── docs/                # Documentation
-```
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/shoraj1551/meri-shikayat.git
+    ```
 
-## 📋 Recent Updates
+2.  **Install Dependencies**
+    ```bash
+    npm run install-all
+    ```
 
-### v0.0081 (Current) - December 3, 2025
-**Homepage Refinement - Trust Building & Expectation Setting**
+3.  **Environment Setup**
+    - Create `.env` in `server/` and `client/` based on `.env.example`.
 
-**New Sections:**
-- ✅ **Working with Local Authorities**: Displays partner government entities with logos
-- ✅ **Recent Community Impact**: Live feed showing resolved/in-progress complaints
-- ✅ **Scope of Service**: Clear "What We Address" vs "What We Don't Address" with emergency numbers
+4.  **Run the Application**
+    - **Server**:
+      ```bash
+      cd server
+      npm run dev
+      ```
+    - **Client**:
+      ```bash
+      cd client
+      npm run dev
+      ```
 
-**Design:**
-- Clean, modern white/light gradient background
-- Purple/lavender accent colors
-- Fully responsive with hover effects
-- Premium glassmorphic styling
+## License
 
-### v0.007 - December 3, 2025
-**Admin Complaint Detail View**
-- Comprehensive complaint detail modal
-- Media display (images, videos, audio)
-- Status history timeline
-- Internal notes system
-- Responsive grid layout
-
-### v0.006 - December 3, 2025
-**Admin Dashboard & Notifications**
-- Glassmorphism UI design
-- Email/SMS notification system
-- Permission request management
-- Approval/rejection workflows
-
-### v0.005 - December 2, 2025
-**Video Camera Integration**
-- Direct video recording via device camera
-- Live preview during recording
-- Critical frontend loading fixes
-
-### v0.004 - December 2, 2025
-**Admin System & OTP Authentication**
-- Role-based access control (Super Admin, Manager, Moderator, Viewer)
-- 2-Factor authentication with OTP
-- Unified login UI
-- Permission management system
-
-### v0.003 - December 2, 2025
-**Enhanced Registration & Location**
-- Split name fields with age validation (13+)
-- Flexible contact (email OR phone)
-- Location selection (Pincode/GPS/Manual)
-- India Post & OpenStreetMap integration
-
-### v0.002 - December 2, 2025
-**Complete Development Setup**
-- Premium UI with glassmorphism
-- JWT authentication
-- Complaint CRUD operations
-- Multi-channel media upload
-
-### v0.001 - December 2, 2025
-**Initial Project Structure**
-- Basic folder structure
-- Database models
-- API route structure
-- Documentation
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
-
-## 💬 Support
-
-Open an issue in the GitHub repository for support.
+This project is licensed under the ISC License.

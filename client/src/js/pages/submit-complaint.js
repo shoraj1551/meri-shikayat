@@ -1,5 +1,6 @@
 import { ComplaintForms } from '../components/complaint-forms.js';
 import { complaintService } from '../api/complaint.service.js';
+import { categoryService } from '../api/category.service.js';
 
 export function renderSubmitComplaintPage() {
     const app = document.getElementById('app');
@@ -7,6 +8,7 @@ export function renderSubmitComplaintPage() {
     let mediaRecorder = null;
     let audioChunks = [];
     let videoChunks = [];
+    let categories = [];
 
     app.innerHTML = `
         <div class="page-container">
@@ -27,6 +29,7 @@ export function renderSubmitComplaintPage() {
 
                 <div id="complaintFormContainer" class="form-container">
                     <!-- Form will be rendered here -->
+                    <div class="loading-spinner">Loading categories...</div>
                 </div>
             </main>
         </div>
@@ -39,15 +42,25 @@ export function renderSubmitComplaintPage() {
     const renderForm = (type) => {
         currentType = type;
         if (type === 'text') {
-            formContainer.innerHTML = ComplaintForms.renderTextForm();
+            formContainer.innerHTML = ComplaintForms.renderTextForm(categories);
         } else {
-            formContainer.innerHTML = ComplaintForms.renderMediaForm(type);
+            formContainer.innerHTML = ComplaintForms.renderMediaForm(type, categories);
         }
         setupFormListeners(type);
     };
 
-    // Initial render
-    renderForm('text');
+    // Fetch categories and initial render
+    const init = async () => {
+        try {
+            categories = await categoryService.getCategories();
+            renderForm('text');
+        } catch (error) {
+            console.error('Failed to load categories:', error);
+            formContainer.innerHTML = '<div class="error-message">Failed to load categories. Please try again.</div>';
+        }
+    };
+
+    init();
 
     // Tab switching logic
     tabs.forEach(tab => {

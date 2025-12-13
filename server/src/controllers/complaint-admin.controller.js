@@ -43,6 +43,9 @@ export const getComplaints = async (req, res) => {
         const complaints = await Complaint.find(filter)
             .populate('user', 'firstName lastName email phone')
             .populate('assignedTo', 'firstName lastName email')
+            .populate('category')
+            .populate('department')
+            .populate('media')
             .sort('-createdAt')
             .limit(parseInt(limit))
             .skip(skip);
@@ -79,6 +82,9 @@ export const getComplaintById = async (req, res) => {
         const complaint = await Complaint.findById(req.params.id)
             .populate('user', 'firstName lastName email phone location')
             .populate('assignedTo', 'firstName lastName email role')
+            .populate('category')
+            .populate('department')
+            .populate('media')
             .populate('adminComments.admin', 'firstName lastName')
             .populate('internalNotes.addedBy', 'firstName lastName')
             .populate('statusHistory.changedBy', 'firstName lastName');

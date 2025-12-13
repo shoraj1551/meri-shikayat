@@ -23,18 +23,23 @@ const complaintSchema = new mongoose.Schema({
         trim: true
     },
     category: {
-        type: String,
-        required: [true, 'Category is required'],
-        enum: ['Roads', 'Electricity', 'Water', 'Sanitation', 'Waste Management', 'Street Lights', 'Parks', 'Other']
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: [true, 'Category is required']
     },
-    mediaUrl: {
-        type: String
+    department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
     },
+    media: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Media'
+    }],
     location: {
         address: String,
         coordinates: {
-            lat: Number,
-            lng: Number
+            lat: { type: Number, required: true },
+            lng: { type: Number, required: true }
         },
         pincode: String
     },
@@ -93,5 +98,24 @@ const complaintSchema = new mongoose.Schema({
 // Index for faster queries
 complaintSchema.index({ user: 1, status: 1 });
 complaintSchema.index({ 'location.pincode': 1 });
+complaintSchema.index({ category: 1 });
+complaintSchema.index({ department: 1 });
+complaintSchema.index({ media: 1 });
+
+// Auto-assign department based on category
+complaintSchema.pre('save', async function (next) {
+    if (this.isModified('category') && !this.department) {
+        try {
+            const Category = mongoose.model('Category');
+            const category = await Category.findById(this.category);
+            if (category && category.department) {
+                this.department = category.department;
+            }
+        } catch (error) {
+            console.error('Error auto-assigning department:', error);
+        }
+    }
+    next();
+});
 
 export default mongoose.model('Complaint', complaintSchema);

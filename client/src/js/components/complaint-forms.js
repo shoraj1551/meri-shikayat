@@ -1,18 +1,16 @@
 export const ComplaintForms = {
-    renderTextForm() {
+    renderTextForm(categories = []) {
+        const categoryOptions = categories.map(cat =>
+            `<option value="${cat._id}">${cat.name}</option>`
+        ).join('');
+
         return `
             <form id="textComplaintForm" class="complaint-form">
                 <div class="form-group">
                     <label for="category">Category *</label>
                     <select id="category" name="category" class="form-input" required>
                         <option value="">Select Category</option>
-                        <option value="Roads">Roads & Potholes</option>
-                        <option value="Electricity">Electricity</option>
-                        <option value="Water">Water Supply</option>
-                        <option value="Sanitation">Sanitation & Garbage</option>
-                        <option value="Street Lights">Street Lights</option>
-                        <option value="Parks">Parks & Gardens</option>
-                        <option value="Other">Other</option>
+                        ${categoryOptions}
                     </select>
                 </div>
 
@@ -42,7 +40,7 @@ export const ComplaintForms = {
         `;
     },
 
-    renderMediaForm(type) {
+    renderMediaForm(type, categories = []) {
         const icons = {
             image: '📷',
             audio: '🎤',
@@ -54,6 +52,10 @@ export const ComplaintForms = {
             audio: 'audio/*',
             video: 'video/*'
         };
+
+        const categoryOptions = categories.map(cat =>
+            `<option value="${cat._id}">${cat.name}</option>`
+        ).join('');
 
         return `
             <form id="${type}ComplaintForm" class="complaint-form">
@@ -71,13 +73,7 @@ export const ComplaintForms = {
                     <label for="category">Category *</label>
                     <select id="category" name="category" class="form-input" required>
                         <option value="">Select Category</option>
-                        <option value="Roads">Roads & Potholes</option>
-                        <option value="Electricity">Electricity</option>
-                        <option value="Water">Water Supply</option>
-                        <option value="Sanitation">Sanitation & Garbage</option>
-                        <option value="Street Lights">Street Lights</option>
-                        <option value="Parks">Parks & Gardens</option>
-                        <option value="Other">Other</option>
+                        ${categoryOptions}
                     </select>
                 </div>
 

@@ -1,4 +1,5 @@
 import Complaint from '../models/Complaint.js';
+import Media from '../models/Media.js';
 
 // @desc    Create a new complaint
 // @route   POST /api/complaints
@@ -6,14 +7,6 @@ import Complaint from '../models/Complaint.js';
 export const createComplaint = async (req, res) => {
     try {
         const { title, description, category, type, location } = req.body;
-
-        // Handle file upload
-        let mediaUrl = null;
-        if (req.file) {
-            // In production, this would be a cloud URL
-            // For now, it's the relative path to the uploaded file
-            mediaUrl = `/uploads/${req.file.filename}`;
-        }
 
         // Parse location if it's sent as a string (from FormData)
         let parsedLocation = location;
@@ -25,15 +18,49 @@ export const createComplaint = async (req, res) => {
             }
         }
 
+        // Create Media document if file uploaded
+        let mediaIds = [];
+        if (req.file) {
+            // Determine media type from MIME type
+            let mediaType = 'document';
+            if (req.file.mimetype.startsWith('image')) {
+                mediaType = 'image';
+            } else if (req.file.mimetype.startsWith('video')) {
+                mediaType = 'video';
+            } else if (req.file.mimetype.startsWith('audio')) {
+                mediaType = 'audio';
+            }
+
+            const media = await Media.create({
+                complaint: null, // Will be set after complaint creation
+                uploadedBy: req.user.id,
+                type: mediaType,
+                filename: req.file.filename,
+                originalName: req.file.originalname,
+                mimeType: req.file.mimetype,
+                size: req.file.size,
+                url: `/uploads/${req.file.filename}`
+            });
+            mediaIds.push(media._id);
+        }
+
         const complaint = await Complaint.create({
             user: req.user.id,
             type,
             title,
             description,
             category,
-            mediaUrl,
+            media: mediaIds,
             location: parsedLocation
         });
+
+        // Update Media documents with complaint reference
+        if (mediaIds.length > 0) {
+            await Media.updateMany(
+                { _id: { $in: mediaIds } },
+                { complaint: complaint._id }
+            );
+        }
 
         res.status(201).json({
             success: true,
@@ -41,6 +68,13 @@ export const createComplaint = async (req, res) => {
         });
     } catch (error) {
         console.error('Create Complaint Error:', error);
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({
+                success: false,
+                message: messages.join(', ')
+            });
+        }
         res.status(500).json({
             success: false,
             message: 'Server error while creating complaint',
@@ -55,6 +89,9 @@ export const createComplaint = async (req, res) => {
 export const getMyComplaints = async (req, res) => {
     try {
         const complaints = await Complaint.find({ user: req.user.id })
+            .populate('category')
+            .populate('department')
+            .populate('media')
             .sort({ createdAt: -1 });
 
         res.json({
@@ -91,6 +128,9 @@ export const getNearbyComplaints = async (req, res) => {
             'location.city': user.location.city,
             user: { $ne: req.user.id }
         })
+            .populate('category')
+            .populate('department')
+            .populate('media')
             .sort({ createdAt: -1 })
             .limit(5)
             .populate('user', 'firstName lastName');
