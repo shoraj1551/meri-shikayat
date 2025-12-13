@@ -81,7 +81,7 @@ export const register = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during registration'
         });
     }
 };
@@ -139,14 +139,14 @@ export const login = async (req, res) => {
             // Increment failed login attempts
             user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
 
-            // Lock account after 5 failed attempts
+            // Lock account after 5 failed attempts for 1 hour
             if (user.failedLoginAttempts >= 5) {
-                user.accountLockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+                user.accountLockedUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
                 await user.save();
 
                 return res.status(403).json({
                     success: false,
-                    message: 'Account locked due to too many failed login attempts. Please try again in 30 minutes.'
+                    message: 'Account locked due to too many failed login attempts. Please try again in 1 hour.'
                 });
             }
 
@@ -154,7 +154,7 @@ export const login = async (req, res) => {
 
             return res.status(401).json({
                 success: false,
-                message: `Invalid credentials. ${5 - user.failedLoginAttempts} attempts remaining.`
+                message: 'Invalid credentials'
             });
         }
 
@@ -213,7 +213,7 @@ export const login = async (req, res) => {
         console.error('Login error:', error);
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during login'
         });
     }
 };
@@ -231,7 +231,7 @@ export const getMe = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error'
         });
     }
 };
@@ -278,7 +278,7 @@ export const logout = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during logout'
         });
     }
 };
@@ -355,7 +355,7 @@ export const refreshAccessToken = async (req, res) => {
         console.error('Refresh token error:', error);
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during token refresh'
         });
     }
 };

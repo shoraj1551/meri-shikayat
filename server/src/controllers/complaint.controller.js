@@ -77,8 +77,7 @@ export const createComplaint = async (req, res) => {
         }
         res.status(500).json({
             success: false,
-            message: 'Server error while creating complaint',
-            error: error.message
+            message: 'Server error while creating complaint'
         });
     }
 };

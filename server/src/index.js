@@ -7,6 +7,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connectDatabase } from './config/database.js';
+import { validateEnvironment } from './utils/validateEnv.js';
+import { securityHeaders, mongoSanitization, globalRateLimiter } from './middleware/security.js';
 import authRoutes from './routes/auth.routes.js';
 import complaintRoutes from './routes/complaint.routes.js';
 import locationRoutes from './routes/location.routes.js';
@@ -16,11 +18,37 @@ import userRoutes from './routes/user.routes.js';
 // Load environment variables
 dotenv.config();
 
+// Validate environment variables
+validateEnvironment();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+// CORS configuration - restrict to allowed origins
+const corsOptions = {
+    origin: function (origin, callback) {
+        const allowedOrigins = process.env.CORS_ORIGIN
+            ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+            : ['http://localhost:3000', 'http://localhost:5173'];
+
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Security middleware
+app.use(securityHeaders);
+app.use(mongoSanitization);
+app.use(globalRateLimiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
