@@ -1,0 +1,465 @@
+﻿
+> meri-shikayat-server@1.0.0 test
+> jest
+
+npm : PASS src/__tests
+__/simple.test.js
+At line:1 char:1
++ npm test 2>&1 | 
+Out-File -FilePath 
+test_results.txt 
+-Encoding utf8
++ ~~~~~~~~~~~~~
+    + CategoryInfo    
+          : 
+NotSpecified: (PAS    
+S 
+src/__tests__/simple  
+  .test.js:String) 
+[], R    
+emoteException
+    + 
+FullyQualifiedErrorI  
+  d : 
+NativeCommandError
+ 
+  Simple Test
+    ΓêÜ should pass 
+(3 ms)
+
+FAIL 
+src/__tests__/setup.js
+  ΓùÅ Test suite 
+failed to run
+
+    Jest encountered 
+an unexpected token
+
+    Jest failed to 
+parse a file. This 
+happens e.g. when 
+your code or its 
+dependencies use 
+non-standard 
+JavaScript syntax, or 
+when Jest is not 
+configured to support 
+such syntax.
+
+    Out of the box 
+Jest supports Babel, 
+which will be used to 
+transform your files 
+into valid JS based 
+on your Babel 
+configuration.
+
+    By default 
+"node_modules" folder 
+is ignored by 
+transformers.
+
+    Here's what you 
+can do:
+     ΓÇó If you are 
+trying to use 
+ECMAScript Modules, 
+see https://jestjs.io/
+docs/ecmascript-module
+s for how to enable 
+it.
+     ΓÇó If you are 
+trying to use 
+TypeScript, see https:
+//jestjs.io/docs/getti
+ng-started#using-types
+cript
+     ΓÇó To have some 
+of your 
+"node_modules" files 
+transformed, you can 
+specify a custom "tran
+sformIgnorePatterns" 
+in your config.
+     ΓÇó If you need 
+a custom 
+transformation 
+specify a "transform" 
+option in your config.
+     ΓÇó If you 
+simply want to mock 
+your non-JS modules 
+(e.g. binary assets) 
+you can stub them out 
+with the 
+"moduleNameMapper" 
+config option.
+
+    You'll find more 
+details and examples 
+of these config 
+options in the docs:
+    https://jestjs.io/
+docs/configuration
+    For information 
+about custom 
+transformations, see:
+    https://jestjs.io/
+docs/code-transformati
+on
+
+    Details:
+
+    C:\Users\SHORAJ TO
+MER\Meri_Shikayat\meri
+-shikayat\server\src\_
+_tests__\setup.js:6
+    import mongoose 
+from 'mongoose';
+    ^^^^^^
+
+    SyntaxError: 
+Cannot use import 
+statement outside a 
+module
+
+      at Runtime.creat
+eScriptFromCode (node_
+modules/jest-runtime/b
+uild/index.js:1505:14)
+
+FAIL src/__tests__/com
+plaints.test.js
+  ΓùÅ Test suite 
+failed to run
+
+    Jest encountered 
+an unexpected token
+
+    Jest failed to 
+parse a file. This 
+happens e.g. when 
+your code or its 
+dependencies use 
+non-standard 
+JavaScript syntax, or 
+when Jest is not 
+configured to support 
+such syntax.
+
+    Out of the box 
+Jest supports Babel, 
+which will be used to 
+transform your files 
+into valid JS based 
+on your Babel 
+configuration.
+
+    By default 
+"node_modules" folder 
+is ignored by 
+transformers.
+
+    Here's what you 
+can do:
+     ΓÇó If you are 
+trying to use 
+ECMAScript Modules, 
+see https://jestjs.io/
+docs/ecmascript-module
+s for how to enable 
+it.
+     ΓÇó If you are 
+trying to use 
+TypeScript, see https:
+//jestjs.io/docs/getti
+ng-started#using-types
+cript
+     ΓÇó To have some 
+of your 
+"node_modules" files 
+transformed, you can 
+specify a custom "tran
+sformIgnorePatterns" 
+in your config.
+     ΓÇó If you need 
+a custom 
+transformation 
+specify a "transform" 
+option in your config.
+     ΓÇó If you 
+simply want to mock 
+your non-JS modules 
+(e.g. binary assets) 
+you can stub them out 
+with the 
+"moduleNameMapper" 
+config option.
+
+    You'll find more 
+details and examples 
+of these config 
+options in the docs:
+    https://jestjs.io/
+docs/configuration
+    For information 
+about custom 
+transformations, see:
+    https://jestjs.io/
+docs/code-transformati
+on
+
+    Details:
+
+    C:\Users\SHORAJ TO
+MER\Meri_Shikayat\meri
+-shikayat\server\src\_
+_tests__\complaints.te
+st.js:6
+    import request 
+from 'supertest';
+    ^^^^^^
+
+    SyntaxError: 
+Cannot use import 
+statement outside a 
+module
+
+      at Runtime.creat
+eScriptFromCode (node_
+modules/jest-runtime/b
+uild/index.js:1505:14)
+
+FAIL src/__tests__/aut
+h.test.js
+  ΓùÅ Test suite 
+failed to run
+
+    Jest encountered 
+an unexpected token
+
+    Jest failed to 
+parse a file. This 
+happens e.g. when 
+your code or its 
+dependencies use 
+non-standard 
+JavaScript syntax, or 
+when Jest is not 
+configured to support 
+such syntax.
+
+    Out of the box 
+Jest supports Babel, 
+which will be used to 
+transform your files 
+into valid JS based 
+on your Babel 
+configuration.
+
+    By default 
+"node_modules" folder 
+is ignored by 
+transformers.
+
+    Here's what you 
+can do:
+     ΓÇó If you are 
+trying to use 
+ECMAScript Modules, 
+see https://jestjs.io/
+docs/ecmascript-module
+s for how to enable 
+it.
+     ΓÇó If you are 
+trying to use 
+TypeScript, see https:
+//jestjs.io/docs/getti
+ng-started#using-types
+cript
+     ΓÇó To have some 
+of your 
+"node_modules" files 
+transformed, you can 
+specify a custom "tran
+sformIgnorePatterns" 
+in your config.
+     ΓÇó If you need 
+a custom 
+transformation 
+specify a "transform" 
+option in your config.
+     ΓÇó If you 
+simply want to mock 
+your non-JS modules 
+(e.g. binary assets) 
+you can stub them out 
+with the 
+"moduleNameMapper" 
+config option.
+
+    You'll find more 
+details and examples 
+of these config 
+options in the docs:
+    https://jestjs.io/
+docs/configuration
+    For information 
+about custom 
+transformations, see:
+    https://jestjs.io/
+docs/code-transformati
+on
+
+    Details:
+
+    C:\Users\SHORAJ TO
+MER\Meri_Shikayat\meri
+-shikayat\server\src\_
+_tests__\auth.test.js:
+6
+    import request 
+from 'supertest';
+    ^^^^^^
+
+    SyntaxError: 
+Cannot use import 
+statement outside a 
+module
+
+      at Runtime.creat
+eScriptFromCode (node_
+modules/jest-runtime/b
+uild/index.js:1505:14)
+
+FAIL src/__tests__/adm
+in.test.js
+  ΓùÅ Test suite 
+failed to run
+
+    Jest encountered 
+an unexpected token
+
+    Jest failed to 
+parse a file. This 
+happens e.g. when 
+your code or its 
+dependencies use 
+non-standard 
+JavaScript syntax, or 
+when Jest is not 
+configured to support 
+such syntax.
+
+    Out of the box 
+Jest supports Babel, 
+which will be used to 
+transform your files 
+into valid JS based 
+on your Babel 
+configuration.
+
+    By default 
+"node_modules" folder 
+is ignored by 
+transformers.
+
+    Here's what you 
+can do:
+     ΓÇó If you are 
+trying to use 
+ECMAScript Modules, 
+see https://jestjs.io/
+docs/ecmascript-module
+s for how to enable 
+it.
+     ΓÇó If you are 
+trying to use 
+TypeScript, see https:
+//jestjs.io/docs/getti
+ng-started#using-types
+cript
+     ΓÇó To have some 
+of your 
+"node_modules" files 
+transformed, you can 
+specify a custom "tran
+sformIgnorePatterns" 
+in your config.
+     ΓÇó If you need 
+a custom 
+transformation 
+specify a "transform" 
+option in your config.
+     ΓÇó If you 
+simply want to mock 
+your non-JS modules 
+(e.g. binary assets) 
+you can stub them out 
+with the 
+"moduleNameMapper" 
+config option.
+
+    You'll find more 
+details and examples 
+of these config 
+options in the docs:
+    https://jestjs.io/
+docs/configuration
+    For information 
+about custom 
+transformations, see:
+    https://jestjs.io/
+docs/code-transformati
+on
+
+    Details:
+
+    C:\Users\SHORAJ TO
+MER\Meri_Shikayat\meri
+-shikayat\server\src\_
+_tests__\admin.test.js
+:6
+    import request 
+from 'supertest';
+    ^^^^^^
+
+    SyntaxError: 
+Cannot use import 
+statement outside a 
+module
+
+      at Runtime.creat
+eScriptFromCode (node_
+modules/jest-runtime/b
+uild/index.js:1505:14)
+
+Test Suites: 4 
+failed, 1 passed, 5 
+total
+Tests:       1 
+passed, 1 total
+Snapshots:   0 total
+Time:        0.7 s, 
+estimated 1 s
+Ran all test suites.
+npm error Lifecycle 
+script `test` failed 
+with error:
+npm error code 1
+npm error path 
+C:\Users\SHORAJ TOMER\
+Meri_Shikayat\meri-shi
+kayat\server
+npm error workspace me
+ri-shikayat-server@1.0
+.0
+npm error location 
+C:\Users\SHORAJ TOMER\
+Meri_Shikayat\meri-shi
+kayat\server
+npm error command 
+failed
+npm error command C:\W
+INDOWS\system32\cmd.ex
+e /d /s /c jest

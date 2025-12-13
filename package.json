@@ -1,6 +1,6 @@
 {
     "name": "meri-shikayat-root",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "private": true,
     "scripts": {
         "install-client": "cd client && npm install",
