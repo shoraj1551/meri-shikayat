@@ -1,6 +1,6 @@
 {
     "name": "meri-shikayat-server",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "description": "Backend API for Meri Shikayat complaint registration system",
     "main": "src/index.js",
     "type": "module",
