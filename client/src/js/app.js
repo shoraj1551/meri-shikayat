@@ -31,6 +31,11 @@ import { renderFeaturesPage } from './pages/features.js';
 import { renderForgotPasswordPage } from './pages/forgot-password.js';
 import { renderForgotPasswordVerifyPage } from './pages/forgot-password-verify.js';
 import { renderForgotPasswordResetPage } from './pages/forgot-password-reset.js';
+import { renderSuccessStoriesPage } from './pages/success-stories.js';
+
+// Import UI components
+import { tooltip } from './components/tooltip.js';
+import Loading from './components/loading.js';
 
 export function initializeApp() {
     console.log('Meri Shikayat application initialized');
@@ -74,6 +79,7 @@ export function initializeApp() {
     // Platform Pages
     router.register('/how-it-works', renderHowItWorksPage);
     router.register('/features', renderFeaturesPage);
+    router.register('/success-stories', renderSuccessStoriesPage);
 
     // Initialize router
     router.init();
