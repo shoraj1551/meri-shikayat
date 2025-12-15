@@ -57,6 +57,31 @@ const complaintSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin'
     },
+    // --- Social Engagement (Hype Engine) ---
+    hypes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    comments: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        text: String,
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    shares: {
+        type: Number,
+        default: 0
+    },
+    isStory: {
+        type: Boolean,
+        default: true
+    },
+    // --- Internal Admin Fields ---
     adminComments: [{
         admin: {
             type: mongoose.Schema.Types.ObjectId,
@@ -101,6 +126,8 @@ complaintSchema.index({ 'location.pincode': 1 });
 complaintSchema.index({ category: 1 });
 complaintSchema.index({ department: 1 });
 complaintSchema.index({ media: 1 });
+// Social indexes
+complaintSchema.index({ isStory: 1, createdAt: -1 });
 
 // Auto-assign department based on category
 complaintSchema.pre('save', async function (next) {
