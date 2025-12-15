@@ -41,6 +41,7 @@ import { renderAboutPage } from './pages/about.js';
 import { renderAuthoritiesPage } from './pages/authorities.js';
 import { renderAuthorityDetailPage } from './pages/authority-detail.js';
 import { renderContractorsPage } from './pages/contractors.js';
+import { renderMultiRoleRegisterPage } from './pages/multi-role-register.js';
 
 // Import UI components
 import { tooltip } from './components/tooltip.js';
@@ -58,7 +59,7 @@ export function initializeApp() {
     router.register('/forgot-password', renderForgotPasswordPage);
     router.register('/forgot-password-verify', renderForgotPasswordVerifyPage);
     router.register('/forgot-password-reset', renderForgotPasswordResetPage);
-    router.register('/register', renderRegisterPage);
+    router.register('/register', renderMultiRoleRegisterPage);  // Multi-role registration
     router.register('/location-setup', renderLocationSetupPage);
     router.register('/dashboard', renderDashboardPage);
     router.register('/submit-complaint', renderSubmitComplaintPage);

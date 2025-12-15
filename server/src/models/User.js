@@ -1,11 +1,15 @@
 /**
- * User model schema
+ * Enhanced User Model - Unified Multi-Role System
+ * Supports: General Users, Admins, Super Admins, Contractors
  */
 
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
+    // ========================================
+    // COMMON FIELDS (All User Types)
+    // ========================================
     firstName: {
         type: String,
         required: [true, 'First name is required'],
@@ -47,13 +51,34 @@ const userSchema = new mongoose.Schema({
         minlength: [8, 'Password must be at least 8 characters'],
         validate: {
             validator: function (value) {
-                // Password must contain at least one uppercase, one lowercase, one number, and one special character
                 return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(value);
             },
             message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'
         },
         select: false
     },
+
+    // ========================================
+    // ROLE & STATUS
+    // ========================================
+    userType: {
+        type: String,
+        enum: ['general_user', 'admin', 'super_admin', 'contractor'],
+        required: true,
+        default: 'general_user'
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'active', 'suspended', 'rejected'],
+        default: function () {
+            // General users are auto-activated, others require approval
+            return this.userType === 'general_user' ? 'active' : 'pending';
+        }
+    },
+
+    // ========================================
+    // LOCATION (General Users)
+    // ========================================
     location: {
         pincode: {
             type: String,
@@ -76,16 +101,173 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    role: {
-        type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+
+    // ========================================
+    // ADMIN PROFILE (Admin & Super Admin)
+    // ========================================
+    adminProfile: {
+        department: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Department'
+        },
+        designation: {
+            type: String,
+            trim: true,
+            maxlength: [100, 'Designation cannot exceed 100 characters']
+        },
+        employeeId: {
+            type: String,
+            trim: true,
+            sparse: true,
+            unique: true
+        },
+        adminId: {
+            type: String,
+            sparse: true,
+            unique: true
+        },
+        role: {
+            type: String,
+            enum: ['viewer', 'moderator', 'manager', 'super_admin'],
+            default: 'viewer'
+        },
+        permissions: {
+            viewComplaints: { type: Boolean, default: false },
+            editComplaints: { type: Boolean, default: false },
+            deleteComplaints: { type: Boolean, default: false },
+            assignComplaints: { type: Boolean, default: false },
+            viewUsers: { type: Boolean, default: false },
+            editUsers: { type: Boolean, default: false },
+            deleteUsers: { type: Boolean, default: false },
+            viewReports: { type: Boolean, default: false },
+            manageAdmins: { type: Boolean, default: false },
+            systemSettings: { type: Boolean, default: false }
+        },
+        approvedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        approvedAt: Date,
+        rejectedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        rejectedAt: Date,
+        rejectionReason: String
     },
+
+    // ========================================
+    // CONTRACTOR PROFILE
+    // ========================================
+    contractorProfile: {
+        companyName: {
+            type: String,
+            trim: true,
+            maxlength: [200, 'Company name cannot exceed 200 characters']
+        },
+        companyNameHindi: {
+            type: String,
+            trim: true,
+            maxlength: [200, 'Hindi company name cannot exceed 200 characters']
+        },
+        registrationNumber: {
+            type: String,
+            trim: true,
+            sparse: true,
+            unique: true
+        },
+        gstNumber: {
+            type: String,
+            trim: true,
+            uppercase: true,
+            match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Please provide a valid GST number']
+        },
+        panNumber: {
+            type: String,
+            trim: true,
+            uppercase: true,
+            match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Please provide a valid PAN number']
+        },
+        specialization: [{
+            type: String,
+            enum: ['sanitation', 'road_repair', 'electrical', 'plumbing', 'construction', 'landscaping', 'other']
+        }],
+        serviceAreas: [{
+            type: String,
+            trim: true
+        }],
+        certifications: [{
+            name: {
+                type: String,
+                required: true,
+                trim: true
+            },
+            number: String,
+            issuingAuthority: String,
+            issueDate: Date,
+            expiryDate: Date,
+            documentUrl: String
+        }],
+        isVerified: {
+            type: Boolean,
+            default: false
+        },
+        verifiedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        verifiedAt: Date,
+        rating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5
+        },
+        totalJobsCompleted: {
+            type: Number,
+            default: 0
+        },
+        onTimeCompletionRate: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 100
+        }
+    },
+
+    // ========================================
+    // VERIFICATION & SECURITY
+    // ========================================
     isVerified: {
         type: Boolean,
         default: false
     },
-    // Remember Me - Refresh Tokens
+    verificationStatus: {
+        email: { type: Boolean, default: false },
+        phone: { type: Boolean, default: false },
+        identity: { type: Boolean, default: false },
+        documents: { type: Boolean, default: false }
+    },
+    riskScore: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+    registrationMetadata: {
+        ipAddress: String,
+        userAgent: String,
+        deviceFingerprint: String,
+        referralSource: String,
+        registeredAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
+
+    // ========================================
+    // AUTHENTICATION & SESSION
+    // ========================================
     refreshTokens: [{
         token: {
             type: String,
@@ -101,7 +283,10 @@ const userSchema = new mongoose.Schema({
         },
         deviceInfo: String
     }],
-    // Password Reset
+
+    // ========================================
+    // PASSWORD RESET
+    // ========================================
     passwordResetOTP: String,
     passwordResetOTPExpiry: Date,
     passwordResetAttempts: {
@@ -109,13 +294,17 @@ const userSchema = new mongoose.Schema({
         default: 0
     },
     lastPasswordResetRequest: Date,
-    // Security
+
+    // ========================================
+    // SECURITY
+    // ========================================
     lastPasswordChange: Date,
     failedLoginAttempts: {
         type: Number,
         default: 0
     },
     accountLockedUntil: Date,
+
     createdAt: {
         type: Date,
         default: Date.now
@@ -124,7 +313,20 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Validate that at least one contact method is provided
+// ========================================
+// INDEXES
+// ========================================
+userSchema.index({ email: 1 });
+userSchema.index({ phone: 1 });
+userSchema.index({ userType: 1, status: 1 });
+userSchema.index({ 'adminProfile.employeeId': 1 });
+userSchema.index({ 'contractorProfile.registrationNumber': 1 });
+userSchema.index({ 'contractorProfile.gstNumber': 1 });
+
+// ========================================
+// VALIDATION
+// ========================================
+// At least one contact method required
 userSchema.pre('validate', function (next) {
     if (!this.email && !this.phone) {
         this.invalidate('email', 'Either email or phone number is required');
@@ -133,6 +335,9 @@ userSchema.pre('validate', function (next) {
     next();
 });
 
+// ========================================
+// MIDDLEWARE
+// ========================================
 // Hash password before saving
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
@@ -144,14 +349,39 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
-// Compare password method
+// ========================================
+// METHODS
+// ========================================
+// Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Virtual for full name
+// Get full name
 userSchema.virtual('fullName').get(function () {
     return `${this.firstName} ${this.lastName}`;
 });
+
+// Check if user is admin or super admin
+userSchema.methods.isAdmin = function () {
+    return this.userType === 'admin' || this.userType === 'super_admin';
+};
+
+// Check if user is super admin
+userSchema.methods.isSuperAdmin = function () {
+    return this.userType === 'super_admin';
+};
+
+// Check if user is contractor
+userSchema.methods.isContractor = function () {
+    return this.userType === 'contractor';
+};
+
+// Check if user has permission
+userSchema.methods.hasPermission = function (permission) {
+    if (this.userType === 'super_admin') return true;
+    if (!this.adminProfile) return false;
+    return this.adminProfile.permissions[permission] === true;
+};
 
 export default mongoose.model('User', userSchema);

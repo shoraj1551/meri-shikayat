@@ -1,0 +1,223 @@
+/**
+ * Role Selector Styles
+ */
+
+.role-selector-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.role-selector-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.role-selector-subtitle {
+    font-size: 1.125rem;
+    text-align: center;
+    color: #546e7a;
+    margin-bottom: 3rem;
+}
+
+/* Role Cards Grid */
+.role-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Role Card */
+.role-card {
+    background: white;
+    border: 3px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.role-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+    transform: translateY(-4px);
+}
+
+.role-card:hover::before {
+    transform: scaleX(1);
+}
+
+.role-card.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.role-card.active::before {
+    transform: scaleX(1);
+}
+
+.role-card:focus {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Role Card Icon */
+.role-card-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Role Card Title */
+.role-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.75rem;
+}
+
+/* Role Card Description */
+.role-card-description {
+    font-size: 1rem;
+    color: #546e7a;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+/* Role Card Features */
+.role-card-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    text-align: left;
+}
+
+.role-card-features li {
+    padding: 0.5rem 0;
+    color: #37474f;
+    font-size: 0.95rem;
+}
+
+/* Role Card Badge */
+.role-card-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.role-card-badge.instant {
+    background: #4caf50;
+    color: white;
+}
+
+.role-card-badge.approval {
+    background: #ff9800;
+    color: white;
+}
+
+.role-card-badge.verification {
+    background: #2196f3;
+    color: white;
+}
+
+.role-card-badge.invitation {
+    background: #9c27b0;
+    color: white;
+}
+
+/* Role Selector Note */
+.role-selector-note {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+    padding: 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.note-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.role-selector-note span:last-child {
+    color: #e65100;
+    line-height: 1.6;
+}
+
+/* Super Admin Card (Hidden) */
+.super-admin-card {
+    border-color: #9c27b0;
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(233, 30, 99, 0.05) 100%);
+}
+
+.super-admin-card .role-card-icon {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .role-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .role-selector-title {
+        font-size: 1.75rem;
+    }
+
+    .role-card {
+        padding: 1.5rem;
+    }
+
+    .role-card-icon {
+        font-size: 3rem;
+    }
+}
