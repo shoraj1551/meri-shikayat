@@ -18,6 +18,7 @@ import socialRoutes from './routes/social.routes.js';
 import storiesRoutes from './routes/stories.routes.js';
 import departmentsRoutes from './routes/departments.js';
 import contractorsRoutes from './routes/contractors.js';
+import registrationRoutes from './routes/registration.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -78,6 +79,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', registrationRoutes);  // Multi-role registration
 app.use('/api/users', userRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/location', locationRoutes);

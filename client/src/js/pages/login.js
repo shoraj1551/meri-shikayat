@@ -188,12 +188,24 @@ export function renderLoginPage() {
                 // Show success message
                 showSuccess();
 
-                // Navigate based on user setup status
+                // Navigate based on user type and setup status
                 setTimeout(() => {
-                    if (!response.data.isLocationSet) {
-                        window.router.navigate('/location-setup');
+                    const userType = response.data.userType || 'general_user';
+
+                    // Route based on user type
+                    if (userType === 'super_admin' || userType === 'admin') {
+                        // Admins and Super Admins go to admin dashboard
+                        window.router.navigate('/admin/dashboard');
+                    } else if (userType === 'contractor') {
+                        // Contractors go to contractor dashboard (future implementation)
+                        window.router.navigate('/dashboard'); // For now, use regular dashboard
                     } else {
-                        window.router.navigate('/dashboard');
+                        // General users check location setup
+                        if (!response.data.isLocationSet) {
+                            window.router.navigate('/location-setup');
+                        } else {
+                            window.router.navigate('/dashboard');
+                        }
                     }
                 }, 1500);
             }

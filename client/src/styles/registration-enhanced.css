@@ -1,0 +1,579 @@
+/**
+ * Enhanced Registration Forms CSS
+ * Modern, responsive styling for all registration forms
+ */
+
+/* ========================================
+   ENHANCED FORM SECTIONS
+   ======================================== */
+
+.form-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #f0f2f5;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.form-section-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.form-section-icon {
+    font-size: 1.75rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.form-section-description {
+    color: #546e7a;
+    margin-bottom: 1.75rem;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* ========================================
+   DEPARTMENT CARDS (Admin Form)
+   ======================================== */
+
+.department-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.department-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.department-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.department-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.department-card:hover::before {
+    transform: scaleX(1);
+}
+
+.department-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.department-card.selected::before {
+    transform: scaleX(1);
+}
+
+.department-card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.department-card-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #37474f;
+    line-height: 1.3;
+}
+
+.department-card.selected .department-card-name {
+    color: #667eea;
+}
+
+/* ========================================
+   SPECIALIZATION CHECKBOXES (Contractor)
+   ======================================== */
+
+.specialization-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.specialization-checkbox {
+    position: relative;
+}
+
+.specialization-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.specialization-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #37474f;
+}
+
+.specialization-checkbox input[type="checkbox"]:checked+.specialization-label {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    color: #667eea;
+}
+
+.specialization-label:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.specialization-icon {
+    font-size: 1.5rem;
+}
+
+.specialization-checkbox input[type="checkbox"]:checked+.specialization-label .specialization-icon {
+    animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* ========================================
+   ENHANCED INPUT FIELDS
+   ======================================== */
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+    color: #9e9e9e;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input.valid {
+    border-color: #4caf50;
+    background: #f1f8f4;
+}
+
+.form-input.invalid {
+    border-color: #f44336;
+    background: #fff5f5;
+}
+
+.validation-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+}
+
+.form-input.valid~.validation-icon::before {
+    content: '✓';
+    color: #4caf50;
+}
+
+.form-input.invalid~.validation-icon::before {
+    content: '✗';
+    color: #f44336;
+}
+
+/* ========================================
+   AUTOCOMPLETE SUGGESTIONS
+   ======================================== */
+
+.autocomplete-wrapper {
+    position: relative;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.autocomplete-suggestions.show {
+    display: block;
+}
+
+.autocomplete-suggestion {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.active {
+    background: #f5f7ff;
+    color: #667eea;
+}
+
+/* ========================================
+   FILE UPLOAD
+   ======================================== */
+
+.file-upload-area {
+    border: 2px dashed #bdbdbd;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    background: #fafafa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.file-upload-area:hover {
+    border-color: #667eea;
+    background: #f5f7ff;
+}
+
+.file-upload-area.dragover {
+    border-color: #667eea;
+    background: #e8eaf6;
+    transform: scale(1.02);
+}
+
+.file-upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #9e9e9e;
+}
+
+.file-upload-text {
+    color: #546e7a;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.file-upload-hint {
+    font-size: 0.875rem;
+    color: #9e9e9e;
+}
+
+.file-upload-input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.uploaded-file-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.file-preview-icon {
+    font-size: 2rem;
+}
+
+.file-preview-info {
+    flex: 1;
+}
+
+.file-preview-name {
+    font-weight: 600;
+    color: #37474f;
+    margin-bottom: 0.25rem;
+}
+
+.file-preview-size {
+    font-size: 0.875rem;
+    color: #9e9e9e;
+}
+
+.file-remove-btn {
+    background: none;
+    border: none;
+    color: #f44336;
+    cursor: pointer;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.file-remove-btn:hover {
+    transform: scale(1.2);
+}
+
+/* ========================================
+   ENHANCED PASSWORD STRENGTH
+   ======================================== */
+
+.password-strength {
+    margin-top: 0.5rem;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.password-strength-bar.weak {
+    width: 33%;
+    background: #f44336;
+}
+
+.password-strength-bar.medium {
+    width: 66%;
+    background: #ff9800;
+}
+
+.password-strength-bar.strong {
+    width: 100%;
+    background: #4caf50;
+}
+
+.password-requirements {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #f5f7fa;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+.password-requirement {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    color: #9e9e9e;
+}
+
+.password-requirement.met {
+    color: #4caf50;
+}
+
+.password-requirement-icon {
+    font-size: 1rem;
+}
+
+/* ========================================
+   INVITATION CODE VALIDATOR
+   ======================================== */
+
+.invitation-code-wrapper {
+    position: relative;
+}
+
+.invitation-code-status {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.code-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e0e0e0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.code-valid-icon {
+    color: #4caf50;
+    font-size: 1.5rem;
+}
+
+.code-invalid-icon {
+    color: #f44336;
+    font-size: 1.5rem;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+    .department-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .department-card {
+        padding: 1rem 0.75rem;
+    }
+
+    .department-card-icon {
+        font-size: 2rem;
+    }
+
+    .department-card-name {
+        font-size: 0.8125rem;
+    }
+
+    .specialization-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-section-title {
+        font-size: 1.25rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .department-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .file-upload-area {
+        padding: 1.5rem 1rem;
+    }
+
+    .file-upload-icon {
+        font-size: 2.5rem;
+    }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+.form-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.form-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}

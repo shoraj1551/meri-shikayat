@@ -123,6 +123,28 @@ export const login = async (req, res) => {
             });
         }
 
+        // Check account status
+        if (user.status === 'pending') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account is pending approval. You will receive an email once your account is activated.'
+            });
+        }
+
+        if (user.status === 'rejected') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account registration was rejected. Please contact support for more information.'
+            });
+        }
+
+        if (user.status === 'suspended') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account has been suspended. Please contact support.'
+            });
+        }
+
         // Check if account is locked
         if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
             const minutesLeft = Math.ceil((user.accountLockedUntil - new Date()) / 60000);
@@ -198,9 +220,26 @@ export const login = async (req, res) => {
                 fullName: user.fullName,
                 email: user.email,
                 phone: user.phone,
+                userType: user.userType,
+                status: user.status,
                 isLocationSet: user.isLocationSet,
                 location: user.location,
-                role: user.role
+                // Include role-specific data
+                ...(user.userType === 'admin' || user.userType === 'super_admin' ? {
+                    adminProfile: {
+                        department: user.adminProfile?.department,
+                        designation: user.adminProfile?.designation,
+                        role: user.adminProfile?.role,
+                        permissions: user.adminProfile?.permissions
+                    }
+                } : {}),
+                ...(user.userType === 'contractor' ? {
+                    contractorProfile: {
+                        companyName: user.contractorProfile?.companyName,
+                        specialization: user.contractorProfile?.specialization,
+                        rating: user.contractorProfile?.rating
+                    }
+                } : {})
             }
         };
 
