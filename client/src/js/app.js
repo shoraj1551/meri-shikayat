@@ -35,6 +35,12 @@ import { renderSuccessStoriesPage } from './pages/success-stories.js';
 import { renderCommunityPage } from './pages/community-hub.js';
 import { renderMessagesPage } from './pages/messages.js';
 import { renderStoriesPage } from './pages/stories-feed.js';
+import { renderFollowUsPage } from './pages/follow-us.js';
+import { renderDisclaimerPage } from './pages/disclaimer.js';
+import { renderAboutPage } from './pages/about.js';
+import { renderAuthoritiesPage } from './pages/authorities.js';
+import { renderAuthorityDetailPage } from './pages/authority-detail.js';
+import { renderContractorsPage } from './pages/contractors.js';
 
 // Import UI components
 import { tooltip } from './components/tooltip.js';
@@ -73,16 +79,22 @@ export function initializeApp() {
     router.register('/privacy', renderPrivacyPage);
     router.register('/terms', renderTermsPage);
     router.register('/guidelines', renderGuidelinesPage);
+    router.register('/disclaimer', renderDisclaimerPage);
 
     // Support Pages
     router.register('/help', renderHelpPage);
     router.register('/faq', renderFAQPage);
     router.register('/contact', renderContactPage);
+    router.register('/follow-us', renderFollowUsPage);
 
     // Platform Pages
     router.register('/how-it-works', renderHowItWorksPage);
     router.register('/features', renderFeaturesPage);
+    router.register('/about', renderAboutPage);
     router.register('/success-stories', renderSuccessStoriesPage);
+    router.register('/authorities', renderAuthoritiesPage);
+    router.register('/authorities/:id', renderAuthorityDetailPage);
+    router.register('/contractors', renderContractorsPage);
     router.register('/community', renderCommunityPage);
     router.register('/messages', renderMessagesPage);
     router.register('/stories', renderStoriesPage);

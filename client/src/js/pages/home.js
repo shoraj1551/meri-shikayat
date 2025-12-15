@@ -30,7 +30,7 @@ function generateHomeHTML(lang) {
                 <div class="container">
                     <nav class="home-navbar">
                         <div class="logo">
-                            <h1>मेरी शिकायत</h1>
+                            <h1 class="logo-gradient">मेरी शिकायत</h1>
                             <p class="tagline">Your Voice, Our Priority</p>
                         </div>
                         <div class="nav-actions">
@@ -55,10 +55,10 @@ function generateHomeHTML(lang) {
                             ${t('hero.subtitle', lang)}
                         </p>
                         <div class="hero-cta-group">
-                            <a href="/file-complaint" class="btn btn-primary btn-lg btn-cta-main">
+                            <a href="/file-complaint" class="btn btn-primary btn-lg">
                                 📝 <span data-i18n="hero.cta.primary">${t('hero.cta.primary', lang)}</span>
                             </a>
-                            <a href="/how-it-works" class="btn btn-outline-primary btn-lg">
+                            <a href="/how-it-works" class="btn btn-primary btn-lg">
                                 ℹ️ <span data-i18n="hero.cta.secondary">${t('hero.cta.secondary', lang)}</span>
                             </a>
                         </div>
@@ -74,16 +74,19 @@ function generateHomeHTML(lang) {
                             <div class="stat-icon">📝</div>
                             <div class="stat-number">5,480+</div>
                             <div class="stat-label" data-i18n="trust.complaints.label">${t('trust.complaints.label', lang)}</div>
+                            <div class="stat-description">${lang === 'hi' ? 'नागरिकों द्वारा दर्ज' : 'Filed by citizens'}</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon">✅</div>
                             <div class="stat-number">4,100+</div>
                             <div class="stat-label" data-i18n="trust.resolved.label">${t('trust.resolved.label', lang)}</div>
+                            <div class="stat-description">${lang === 'hi' ? 'सफलतापूर्वक हल किया गया' : 'Successfully resolved'}</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon">⚡</div>
                             <div class="stat-number">3.5</div>
                             <div class="stat-label">${lang === 'hi' ? 'दिन औसत समाधान समय' : 'Days Avg. Resolution Time'}</div>
+                            <div class="stat-description">${lang === 'hi' ? 'तेज़ प्रतिक्रिया' : 'Quick response'}</div>
                         </div>
                     </div>
                 </div>
@@ -137,15 +140,28 @@ function generateHomeHTML(lang) {
                             <h3 data-i18n="features.realtime.title">${t('features.realtime.title', lang)}</h3>
                             <p data-i18n="features.realtime.desc">${t('features.realtime.desc', lang)}</p>
                         </div>
+                        <div class="feature-card highlight-feature">
+                            <div class="feature-badge">${lang === 'hi' ? 'नया' : 'NEW'}</div>
+                            <div class="feature-icon">🤖</div>
+                            <h3>${lang === 'hi' ? 'AI/ML संचालित' : 'AI/ML Powered'}</h3>
+                            <p>${lang === 'hi' ? 'स्वचालित श्रेणीकरण और प्राथमिकता के लिए उन्नत मशीन लर्निंग' : 'Advanced machine learning for auto-categorization and priority'}</p>
+                        </div>
+                        <div class="feature-card highlight-feature">
+                            <div class="feature-badge">${lang === 'hi' ? 'नया' : 'NEW'}</div>
+                            <div class="feature-icon">🎮</div>
+                            <h3>${lang === 'hi' ? 'गेमिफिकेशन' : 'Gamification'}</h3>
+                            <p>${lang === 'hi' ? 'बैज, प्रभाव स्कोर और उपलब्धियों के साथ जुड़ाव बढ़ाएं' : 'Earn badges, impact scores, and achievements for engagement'}</p>
+                        </div>
                         <div class="feature-card">
                             <div class="feature-icon">🔒</div>
                             <h3 data-i18n="features.secure.title">${t('features.secure.title', lang)}</h3>
                             <p data-i18n="features.secure.desc">${t('features.secure.desc', lang)}</p>
                         </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">👁️</div>
-                            <h3 data-i18n="features.transparent.title">${t('features.transparent.title', lang)}</h3>
-                            <p data-i18n="features.transparent.desc">${t('features.transparent.desc', lang)}</p>
+                        <div class="feature-card highlight-feature">
+                            <div class="feature-badge">${lang === 'hi' ? 'नया' : 'NEW'}</div>
+                            <div class="feature-icon">💬</div>
+                            <h3>${lang === 'hi' ? 'सामाजिक सुविधाएं' : 'Social Features'}</h3>
+                            <p>${lang === 'hi' ? 'टिप्पणियां, हाइप और शेयर करें - सामुदायिक जुड़ाव' : 'Comments, hype, and share - community engagement'}</p>
                         </div>
                     </div>
                 </div>
@@ -157,22 +173,26 @@ function generateHomeHTML(lang) {
                     <h2 class="section-title" data-i18n="authorities.title">${t('authorities.title', lang)}</h2>
                     <p class="section-subtitle" data-i18n="authorities.subtitle">${t('authorities.subtitle', lang)}</p>
                     <div class="authorities-logos">
-                        <div class="authority-logo">
+                        <a href="/authorities/municipal" class="authority-logo">
                             <div class="logo-placeholder">🏛️</div>
                             <span data-i18n="authorities.municipal">${t('authorities.municipal', lang)}</span>
-                        </div>
-                        <div class="authority-logo">
+                        </a>
+                        <a href="/authorities/police" class="authority-logo">
                             <div class="logo-placeholder">👮</div>
                             <span data-i18n="authorities.police">${t('authorities.police', lang)}</span>
-                        </div>
-                        <div class="authority-logo">
+                        </a>
+                        <a href="/authorities/electricity" class="authority-logo">
                             <div class="logo-placeholder">⚡</div>
                             <span data-i18n="authorities.electricity">${t('authorities.electricity', lang)}</span>
-                        </div>
-                        <div class="authority-logo">
+                        </a>
+                        <a href="/authorities/water" class="authority-logo">
                             <div class="logo-placeholder">💧</div>
                             <span data-i18n="authorities.water">${t('authorities.water', lang)}</span>
-                        </div>
+                        </a>
+                        <a href="/authorities" class="authority-logo and-more">
+                            <div class="logo-placeholder">➕</div>
+                            <span>${lang === 'hi' ? 'और अधिक.......' : 'and more.......'}</span>
+                        </a>
                     </div>
                 </div>
             </section>
@@ -238,17 +258,21 @@ function generateHomeHTML(lang) {
             <footer class="enhanced-footer">
                 <div class="container">
                     <div class="footer-grid">
-                        <div class="footer-col">
+                        <div class="footer-col footer-about">
                             <div class="footer-logo">
                                 <h2>मेरी शिकायत</h2>
                                 <p data-i18n="footer.tagline">${t('footer.tagline', lang)}</p>
+                            </div>
+                            <div class="about-section">
+                                <h4>${lang === 'hi' ? 'हमारे बारे में' : 'About Us'}</h4>
+                                <p>${lang === 'hi' ? 'मेरी शिकायत एक नागरिक-केंद्रित मंच है जो नागरिकों को सरकारी अधिकारियों के साथ सीधे जोड़ता है। हम पारदर्शिता, जवाबदेही और तेज़ समाधान में विश्वास करते हैं।' : 'Meri Shikayat is a citizen-centric platform connecting people directly with government authorities. We believe in transparency, accountability, and quick resolution.'}</p>
                             </div>
                         </div>
                         <div class="footer-col">
                             <h3 data-i18n="footer.quick.title">${t('footer.quick.title', lang)}</h3>
                             <ul class="footer-links-list">
-                                <li><a href="/how-it-works" data-i18n="footer.quick.home">${t('footer.quick.home', lang)}</a></li>
-                                <li><a href="/features" data-i18n="footer.quick.about">${t('footer.quick.about', lang)}</a></li>
+                                <li><a href="/about">${lang === 'hi' ? 'हमारे बारे में' : 'About Us'}</a></li>
+                                <li><a href="/how-it-works">${lang === 'hi' ? 'यह कैसे काम करता है' : 'How It Works'}</a></li>
                                 <li><a href="/contact" data-i18n="footer.quick.contact">${t('footer.quick.contact', lang)}</a></li>
                                 <li><a href="/faq" data-i18n="footer.quick.faq">${t('footer.quick.faq', lang)}</a></li>
                             </ul>
@@ -264,11 +288,35 @@ function generateHomeHTML(lang) {
                         <div class="footer-col">
                             <h3 data-i18n="footer.contact.title">${t('footer.contact.title', lang)}</h3>
                             <ul class="footer-links-list">
-                                <li><a href="mailto:support@merishikayat.in" data-i18n="footer.contact.email">${t('footer.contact.email', lang)}</a></li>
-                                <li><a href="tel:+911234567890" data-i18n="footer.contact.phone">${t('footer.contact.phone', lang)}</a></li>
+                                <li><a href="/contact">${lang === 'hi' ? 'संपर्क पृष्ठ' : 'Contact Page'}</a></li>
+                                <li><a href="/help">${lang === 'hi' ? 'सहायता केंद्र' : 'Help Center'}</a></li>
                             </ul>
                         </div>
                     </div>
+                    
+                    <!-- Social Media Section - Bottom of Footer -->
+                    <div class="footer-social-section">
+                        <h3 class="social-title">${lang === 'hi' ? 'सोशल मीडिया' : 'Social Media'}</h3>
+                        <div class="footer-social-icons">
+                            <a href="https://facebook.com/merishikayat" target="_blank" rel="noopener noreferrer" class="social-icon facebook" title="Facebook">
+                                <span>📘</span>
+                            </a>
+                            <a href="https://instagram.com/merishikayat" target="_blank" rel="noopener noreferrer" class="social-icon instagram" title="Instagram">
+                                <span>📷</span>
+                            </a>
+                            <a href="https://twitter.com/merishikayat" target="_blank" rel="noopener noreferrer" class="social-icon twitter" title="X (Twitter)">
+                                <span>𝕏</span>
+                            </a>
+                            <a href="https://reddit.com/user/merishikayat" target="_blank" rel="noopener noreferrer" class="social-icon reddit" title="Reddit">
+                                <span>🤖</span>
+                            </a>
+                            <a href="https://youtube.com/@merishikayat" target="_blank" rel="noopener noreferrer" class="social-icon youtube" title="YouTube">
+                                <span>▶️</span>
+                            </a>
+                        </div>
+                        <a href="/follow-us" class="view-all-feeds">${lang === 'hi' ? 'सभी फीड देखें' : 'View All Feeds'}</a>
+                    </div>
+                    
                     <div class="footer-bottom">
                         <p data-i18n="footer.copyright">${t('footer.copyright', lang)}</p>
                     </div>

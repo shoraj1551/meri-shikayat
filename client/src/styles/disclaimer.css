@@ -1,0 +1,361 @@
+/**
+ * Disclaimer Page Styles
+ * Professional legal document design
+ */
+
+/* ============================================
+   HEADER STYLING - Consistent with Help Center
+   ============================================ */
+
+.disclaimer-page .legal-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 0 2.5rem;
+    text-align: center;
+}
+
+.disclaimer-page .back-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.disclaimer-page .back-link:hover {
+    color: white;
+}
+
+.disclaimer-page .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.disclaimer-page .page-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+}
+
+.disclaimer-page .last-updated {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* ============================================
+   CONTENT AREA
+   ============================================ */
+
+.disclaimer-page .legal-content {
+    padding: 3rem 0;
+    background: #f5f7fa;
+}
+
+.disclaimer-page .legal-section {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+/* Use existing legal-page base styles and enhance */
+
+.disclaimer-page .intro-section {
+    margin-bottom: 3rem;
+}
+
+.info-box {
+    display: flex;
+    gap: 1.5rem;
+    background: linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(13, 71, 161, 0.05) 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    border-left: 4px solid #1a237e;
+}
+
+.info-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.info-content h3 {
+    color: #1a237e;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.info-content p {
+    color: #546e7a;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.section-number {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.section-header h2 {
+    color: #1a237e;
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+/* Content Cards */
+.content-card {
+    background: #f5f7fa;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.content-card:last-child {
+    margin-bottom: 0;
+}
+
+.content-card h3 {
+    color: #1a237e;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.content-card p {
+    color: #546e7a;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.content-card ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.content-card li {
+    color: #546e7a;
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* Check and Cross Lists */
+.check-list {
+    list-style: none;
+    padding: 0;
+}
+
+.check-list li {
+    color: #388e3c;
+    font-weight: 600;
+    padding-left: 0;
+}
+
+.cross-list {
+    list-style: none;
+    padding: 0;
+}
+
+.cross-list li {
+    color: #d32f2f;
+    font-weight: 600;
+    padding-left: 0;
+}
+
+/* Warning Card */
+.warning-card {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.05) 0%, rgba(255, 193, 7, 0.05) 100%);
+    border-left: 4px solid #ff9800;
+}
+
+.warning-badge {
+    display: inline-block;
+    background: #ff9800;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.highlight-text {
+    background: rgba(255, 152, 0, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    color: #e65100;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+/* Legal Note */
+.legal-note {
+    background: rgba(26, 35, 126, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    border-left: 3px solid #1a237e;
+}
+
+.legal-note strong {
+    color: #1a237e;
+}
+
+/* Contact Card */
+.contact-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+}
+
+.contact-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.contact-method {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.contact-icon {
+    font-size: 2rem;
+}
+
+.contact-method strong {
+    display: block;
+    color: #1a237e;
+    margin-bottom: 0.25rem;
+}
+
+.contact-method p {
+    margin: 0;
+    color: #546e7a;
+}
+
+/* Acceptance Section */
+.acceptance-section {
+    margin: 3rem 0;
+}
+
+.acceptance-box {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.acceptance-box h3 {
+    color: white;
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.acceptance-list {
+    list-style: none;
+    padding: 0;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.acceptance-list li {
+    color: white;
+    font-size: 1.125rem;
+    padding: 0.75rem 0;
+    font-weight: 600;
+}
+
+/* Related Pages */
+.related-pages {
+    background: #f5f7fa;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-top: 3rem;
+}
+
+.related-pages h3 {
+    color: #1a237e;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.related-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.related-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: white;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1a237e;
+    font-weight: 600;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.related-link:hover {
+    border-color: #1a237e;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(26, 35, 126, 0.1);
+}
+
+.link-icon {
+    font-size: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .info-box {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .section-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .contact-methods {
+        grid-template-columns: 1fr;
+    }
+
+    .related-links {
+        grid-template-columns: 1fr;
+    }
+
+    .acceptance-list {
+        text-align: center;
+    }
+}

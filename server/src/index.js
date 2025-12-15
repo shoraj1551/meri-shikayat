@@ -16,6 +16,8 @@ import adminRoutes from './routes/admin.routes.js';
 import userRoutes from './routes/user.routes.js';
 import socialRoutes from './routes/social.routes.js';
 import storiesRoutes from './routes/stories.routes.js';
+import departmentsRoutes from './routes/departments.js';
+import contractorsRoutes from './routes/contractors.js';
 
 // Load environment variables
 dotenv.config();
@@ -32,7 +34,7 @@ const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = process.env.CORS_ORIGIN
             ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-            : ['http://localhost:3000', 'http://localhost:5173'];
+            : ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:5173'];
 
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -80,8 +82,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api', socialRoutes);
+app.use('/api/social', socialRoutes);  // Changed from '/api' to '/api/social'
 app.use('/api/stories', storiesRoutes);
+app.use('/api/departments', departmentsRoutes);
+app.use('/api/contractors', contractorsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
