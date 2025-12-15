@@ -1,5 +1,5 @@
 # Meri Shikayat
-![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)
 
 Meri Shikayat is a citizen grievance redressal platform designed to bridge the gap between citizens and municipal authorities. It allows users to report issues like potholes, garbage, and street light failures, track their status, and ensures accountability through a transparent process.
 
@@ -10,6 +10,8 @@ Meri Shikayat is a citizen grievance redressal platform designed to bridge the g
 - **Real-time Status**: Track complaint progress from 'Pending' to 'Resolved'.
 - **Admin Dashboard**: Manage, assign, and update complaints efficiently.
 - **Department Integration**: Auto-routing of complaints to relevant departments (PWD, Water, Sanitation, etc.).
+- **Connected Authorities**: Dynamic directory of 12 government departments with real-time statistics, offices, and personnel.
+- **Private Contractors**: Management system for verified contractors with performance tracking and job assignments.
 
 ## Tech Stack
 
