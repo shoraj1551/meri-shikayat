@@ -1,12 +1,14 @@
 /**
- * Admin Complaints Management Page
- * View, filter, and manage all complaints
+ * Admin Complaints Management - Enhanced
+ * Features: Kanban Board, List View, Advanced Filtering
  */
 
 import { adminService } from '../api/admin.service.js';
 import * as complaintAdminService from '../api/complaint-admin.service.js';
+import Loading from '../components/loading.js';
 
-let currentPage = 1;
+let currentView = 'kanban'; // 'kanban' or 'list'
+let complaintsData = [];
 let currentFilters = {};
 
 export async function renderAdminComplaintsPage() {
@@ -18,437 +20,295 @@ export async function renderAdminComplaintsPage() {
         return;
     }
 
+    // Initial Layout
     app.innerHTML = `
-        <div class="dashboard-layout admin-theme">
-            <aside class="sidebar">
+        <div class="admin-layout">
+            <!-- Sidebar -->
+            <aside class="admin-sidebar">
                 <div class="sidebar-header">
-                    <div class="logo">Meri Shikayat</div>
-                    <div class="admin-badge">ADMIN PORTAL</div>
+                    <span class="admin-logo">MERI SHIKAYAT</span>
                 </div>
                 <nav class="sidebar-nav">
-                    <a href="/admin/dashboard" class="nav-item">
-                        <i class="icon">📊</i> Dashboard
+                    <a href="/admin/dashboard" class="nav-link">
+                        <span class="nav-icon">📊</span> Dashboard
                     </a>
-                    <a href="/admin/complaints" class="nav-item active">
-                        <i class="icon">📝</i> Complaints
+                    <a href="/admin/complaints" class="nav-link active">
+                        <span class="nav-icon">📝</span> Complaints
+                    </a>
+                    <a href="/admin/users" class="nav-link">
+                        <span class="nav-icon">👥</span> Users
                     </a>
                     ${admin.role === 'super_admin' ? `
-                    <a href="/admin/pending" class="nav-item">
-                        <i class="icon">⏳</i> Pending Admins
-                    </a>
-                    <a href="/admin/permission-requests" class="nav-item">
-                        <i class="icon">🔑</i> Permissions
+                    <a href="/admin/pending" class="nav-link">
+                        <span class="nav-icon">⏳</span> Pending Admins
                     </a>
                     ` : ''}
                 </nav>
                 <div class="sidebar-footer">
-                    <div class="user-info">
-                        <div class="user-name">${admin.firstName} ${admin.lastName}</div>
-                        <div class="user-role">${admin.role.replace('_', ' ').toUpperCase()}</div>
+                    <div class="admin-profile">
+                        <div class="admin-avatar">${admin.firstName[0]}</div>
+                        <div class="admin-info">
+                            <h4>${admin.firstName} ${admin.lastName}</h4>
+                            <p>${admin.role.replace('_', ' ').toUpperCase()}</p>
+                        </div>
                     </div>
-                    <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
                 </div>
             </aside>
 
-            <main class="main-content">
-                <header class="top-bar">
-                    <h1 class="page-title">Complaint Management</h1>
-                </header>
-
-                <!-- Filters -->
-                <div class="glass-card filters-section">
-                    <div class="filters-grid">
-                        <div class="filter-item">
-                            <label>Status</label>
-                            <select id="filterStatus" class="form-input">
-                                <option value="">All Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="resolved">Resolved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label>Priority</label>
-                            <select id="filterPriority" class="form-input">
-                                <option value="">All Priorities</option>
-                                <option value="high">High</option>
-                                <option value="medium">Medium</option>
-                                <option value="low">Low</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label>Category</label>
-                            <select id="filterCategory" class="form-input">
-                                <option value="">All Categories</option>
-                                <option value="Roads">Roads</option>
-                                <option value="Electricity">Electricity</option>
-                                <option value="Water">Water</option>
-                                <option value="Sanitation">Sanitation</option>
-                                <option value="Waste Management">Waste Management</option>
-                                <option value="Street Lights">Street Lights</option>
-                                <option value="Parks">Parks</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label>Search</label>
-                            <input type="text" id="filterSearch" class="form-input" placeholder="Search title or description...">
-                        </div>
+            <!-- Main Content -->
+            <main class="admin-main">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Complaint Management</h1>
+                        <p style="color: #64748b; margin-top: 4px;">Manage and track community issues</p>
                     </div>
-                    <button id="applyFilters" class="btn btn-primary">Apply Filters</button>
-                    <button id="clearFilters" class="btn btn-outline">Clear</button>
+                    <div class="header-actions" style="display: flex; gap: 1rem;">
+                        <div class="view-controls">
+                            <button class="view-btn ${currentView === 'kanban' ? 'active' : ''}" onclick="switchView('kanban')">
+                                📋 Kanban
+                            </button>
+                            <button class="view-btn ${currentView === 'list' ? 'active' : ''}" onclick="switchView('list')">
+                                📄 List
+                            </button>
+                        </div>
+                        <button class="btn btn-primary" onclick="window.viewComplaint.filterToggle()">
+                           🔍 Filters
+                        </button>
+                    </div>
                 </div>
 
-                <div id="loadingState" class="glass-card loading-message">Loading complaints...</div>
-                <div id="errorState" class="error-message" style="display: none;"></div>
-                
-                <div id="complaintsContainer"></div>
-                
-                <div id="paginationContainer" class="pagination-container"></div>
+                <!-- Content Area -->
+                <div id="adminContent" style="position: relative; min-height: 400px;"></div>
             </main>
         </div>
 
-        <!-- Complaint Detail Modal -->
-        <div id="complaintDetailModal" class="modal-overlay" style="display: none;">
-            <div class="modal-dialog glass-card modal-large">
-                <div class="modal-header">
-                    <h3>Complaint Details</h3>
-                    <button class="modal-close" onclick="closeComplaintModal()">×</button>
-                </div>
-                <div id="complaintDetailContent"></div>
-            </div>
-        </div>
-
-        <!-- Status Update Modal -->
-        <div id="statusUpdateModal" class="modal-overlay" style="display: none;">
-            <div class="modal-dialog glass-card">
-                <h3>Update Status</h3>
-                <div class="form-group">
-                    <label>New Status *</label>
-                    <select id="newStatus" class="form-input">
-                        <option value="pending">Pending</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Reason</label>
-                    <textarea id="statusReason" class="form-input" rows="3" placeholder="Reason for status change..."></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn btn-outline" onclick="closeStatusModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="confirmStatusUpdate()">Update Status</button>
-                </div>
-            </div>
-        </div>
+        <!-- Detail Modal Placeholder -->
+        <div id="complaintDetailModal" class="modal-overlay" style="display: none;"></div>
     `;
 
-    // Event listeners
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await adminService.logout();
-        window.location.href = '/admin/login';
-    });
+    // Initialize Global for View Switching
+    window.switchView = (view) => {
+        currentView = view;
+        renderAdminComplaintsPage(); // Re-render with new view
+    };
 
-    document.getElementById('applyFilters').addEventListener('click', applyFilters);
-    document.getElementById('clearFilters').addEventListener('click', clearFilters);
+    window.viewComplaint = {
+        filterToggle: () => {
+            // To be implemented: Toggle filter sidebar
+            alert('Advanced filters coming soon');
+        },
+        open: openComplaintDetail
+    };
 
-    // Handle navigation
-    app.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.router.navigate(link.getAttribute('href'));
-        });
-    });
-
-    // Load complaints
-    await loadComplaints();
+    // Load Data
+    await loadData();
 }
 
-async function loadComplaints(page = 1) {
-    currentPage = page;
-    const loadingState = document.getElementById('loadingState');
-    const errorState = document.getElementById('errorState');
-    const container = document.getElementById('complaintsContainer');
-
-    loadingState.style.display = 'block';
-    errorState.style.display = 'none';
+async function loadData() {
+    const container = document.getElementById('adminContent');
+    container.innerHTML = Loading.skeleton(400, "100%");
 
     try {
-        const filters = { ...currentFilters, page, limit: 20 };
-        const response = await complaintAdminService.getComplaints(filters);
-
-        loadingState.style.display = 'none';
-
-        if (response.data.complaints.length === 0) {
-            container.innerHTML = '<div class="glass-card empty-state">No complaints found.</div>';
-            return;
-        }
-
-        renderComplaints(response.data.complaints);
-        renderPagination(response.data.pagination);
+        const response = await complaintAdminService.getComplaints({ limit: 100 }); // Fetch more for Kanban
+        complaintsData = response.data.complaints;
+        renderContent();
     } catch (error) {
-        loadingState.style.display = 'none';
-        errorState.textContent = 'Failed to load complaints.';
-        errorState.style.display = 'block';
+        container.innerHTML = `<div class="error-message">Failed to load data: ${error.message}</div>`;
     }
 }
 
-function renderComplaints(complaints) {
-    const container = document.getElementById('complaintsContainer');
+function renderContent() {
+    const container = document.getElementById('adminContent');
 
-    container.innerHTML = `
-        <div class="complaints-grid">
-            ${complaints.map(complaint => `
-                <div class="complaint-card glass-card">
-                    <div class="complaint-header">
-                        <div>
-                            <h4>${complaint.title}</h4>
-                            <p class="complaint-meta">
-                                ${complaint.user.firstName} ${complaint.user.lastName} • 
-                                ${new Date(complaint.createdAt).toLocaleDateString()}
-                            </p>
-                        </div>
-                        <div class="complaint-badges">
-                            <span class="status-badge status-${complaint.status}">${complaint.status.replace('_', ' ')}</span>
-                            <span class="priority-badge priority-${complaint.priority}">${complaint.priority}</span>
-                        </div>
+    if (currentView === 'kanban') {
+        renderKanban(container);
+    } else {
+        renderList(container);
+    }
+}
+
+function renderKanban(container) {
+    const columns = {
+        'Pending': complaintsData.filter(c => c.status === 'Pending'),
+        'In Progress': complaintsData.filter(c => c.status === 'In Progress'),
+        'Resolved': complaintsData.filter(c => c.status === 'Resolved'),
+        'Rejected': complaintsData.filter(c => c.status === 'Rejected')
+    };
+
+    const colClasses = {
+        'Pending': 'col-pending',
+        'In Progress': 'col-inprogress',
+        'Resolved': 'col-resolved',
+        'Rejected': 'col-rejected'
+    };
+
+    const html = `
+        <div class="kanban-board">
+            ${Object.keys(columns).map(status => `
+                <div class="kanban-column ${colClasses[status]}">
+                    <div class="kanban-header">
+                        <span>${status}</span>
+                        <span class="badge-count">${columns[status].length}</span>
                     </div>
-                    
-                    <p class="complaint-description">${complaint.description.substring(0, 150)}${complaint.description.length > 150 ? '...' : ''}</p>
-                    
-                    <div class="complaint-info">
-                        <span class="info-item">📁 ${complaint.category}</span>
-                        <span class="info-item">📍 ${complaint.location?.pincode || 'N/A'}</span>
-                        ${complaint.assignedTo ? `<span class="info-item">👤 ${complaint.assignedTo.firstName}</span>` : ''}
-                    </div>
-                    
-                    <div class="complaint-actions">
-                        <button class="btn btn-sm btn-outline" onclick="viewComplaint('${complaint._id}')">View Details</button>
-                        <button class="btn btn-sm btn-primary" onclick="openStatusModal('${complaint._id}', '${complaint.status}')">Update Status</button>
+                    <div class="kanban-body">
+                        ${columns[status].map(c => createKanbanCard(c)).join('')}
                     </div>
                 </div>
             `).join('')}
         </div>
     `;
+
+    container.innerHTML = html;
 }
 
-function renderPagination(pagination) {
-    const container = document.getElementById('paginationContainer');
-
-    if (pagination.pages <= 1) {
-        container.innerHTML = '';
-        return;
-    }
-
-    const pages = [];
-    for (let i = 1; i <= pagination.pages; i++) {
-        pages.push(`
-            <button class="pagination-btn ${i === pagination.page ? 'active' : ''}" 
-                    onclick="loadComplaints(${i})">${i}</button>
-        `);
-    }
-
-    container.innerHTML = `
-        <div class="pagination">
-            <button class="pagination-btn" ${pagination.page === 1 ? 'disabled' : ''} 
-                    onclick="loadComplaints(${pagination.page - 1})">Previous</button>
-            ${pages.join('')}
-            <button class="pagination-btn" ${pagination.page === pagination.pages ? 'disabled' : ''} 
-                    onclick="loadComplaints(${pagination.page + 1})">Next</button>
+function createKanbanCard(c) {
+    const date = new Date(c.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return `
+        <div class="kanban-card" onclick="viewComplaint.open('${c._id}')">
+            <div class="kanban-card-meta">
+                <span>#${c._id.substring(c._id.length - 6).toUpperCase()}</span>
+                <span>${date}</span>
+            </div>
+            <div class="kanban-card-title">${c.title}</div>
+            <div class="kanban-tags">
+                <span class="k-tag">${c.category}</span>
+                <span class="k-tag k-priority-${c.priority.toLowerCase()}">${c.priority}</span>
+                <span class="k-tag">📍 ${c.location?.city || 'Unknown'}</span>
+            </div>
         </div>
     `;
 }
 
-function applyFilters() {
-    currentFilters = {
-        status: document.getElementById('filterStatus').value,
-        priority: document.getElementById('filterPriority').value,
-        category: document.getElementById('filterCategory').value,
-        search: document.getElementById('filterSearch').value
-    };
-
-    // Remove empty filters
-    Object.keys(currentFilters).forEach(key => {
-        if (!currentFilters[key]) delete currentFilters[key];
-    });
-
-    loadComplaints(1);
+function renderList(container) {
+    const html = `
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${complaintsData.map(c => `
+                        <tr>
+                            <td>#${c._id.substring(c._id.length - 6).toUpperCase()}</td>
+                            <td>${c.title}</td>
+                            <td>${c.category}</td>
+                            <td><span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span></td>
+                            <td><span class="priority-badge priority-${c.priority.toLowerCase()}">${c.priority}</span></td>
+                            <td>${new Date(c.createdAt).toLocaleDateString()}</td>
+                            <td>
+                                <button class="action-btn-sm" onclick="viewComplaint.open('${c._id}')">👁️</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    container.innerHTML = html;
 }
 
-function clearFilters() {
-    document.getElementById('filterStatus').value = '';
-    document.getElementById('filterPriority').value = '';
-    document.getElementById('filterCategory').value = '';
-    document.getElementById('filterSearch').value = '';
-    currentFilters = {};
-    loadComplaints(1);
-}
-
-let currentComplaintId = null;
-
-window.viewComplaint = async function (id) {
-    currentComplaintId = id;
-    const modalContent = document.getElementById('complaintDetailContent');
+async function openComplaintDetail(id) {
     const modal = document.getElementById('complaintDetailModal');
-
-    modalContent.innerHTML = '<div class="loading-spinner">Loading details...</div>';
     modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-dialog case-file-modal">
+            ${Loading.skeleton(200, "100%")}
+        </div>
+    `;
 
     try {
         const response = await complaintAdminService.getComplaintById(id);
-        renderComplaintDetail(response.data);
-    } catch (error) {
-        modalContent.innerHTML = `
-            <div class="error-message">
-                Failed to load complaint details: ${error.response?.data?.message || error.message}
+        const c = response.data;
+
+        modal.innerHTML = `
+            <div class="modal-dialog case-file-modal">
+                <div class="case-header">
+                    <div>
+                        <h2 style="margin:0; font-size: 1.5rem;">${c.title}</h2>
+                        <span style="color: #64748b; font-size: 0.9rem;">Case ID: #${c._id}</span>
+                    </div>
+                    <button class="btn btn-outline" onclick="document.getElementById('complaintDetailModal').style.display='none'">Close</button>
+                </div>
+                <div class="case-body">
+                    <div class="case-main">
+                        <div class="case-section">
+                            <h3>Description</h3>
+                            <p style="line-height: 1.6; color: #334155;">${c.description}</p>
+                            ${c.mediaUrl ? `
+                                <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                                    <strong>Attachment:</strong> <a href="${c.mediaUrl}" target="_blank">View Media</a>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="case-section">
+                            <h3>Action Required</h3>
+                            <div class="form-group">
+                                <label>Update Status</label>
+                                <select id="updateStatusSelect" class="form-input">
+                                    <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="In Progress" ${c.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                    <option value="Resolved" ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                                    <option value="Rejected" ${c.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Review Note</label>
+                                <textarea id="statusReason" class="form-input" placeholder="Why are you changing the status?"></textarea>
+                            </div>
+                            <button class="btn btn-primary" onclick="updateComplaintStatus('${c._id}')">Update Case</button>
+                        </div>
+                    </div>
+                    
+                    <div class="case-sidebar-col">
+                        <div class="case-section">
+                            <h3>Complainant</h3>
+                            <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                                <div style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">👤</div>
+                                <div>
+                                    <div style="font-weight: 600;">${c.user.firstName} ${c.user.lastName}</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">${c.user.email}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <strong>Phone:</strong> ${c.user.phone || 'N/A'}
+                            </div>
+                        </div>
+                        
+                        <div class="case-section">
+                            <h3>Location</h3>
+                             <p>📍 ${c.location?.address || 'No address provided'}</p>
+                             <p>City: ${c.location?.city || 'Unknown'}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
+
+        // Expose update function specifically for this modal
+        window.updateComplaintStatus = async (id) => {
+            const newStatus = document.getElementById('updateStatusSelect').value;
+            const reason = document.getElementById('statusReason').value;
+
+            try {
+                await complaintAdminService.updateStatus(id, newStatus.toLowerCase().replace(' ', '_'), reason);
+                alert('Status Updated!');
+                document.getElementById('complaintDetailModal').style.display = 'none';
+                loadData(); // Refresh board
+            } catch (e) {
+                alert('Error updating status');
+            }
+        };
+
+    } catch (error) {
+        modal.innerHTML = `<div class="error-message">Failed to load details</div>`;
     }
-};
-
-function renderComplaintDetail(complaint) {
-    const content = document.getElementById('complaintDetailContent');
-
-    // Format dates
-    const createdDate = new Date(complaint.createdAt).toLocaleString();
-
-    // Media HTML
-    let mediaHtml = '';
-    if (complaint.mediaUrl) {
-        if (complaint.type === 'image') {
-            mediaHtml = `<img src="${complaint.mediaUrl}" alt="Complaint Image" class="detail-media-img">`;
-        } else if (complaint.type === 'video') {
-            mediaHtml = `
-                <video controls class="detail-media-video">
-                    <source src="${complaint.mediaUrl}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>`;
-        } else if (complaint.type === 'audio') {
-            mediaHtml = `
-                <audio controls class="detail-media-audio">
-                    <source src="${complaint.mediaUrl}" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio>`;
-        }
-    }
-
-    // Status History HTML
-    const historyHtml = complaint.statusHistory.map(history => `
-        <div class="history-item">
-            <div class="history-marker"></div>
-            <div class="history-content">
-                <p class="history-status status-${history.status}">${history.status.replace('_', ' ').toUpperCase()}</p>
-                <p class="history-meta">
-                    by ${history.changedBy?.firstName || 'System'} ${history.changedBy?.lastName || ''} 
-                    on ${new Date(history.changedAt).toLocaleString()}
-                </p>
-                ${history.reason ? `<p class="history-reason">"${history.reason}"</p>` : ''}
-            </div>
-        </div>
-    `).join('');
-
-    // Internal Notes HTML
-    const notesHtml = complaint.internalNotes.map(note => `
-        <div class="note-item glass-card">
-            <p class="note-text">${note.note}</p>
-            <p class="note-meta">
-                ${note.addedBy?.firstName} ${note.addedBy?.lastName} • 
-                ${new Date(note.addedAt).toLocaleString()}
-            </p>
-        </div>
-    `).join('');
-
-    content.innerHTML = `
-        <div class="detail-grid">
-            <div class="detail-main">
-                <div class="detail-section glass-card">
-                    <div class="detail-header-row">
-                        <span class="status-badge status-${complaint.status}">${complaint.status.replace('_', ' ')}</span>
-                        <span class="priority-badge priority-${complaint.priority}">${complaint.priority}</span>
-                        <span class="category-badge">${complaint.category}</span>
-                    </div>
-                    <h2 class="detail-title">${complaint.title}</h2>
-                    <p class="detail-description">${complaint.description}</p>
-                    
-                    ${mediaHtml ? `<div class="detail-media-container">${mediaHtml}</div>` : ''}
-                </div>
-
-                <div class="detail-section glass-card">
-                    <h3>Status History</h3>
-                    <div class="status-timeline">
-                        ${historyHtml}
-                    </div>
-                </div>
-            </div>
-
-            <div class="detail-sidebar">
-                <div class="detail-section glass-card">
-                    <h3>User Information</h3>
-                    <div class="info-row">
-                        <span class="label">Name:</span>
-                        <span class="value">${complaint.user.firstName} ${complaint.user.lastName}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Email:</span>
-                        <span class="value">${complaint.user.email || 'N/A'}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Phone:</span>
-                        <span class="value">${complaint.user.phone || 'N/A'}</span>
-                    </div>
-                </div>
-
-                <div class="detail-section glass-card">
-                    <h3>Location</h3>
-                    <div class="info-row">
-                        <span class="label">Pincode:</span>
-                        <span class="value">${complaint.location?.pincode || 'N/A'}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Address:</span>
-                        <span class="value">${complaint.location?.address || 'N/A'}</span>
-                    </div>
-                    ${complaint.location?.coordinates?.lat ? `
-                        <a href="https://www.google.com/maps?q=${complaint.location.coordinates.lat},${complaint.location.coordinates.lng}" 
-                           target="_blank" class="btn btn-sm btn-outline mt-2 w-100">
-                           View on Map
-                        </a>
-                    ` : ''}
-                </div>
-
-                <div class="detail-section glass-card">
-                    <h3>Internal Notes</h3>
-                    <div class="notes-list">
-                        ${notesHtml.length ? notesHtml : '<p class="text-muted">No internal notes yet.</p>'}
-                    </div>
-                    
-                    <form id="addNoteForm" class="add-note-form mt-3">
-                        <textarea id="newNoteText" class="form-input" rows="2" placeholder="Add an internal note..." required></textarea>
-                        <button type="submit" class="btn btn-sm btn-primary mt-2">Add Note</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Add event listener for note submission
-    document.getElementById('addNoteForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const noteText = document.getElementById('newNoteText').value;
-
-        try {
-            await complaintAdminService.addInternalNote(complaint._id, noteText);
-            // Refresh details
-            window.viewComplaint(complaint._id);
-        } catch (error) {
-            alert('Failed to add note: ' + (error.response?.data?.message || error.message));
-        }
-    });
 }
-
-window.closeComplaintModal = function () {
-    document.getElementById('complaintDetailModal').style.display = 'none';
-    currentComplaintId = null;
-};
