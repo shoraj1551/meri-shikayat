@@ -1,0 +1,53 @@
+/**
+ * Additional styles for homepage enhancements
+ */
+
+/* Hero Trust Message */
+.hero-trust-message {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: #666;
+    flex-wrap: wrap;
+}
+
+.hero-trust-message span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Enhanced Hero CTA Group */
+.hero-cta-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Make primary CTA stand out more */
+.hero-cta-group .btn-cta-main {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-trust-message {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .hero-cta-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-cta-group .btn {
+        width: 100%;
+    }
+}

@@ -1,14 +1,6 @@
 import { authService } from '../api/auth.service.js';
-import {
-    initPasswordToggle,
-    initIdentifierValidation,
-    initFloatingLabels,
-    initFocusAnimations,
-    isValidEmail,
-    isValidPhone,
-    showError,
-    hideError
-} from '../utils/form-utils.js';
+import FormValidator from '../utils/form-validator.js';
+import Loading from '../components/loading.js';
 
 export function renderLoginPage() {
     const app = document.getElementById('app');
@@ -23,29 +15,42 @@ export function renderLoginPage() {
                             <i class="icon">🛡️</i> Admin Login
                         </button>
                     </div>
-                    <h2 class="auth-title">Login to Meri Shikayat</h2>
-                    <p class="auth-subtitle">Enter your credentials to access your account</p>
+                    <h2 class="auth-title">Welcome Back!</h2>
+                    <p class="auth-subtitle">Login to access your account and manage complaints</p>
                     
                     <form id="loginForm" class="auth-form" autocomplete="on">
                         <div class="form-group">
-                            <label for="identifier">Email or Phone Number</label>
-                            <input 
-                                type="text" 
-                                id="identifier" 
-                                name="identifier" 
-                                class="form-input" 
-                                placeholder="your@email.com or 10-digit phone"
-                                autocomplete="username"
-                                required
-                            />
-                            <small class="form-hint">Enter your email or 10-digit phone number</small>
-                            <span class="input-icon success-icon" style="display: none;">✓</span>
-                            <span class="input-icon error-icon" style="display: none;">✗</span>
+                            <label for="identifier">
+                                Email or Phone Number *
+                                <span class="tooltip-trigger" data-tooltip="Enter the email or phone number you used to register" data-tooltip-position="top">?</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">👤</span>
+                                <input 
+                                    type="text" 
+                                    id="identifier" 
+                                    name="identifier" 
+                                    class="form-input" 
+                                    placeholder="yourname@example.com or 9876543210"
+                                    autocomplete="username"
+                                    required
+                                />
+                                <span class="validation-icon"></span>
+                            </div>
+                            <small class="form-hint-enhanced">
+                                <span class="hint-icon">💡</span>
+                                <span><strong>Example:</strong> rahul@gmail.com or 9876543210</span>
+                            </small>
+                            <div class="field-error" role="alert"></div>
                         </div>
 
                         <div class="form-group">
-                            <label for="password">Password</label>
-                            <div class="password-input-wrapper">
+                            <label for="password">
+                                Password *
+                                <span class="tooltip-trigger" data-tooltip="Enter your account password" data-tooltip-position="top">?</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">🔒</span>
                                 <input 
                                     type="password" 
                                     id="password" 
@@ -59,23 +64,22 @@ export function renderLoginPage() {
                                     <span class="toggle-icon">👁️</span>
                                 </button>
                             </div>
+                            <div class="field-error" role="alert"></div>
                         </div>
 
                         <div class="form-row" style="justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
                             <label class="checkbox-label">
                                 <input type="checkbox" id="rememberMe" name="rememberMe">
                                 <span>Remember me</span>
+                                <span class="tooltip-trigger" data-tooltip="Stay logged in on this device" data-tooltip-position="top" style="margin-left: 0.25rem;">?</span>
                             </label>
                             <a href="/forgot-password" class="forgot-password-link">Forgot Password?</a>
                         </div>
 
                         <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                            <span class="btn-text">Login</span>
-                            <span class="btn-loader" style="display: none;">
-                                <span class="spinner"></span> Logging in...
-                            </span>
+                        <button type="submit" class="btn btn-primary btn-block btn-cta-main" id="loginBtn">
+                            Login to Your Account
                         </button>
                     </form>
 
@@ -83,26 +87,58 @@ export function renderLoginPage() {
                         Don't have an account? 
                         <a href="/register" class="auth-link">Register here</a>
                     </p>
+
+                    <div class="auth-footer" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
+                        <small style="color: #999;">
+                            🔒 Your data is secure and encrypted
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
     `;
 
-    // Initialize form enhancements
-    // Floating labels disabled due to alignment issues with current HTML structure
-    initFloatingLabels('loginForm');
-    initFocusAnimations('loginForm');
-    initPasswordToggle('password', 'togglePassword');
-    initIdentifierValidation('identifier');
+    // Initialize tooltips
+    if (window.tooltip) {
+        window.tooltip.initializeTooltips();
+    }
 
-    // Handle form submission
+    // Initialize form validator
     const form = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const btnText = loginBtn.querySelector('.btn-text');
-    const btnLoader = loginBtn.querySelector('.btn-loader');
+    const validator = new FormValidator(form);
+
+    // Get form elements
     const identifierInput = document.getElementById('identifier');
     const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
 
+    // Real-time validation
+    identifierInput.addEventListener('blur', () => {
+        const value = identifierInput.value.trim();
+        if (value) {
+            // Check if it's email or phone
+            const isEmail = value.includes('@');
+            if (isEmail) {
+                validator.validateEmail(identifierInput);
+            } else {
+                validator.validatePhone(identifierInput);
+            }
+        }
+    });
+
+    passwordInput.addEventListener('blur', () => {
+        if (passwordInput.value) {
+            validator.validateRequired(passwordInput, 'Password');
+        }
+    });
+
+    // Password toggle
+    document.getElementById('togglePassword').addEventListener('click', () => {
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+    });
+
+    // Handle form submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -110,19 +146,26 @@ export function renderLoginPage() {
         const password = passwordInput.value;
         const rememberMe = document.getElementById('rememberMe').checked;
 
-        // Client-side validation
-        if (!isValidEmail(identifier) && !isValidPhone(identifier)) {
-            showError('errorMessage', 'Please provide a valid email or 10-digit phone number');
-            identifierInput.focus();
+        // Validate identifier
+        const isEmail = identifier.includes('@');
+        let isValid = false;
+
+        if (isEmail) {
+            isValid = validator.validateEmail(identifierInput);
+        } else {
+            isValid = validator.validatePhone(identifierInput);
+        }
+
+        const isPasswordValid = validator.validateRequired(passwordInput, 'Password');
+
+        if (!isValid || !isPasswordValid) {
+            showError('Please fix the errors above before logging in');
             return;
         }
 
         try {
-            // Show loading state
-            hideError('errorMessage');
-            loginBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoader.style.display = 'inline-flex';
+            hideError();
+            Loading.buttonLoading(loginBtn, 'Logging in...');
 
             const response = await authService.login({ identifier, password, rememberMe });
 
@@ -142,38 +185,69 @@ export function renderLoginPage() {
                     sessionStorage.setItem('user', JSON.stringify(userData));
                 }
 
+                // Show success message
+                showSuccess();
+
                 // Navigate based on user setup status
-                if (!response.data.isLocationSet) {
-                    window.router.navigate('/location-setup');
-                } else {
-                    window.router.navigate('/dashboard');
-                }
+                setTimeout(() => {
+                    if (!response.data.isLocationSet) {
+                        window.router.navigate('/location-setup');
+                    } else {
+                        window.router.navigate('/dashboard');
+                    }
+                }, 1500);
             }
         } catch (error) {
-            showError('errorMessage', error.response?.data?.message || 'Login failed. Please try again.');
+            Loading.buttonReset(loginBtn);
+            const errorMsg = error.response?.data?.message || 'Login failed. Please try again.';
 
-            // Reset button state
-            loginBtn.disabled = false;
-            btnText.style.display = 'inline';
-            btnLoader.style.display = 'none';
+            // Enhanced error messages
+            if (errorMsg.includes('not found') || errorMsg.includes('Invalid')) {
+                showError('Invalid email/phone or password. Please check your credentials and try again. <a href="/forgot-password">Forgot your password?</a>');
+            } else if (errorMsg.includes('locked') || errorMsg.includes('suspended')) {
+                showError('Your account has been temporarily locked. Please contact support or try again later.');
+            } else {
+                showError(errorMsg + ' Need help? <a href="/contact">Contact support</a>');
+            }
         }
     });
 
-    // Add event listener for register link
-    app.querySelector('a[href="/register"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.router.navigate('/register');
-    });
+    // Helper functions
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.innerHTML = message;
+        errorDiv.style.display = 'block';
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-    // Add event listener for forgot password link
-    app.querySelector('.forgot-password-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.router.navigate('/forgot-password');
-    });
+    function hideError() {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.style.display = 'none';
+    }
 
-    // Add event listener for back link
-    app.querySelector('.auth-back-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.router.navigate('/');
+    function showSuccess() {
+        const form = document.getElementById('loginForm');
+        form.innerHTML = `
+            <div class="success-message">
+                <div class="success-icon">✓</div>
+                <h3>Login Successful!</h3>
+                <p>Welcome back! Redirecting to your dashboard...</p>
+                <div class="loading-state">
+                    <span class="spinner"></span>
+                    <span>Loading your account...</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // Handle links
+    app.querySelectorAll('a').forEach(link => {
+        if (!link.hasAttribute('target')) {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                window.router.navigate(href);
+            });
+        }
     });
 }

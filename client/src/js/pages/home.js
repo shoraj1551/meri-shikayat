@@ -38,9 +38,18 @@ export function renderHomePage() {
                             We connect your voice directly to the resolving authorities.
                         </p>
                         <div class="hero-cta-group">
-                            <a href="/file-complaint" class="btn btn-primary btn-lg">File Your First Complaint</a>
-                            <a href="/how-it-works" class="btn btn-primary btn-lg">How It Works</a>
+                            <a href="/file-complaint" class="btn btn-primary btn-lg btn-cta-main">
+                                📝 File Your First Complaint
+                            </a>
+                            <a href="/how-it-works" class="btn btn-outline-primary btn-lg">
+                                ℹ️ How It Works
+                            </a>
                         </div>
+                        <p class="hero-trust-message">
+                            <span>✓ Free to use</span>
+                            <span>✓ Quick resolution</span>
+                            <span>✓ Track progress</span>
+                        </p>
                     </div>
                 </div>
             </section>
