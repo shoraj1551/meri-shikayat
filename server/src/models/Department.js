@@ -26,6 +26,26 @@ const departmentSchema = new mongoose.Schema({
         trim: true,
         maxlength: [1000, 'Description cannot exceed 1000 characters']
     },
+    nameHindi: {
+        type: String,
+        trim: true,
+        maxlength: [200, 'Hindi name cannot exceed 200 characters']
+    },
+    icon: {
+        type: String,
+        trim: true,
+        maxlength: [10, 'Icon cannot exceed 10 characters']
+    },
+    color: {
+        type: String,
+        trim: true,
+        match: [/^#[0-9A-Fa-f]{6}$/, 'Please provide a valid hex color code']
+    },
+    category: {
+        type: String,
+        enum: ['Primary', 'Additional'],
+        default: 'Additional'
+    },
     email: {
         type: String,
         lowercase: true,

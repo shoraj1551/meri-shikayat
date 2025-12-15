@@ -1,0 +1,179 @@
+/**
+ * Authorities Directory Page Styles
+ * Professional department directory design
+ */
+
+/* Header */
+.authorities-page .legal-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 0 2.5rem;
+    text-align: center;
+}
+
+.authorities-page .back-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.authorities-page .back-link:hover {
+    color: white;
+}
+
+.authorities-page .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.authorities-page .page-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Content */
+.authorities-page .legal-content {
+    padding: 3rem 0;
+    background: #f5f7fa;
+}
+
+.authorities-page .legal-section {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+/* Stats Grid */
+.authorities-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.auth-stat-card {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.auth-stat-card .stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.auth-stat-card .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.auth-stat-card .stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* Authorities Grid */
+.authorities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.authority-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    border: 2px solid #e0e0e0;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.authority-card:hover {
+    border-color: #1a237e;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(26, 35, 126, 0.15);
+}
+
+.authority-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 1.5rem;
+}
+
+.authority-card h3 {
+    color: #1a237e;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.hindi-name {
+    color: #546e7a;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.authority-quick-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.quick-stat {
+    text-align: center;
+}
+
+.quick-stat-label {
+    display: block;
+    font-size: 0.875rem;
+    color: #546e7a;
+    margin-bottom: 0.25rem;
+}
+
+.quick-stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a237e;
+}
+
+.view-details {
+    text-align: center;
+    color: #1a237e;
+    font-weight: 600;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .authorities-stats-grid,
+    .authorities-grid {
+        grid-template-columns: 1fr;
+    }
+}

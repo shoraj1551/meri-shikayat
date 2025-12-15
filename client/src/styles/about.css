@@ -1,0 +1,221 @@
+/**
+ * About Us Page Styles
+ * Professional design with stats and impact
+ */
+
+/* Header - consistent with other pages */
+.about-page .legal-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 0 2.5rem;
+    text-align: center;
+}
+
+.about-page .back-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.about-page .back-link:hover {
+    color: white;
+}
+
+.about-page .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.about-page .page-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Content */
+.about-page .legal-content {
+    padding: 3rem 0;
+    background: #f5f7fa;
+}
+
+.about-page .legal-section {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.feature-card {
+    background: #f5f7fa;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    border-color: #1a237e;
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+    color: #1a237e;
+    margin-bottom: 0.75rem;
+}
+
+.feature-card p {
+    color: #546e7a;
+    margin: 0;
+}
+
+/* Values Grid */
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.value-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+}
+
+.value-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.value-card h4 {
+    color: #1a237e;
+    margin-bottom: 0.75rem;
+}
+
+.value-card p {
+    color: #546e7a;
+    margin: 0;
+}
+
+/* Comparison Grid */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.comparison-item {
+    padding: 1.5rem;
+    background: #f5f7fa;
+    border-radius: 8px;
+    border-left: 4px solid #4caf50;
+}
+
+.comparison-item h4 {
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.comparison-item p {
+    color: #546e7a;
+    margin: 0;
+}
+
+/* Impact Card */
+.impact-card {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(56, 142, 60, 0.05) 100%);
+    border-left: 4px solid #4caf50;
+}
+
+.impact-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.impact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+}
+
+.impact-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.impact-item strong {
+    display: block;
+    font-size: 1.5rem;
+    color: #1a237e;
+    margin-bottom: 0.25rem;
+}
+
+.impact-item p {
+    color: #546e7a;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .stats-grid,
+    .features-grid,
+    .values-grid,
+    .comparison-grid,
+    .impact-stats {
+        grid-template-columns: 1fr;
+    }
+}

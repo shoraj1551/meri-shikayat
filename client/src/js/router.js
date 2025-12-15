@@ -1,10 +1,10 @@
 /**
- * Simple router for single-page application
+ * Simple router for single-page application with dynamic route support
  */
 
 export class Router {
     constructor() {
-        this.routes = {};
+        this.routes = [];
         this.currentRoute = null;
     }
 
@@ -12,17 +12,47 @@ export class Router {
      * Register a route
      */
     register(path, handler) {
-        this.routes[path] = handler;
+        // Convert path with parameters to regex
+        const paramNames = [];
+        const regexPath = path.replace(/:([^/]+)/g, (match, paramName) => {
+            paramNames.push(paramName);
+            return '([^/]+)';
+        });
+
+        this.routes.push({
+            path,
+            regex: new RegExp(`^${regexPath}$`),
+            paramNames,
+            handler
+        });
+    }
+
+    /**
+     * Match a path to a route
+     */
+    matchRoute(path) {
+        for (const route of this.routes) {
+            const match = path.match(route.regex);
+            if (match) {
+                const params = {};
+                route.paramNames.forEach((name, index) => {
+                    params[name] = match[index + 1];
+                });
+                return { route, params };
+            }
+        }
+        return null;
     }
 
     /**
      * Navigate to a route
      */
     navigate(path) {
-        if (this.routes[path]) {
+        const matched = this.matchRoute(path);
+        if (matched) {
             this.currentRoute = path;
             history.pushState(null, '', path);
-            this.routes[path]();
+            matched.route.handler(matched.params);
         } else {
             console.error(`Route not found: ${path}`);
         }
@@ -35,15 +65,17 @@ export class Router {
         // Handle browser back/forward buttons
         window.addEventListener('popstate', () => {
             const path = window.location.pathname;
-            if (this.routes[path]) {
+            const matched = this.matchRoute(path);
+            if (matched) {
                 this.currentRoute = path;
-                this.routes[path]();
+                matched.route.handler(matched.params);
             }
         });
 
         // Handle initial route
         const initialPath = window.location.pathname || '/';
-        if (this.routes[initialPath]) {
+        const matched = this.matchRoute(initialPath);
+        if (matched) {
             this.navigate(initialPath);
         } else {
             this.navigate('/');

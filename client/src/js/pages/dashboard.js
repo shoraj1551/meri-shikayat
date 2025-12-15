@@ -1,207 +1,236 @@
 import { complaintService } from '../api/complaint.service.js';
-import Chart from 'chart.js/auto';
+import Loading from '../components/loading.js';
 
 export async function renderDashboardPage() {
     const app = document.getElementById('app');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    // Show loading state
+    // Initial Skeleton State
     app.innerHTML = `
         <div class="dashboard-page">
             <div class="container">
-                <div class="loading-spinner">Loading dashboard...</div>
+                <div class="dashboard-header">
+                    <div class="dashboard-welcome">
+                        <div class="skeleton-text" style="width: 200px; height: 32px; margin-bottom: 8px;"></div>
+                        <div class="skeleton-text" style="width: 150px;"></div>
+                    </div>
+                </div>
+                <div class="stats-grid-premium">
+                    ${[1, 2, 3].map(() => `
+                        <div class="stat-card-premium" style="height: 140px;">
+                            ${Loading.skeleton(100, '30%')}
+                            <div style="margin-top: 20px;">
+                                ${Loading.skeleton(100, '60%')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="dashboard-layout">
+                    <div class="main-content">
+                        ${Loading.skeleton(300, '100%')}
+                    </div>
+                    <div class="sidebar">
+                        ${Loading.skeleton(200, '100%')}
+                    </div>
+                </div>
             </div>
         </div>
     `;
 
     try {
+        // Fetch data
         const myComplaintsResponse = await complaintService.getMyComplaints();
         const myComplaints = myComplaintsResponse.data || [];
 
-        let dashboardContent = '';
+        // Calculate Stats
+        const stats = {
+            total: myComplaints.length,
+            pending: myComplaints.filter(c => c.status === 'Pending').length,
+            resolved: myComplaints.filter(c => c.status === 'Resolved').length,
+            rejected: myComplaints.filter(c => c.status === 'Rejected').length
+        };
 
-        if (myComplaints.length > 0) {
-            // Scenario A: User has complaints
-            const stats = {
-                total: myComplaints.length,
-                pending: myComplaints.filter(c => c.status === 'Pending').length,
-                resolved: myComplaints.filter(c => c.status === 'Resolved').length,
-                rejected: myComplaints.filter(c => c.status === 'Rejected').length
-            };
-
-            dashboardContent = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-label">Total Complaints</span>
-                        <div class="stat-value">${stats.total}</div>
-                    </div>
-                    <div class="stat-card pending">
-                        <span class="stat-label">Pending</span>
-                        <div class="stat-value">${stats.pending}</div>
-                    </div>
-                    <div class="stat-card resolved">
-                        <span class="stat-label">Resolved</span>
-                        <div class="stat-value">${stats.resolved}</div>
-                    </div>
-                </div>
-
-                <div class="chart-section">
-                    <div class="glass-card">
-                        <h3>Complaint Status Overview</h3>
-                        <div class="chart-container">
-                            <canvas id="complaintChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="glass-card">
-                        <h3>Quick Actions</h3>
-                        <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                            <button class="btn btn-primary btn-block" onclick="window.router.navigate('/submit-complaint')">
-                                + New Complaint
-                            </button>
-                            <button class="btn btn-secondary btn-block" onclick="window.router.navigate('/profile')">
-                                View Profile
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-header">
-                    <h2>My Complaints History</h2>
-                </div>
-                <div class="complaints-list">
-                    ${myComplaints.map(complaint => renderComplaintCard(complaint)).join('')}
-                </div>
-            `;
-
-            // Render Chart after DOM update
-            setTimeout(() => {
-                renderChart(stats);
-            }, 0);
-
-        } else {
-            // Scenario B: User has 0 complaints
-            const nearbyResponse = await complaintService.getNearbyComplaints();
-            const nearbyComplaints = nearbyResponse.data || [];
-
-            dashboardContent = `
-                <div class="welcome-section glass-card mb-4">
-                    <div class="info-card" style="background: transparent; box-shadow: none; padding: 0;">
-                        <h2>👋 Welcome, ${user.firstName}!</h2>
-                        <p>You haven't submitted any complaints yet. Your voice matters - help us improve your community.</p>
-                        <div class="user-location-info mt-2">
-                            <p><strong>📍 Location:</strong> ${user.location?.city || 'Not set'}, ${user.location?.state || ''}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-header mt-4">
-                    <h2>What's Happening Nearby</h2>
-                    <p class="text-muted">Top issues reported in ${user.location?.city || 'your area'}</p>
-                </div>
-
-                ${nearbyComplaints.length > 0 ? `
-                    <div class="stories-section">
-                        <div class="stories-scroll-container">
-                            ${nearbyComplaints.map(complaint => renderStoryItem(complaint)).join('')}
-                        </div>
-                    </div>
-
-                    <div class="complaints-list">
-                        ${nearbyComplaints.map(complaint => renderComplaintCard(complaint, true)).join('')}
-                    </div>
-                ` : `
-                    <div class="empty-state glass-card text-center">
-                        <p>No complaints reported in your area yet. Be the first!</p>
-                        <button class="btn btn-primary mt-3" onclick="window.router.navigate('/submit-complaint')">
-                            Submit First Complaint
-                        </button>
-                    </div>
-                `}
-            `;
-        }
-
-        app.innerHTML = `
-            <div class="dashboard-page">
-                <div class="container">
-                    <div class="dashboard-header">
-                        <div class="header-content">
-                            <h1>Dashboard</h1>
-                            <p class="text-muted">${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                        </div>
-                        ${myComplaints.length > 0 ? `
-                            <button class="btn btn-primary" onclick="window.router.navigate('/submit-complaint')">
-                                + New Complaint
-                            </button>
-                        ` : ''}
-                    </div>
-                    
-                    <div class="dashboard-content">
-                        ${dashboardContent}
-                    </div>
-                </div>
-            </div>
-        `;
+        // Render Premium Dashboard
+        renderPremiumContent(app, user, myComplaints, stats);
 
     } catch (error) {
         console.error('Dashboard Error:', error);
         app.innerHTML = `
             <div class="container">
                 <div class="error-message">
-                    Failed to load dashboard. Please try again later.
+                    <h3>😕 Something went wrong</h3>
+                    <p>Failed to load your dashboard. Please try again.</p>
+                    <button class="btn btn-primary" onclick="window.location.reload()">Retry</button>
                 </div>
             </div>
         `;
     }
 }
 
-function renderChart(stats) {
-    const ctx = document.getElementById('complaintChart');
-    if (!ctx) return;
+function renderPremiumContent(app, user, complaints, stats) {
+    const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Pending', 'Resolved', 'Rejected'],
-            datasets: [{
-                data: [stats.pending, stats.resolved, stats.rejected],
-                backgroundColor: [
-                    '#f59e0b', // Pending - Orange
-                    '#10b981', // Resolved - Green
-                    '#ef4444'  // Rejected - Red
-                ],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20
-                    }
-                }
-            },
-            cutout: '70%'
-        }
-    });
-}
+    app.innerHTML = `
+        <div class="dashboard-page">
+            <div class="container">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div class="dashboard-welcome">
+                        <h1>Welcome back, ${user.firstName || 'User'}! 👋</h1>
+                        <p class="dashboard-date">${dateStr}</p>
+                    </div>
+                    <button class="btn btn-primary btn-cta-main" onclick="window.router.navigate('/submit-complaint')">
+                        <i class="icon">＋</i> New Complaint
+                    </button>
+                </div>
 
-function renderStoryItem(complaint) {
-    const icon = getCategoryIcon(complaint.category);
-    return `
-        <div class="story-item">
-            <div class="story-ring">
-                <div class="story-avatar">
-                    ${complaint.mediaUrl && (complaint.type === 'image')
-            ? `<img src="${complaint.mediaUrl}" alt="Story">`
-            : `<span>${icon}</span>`}
+                <!-- Stats Grid -->
+                <div class="stats-grid-premium">
+                    <div class="stat-card-premium stat-card-total">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Issues</span>
+                            <div class="stat-icon-wrapper">📊</div>
+                        </div>
+                        <div class="stat-value-big count-up" data-target="${stats.total}">0</div>
+                        <div class="stat-trend neutral">
+                            <span>Lifetime submissions</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card-premium stat-card-pending">
+                        <div class="stat-header">
+                            <span class="stat-label">In Progress</span>
+                            <div class="stat-icon-wrapper">⏳</div>
+                        </div>
+                        <div class="stat-value-big count-up" data-target="${stats.pending}">0</div>
+                        <div class="stat-trend neutral">
+                            <span>Awaiting resolution</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card-premium stat-card-resolved">
+                        <div class="stat-header">
+                            <span class="stat-label">Resolved</span>
+                            <div class="stat-icon-wrapper">✅</div>
+                        </div>
+                        <div class="stat-value-big count-up" data-target="${stats.resolved}">0</div>
+                        <div class="stat-trend positive">
+                            <span>Success rate: ${stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Layout -->
+                <div class="dashboard-layout">
+                    <!-- Left Column: Complaints List -->
+                    <div class="main-content">
+                        <h2 class="section-title">
+                            Recent Activity
+                            <span class="badge" style="font-size: 0.8rem; background: var(--bg-secondary); color: var(--text-secondary); padding: 4px 8px; border-radius: 12px;">
+                                ${complaints.length}
+                            </span>
+                        </h2>
+
+                        ${complaints.length > 0 ? `
+                            <div class="complaints-list-premium">
+                                ${complaints.map(c => renderPremiumComplaintCard(c)).join('')}
+                            </div>
+                        ` : renderEmptyState()}
+                    </div>
+
+                    <!-- Right Column: Sidebar -->
+                    <div class="sidebar">
+                        <div class="quick-actions-card">
+                            <h3 class="section-title">Quick Actions</h3>
+                            <div class="action-btn-group">
+                                <button class="btn-premium-action primary" onclick="window.router.navigate('/submit-complaint')">
+                                    <span>📝</span> File New Complaint
+                                </button>
+                                <button class="btn-premium-action" onclick="window.router.navigate('/profile')">
+                                    <span>👤</span> Update Profile
+                                </button>
+                                <button class="btn-premium-action" onclick="window.router.navigate('/success-stories')">
+                                    <span>✨</span> View Success Stories
+                                </button>
+                            </div>
+                        
+                            <div class="map-widget">
+                                <!-- Map placeholder with overlay -->
+                                <div style="background: rgba(255,255,255,0.8); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">
+                                    📍 Nearby Issues
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <span class="story-title">${complaint.category}</span>
+        </div>
+    `;
+
+    // Initialize Animations
+    animateCounters();
+}
+
+function renderPremiumComplaintCard(complaint) {
+    const icon = getCategoryIcon(complaint.category);
+    const date = new Date(complaint.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const statusLower = complaint.status.toLowerCase();
+
+    // Determine progress width
+    let progressWidth = '10%';
+    let fillClass = 'pending';
+    if (statusLower === 'resolved') {
+        progressWidth = '100%';
+        fillClass = 'resolved';
+    } else if (statusLower === 'rejected') {
+        progressWidth = '100%';
+        fillClass = 'rejected';
+    } else if (statusLower === 'in progress') {
+        progressWidth = '60%';
+        fillClass = 'inprogress';
+    } else {
+        // Pending
+        progressWidth = '33%';
+        fillClass = 'pending';
+    }
+
+    return `
+        <div class="complaint-card-premium" onclick="window.alert('Detailed view coming soon!')" style="cursor: pointer;">
+            <div class="complaint-icon-box">
+                ${icon}
+            </div>
+            
+            <div class="complaint-info">
+                <h4>${complaint.title || 'Untitled Issue'}</h4>
+                <div class="complaint-meta">
+                    <span>📅 ${date}</span>
+                    <span>📍 ${complaint.location?.city || 'Unknown Location'}</span>
+                    <span>🆔 #${complaint._id.substring(complaint._id.length - 6).toUpperCase()}</span>
+                </div>
+            </div>
+
+            <div class="status-tracker-mini">
+                <span class="status-badge-premium ${statusLower}">
+                    ${statusLower === 'resolved' ? '✅' : statusLower === 'rejected' ? '❌' : '⏳'} 
+                    ${complaint.status}
+                </span>
+                <div class="tracker-bar">
+                    <div class="tracker-fill ${fillClass}" style="width: ${progressWidth}"></div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderEmptyState() {
+    return `
+        <div class="empty-state-premium" style="text-align: center; padding: 3rem; background: white; border-radius: 16px; border: 1px dashed var(--border-color);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🍃</div>
+            <h3>No complaints yet</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">You haven't reported any issues. Be a hero for your community!</p>
+            <button class="btn btn-primary" onclick="window.router.navigate('/submit-complaint')">
+                Get Started
+            </button>
         </div>
     `;
 }
@@ -214,37 +243,29 @@ function getCategoryIcon(category) {
         'Sanitation': '🗑️',
         'Street Lights': '💡',
         'Parks': '🌳',
+        'Police': '👮',
         'Other': '📝'
     };
     return icons[category] || '📝';
 }
 
-function renderComplaintCard(complaint, showUser = false) {
-    const date = new Date(complaint.createdAt).toLocaleDateString();
-    const statusClass = complaint.status.toLowerCase();
+function animateCounters() {
+    const counters = document.querySelectorAll('.count-up');
+    counters.forEach(counter => {
+        const target = +counter.getAttribute('data-target');
+        const duration = 1500; // ms
+        const increment = target / (duration / 16); // 60fps
 
-    return `
-        <div class="complaint-card ${statusClass}">
-            <div class="complaint-header">
-                <span class="category-badge">${getCategoryIcon(complaint.category)} ${complaint.category}</span>
-                <span class="status-badge ${statusClass}">${complaint.status}</span>
-            </div>
-            <h3 class="complaint-title">${complaint.title}</h3>
-            <p class="complaint-desc">${complaint.description.substring(0, 100)}${complaint.description.length > 100 ? '...' : ''}</p>
-            
-            ${complaint.mediaUrl ? `
-                <div class="complaint-media-indicator">
-                    <span>📎 Has attachment (${complaint.type})</span>
-                </div>
-            ` : ''}
-
-            <div class="complaint-footer">
-                <span class="complaint-date">📅 ${date}</span>
-                ${showUser && complaint.user ? `
-                    <span class="complaint-user">👤 ${complaint.user.firstName} ${complaint.user.lastName}</span>
-                ` : ''}
-                <span class="complaint-location">📍 ${complaint.location?.city || 'Unknown'}</span>
-            </div>
-        </div>
-    `;
+        let current = 0;
+        const updateCount = () => {
+            current += increment;
+            if (current < target) {
+                counter.innerText = Math.ceil(current);
+                requestAnimationFrame(updateCount);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    });
 }
