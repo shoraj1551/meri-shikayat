@@ -31,7 +31,10 @@ import { renderFeaturesPage } from './pages/features.js';
 import { renderForgotPasswordPage } from './pages/forgot-password.js';
 import { renderForgotPasswordVerifyPage } from './pages/forgot-password-verify.js';
 import { renderForgotPasswordResetPage } from './pages/forgot-password-reset.js';
+import { renderForgotPasswordResetPage } from './pages/forgot-password-reset.js';
 import { renderSuccessStoriesPage } from './pages/success-stories.js';
+import { renderCommunityPage } from './pages/community-hub.js';
+import { renderMessagesPage } from './pages/messages.js';
 
 // Import UI components
 import { tooltip } from './components/tooltip.js';
@@ -79,7 +82,10 @@ export function initializeApp() {
     // Platform Pages
     router.register('/how-it-works', renderHowItWorksPage);
     router.register('/features', renderFeaturesPage);
+    router.register('/features', renderFeaturesPage);
     router.register('/success-stories', renderSuccessStoriesPage);
+    router.register('/community', renderCommunityPage);
+    router.register('/messages', renderMessagesPage);
 
     // Initialize router
     router.init();

@@ -14,6 +14,7 @@ import complaintRoutes from './routes/complaint.routes.js';
 import locationRoutes from './routes/location.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import userRoutes from './routes/user.routes.js';
+import socialRoutes from './routes/social.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -78,6 +79,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api', socialRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
