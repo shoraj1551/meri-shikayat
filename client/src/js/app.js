@@ -42,6 +42,7 @@ import { renderAuthoritiesPage } from './pages/authorities.js';
 import { renderAuthorityDetailPage } from './pages/authority-detail.js';
 import { renderContractorsPage } from './pages/contractors.js';
 import { renderMultiRoleRegisterPage } from './pages/multi-role-register.js';
+import { renderVerifyAccountPage } from './pages/verify-account.js';
 
 // Import UI components
 import { tooltip } from './components/tooltip.js';
@@ -66,6 +67,7 @@ export function initializeApp() {
     router.register('/profile', renderProfilePage);
     router.register('/file-complaint', renderComplaintForm);
     router.register('/register-gateway', renderRegistrationGatewayPage);
+    router.register('/verify-account', renderVerifyAccountPage);
 
     // Admin Routes
     router.register('/admin/login', renderAdminLoginPage);
