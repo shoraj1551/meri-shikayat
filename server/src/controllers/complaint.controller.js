@@ -1,5 +1,6 @@
 import Complaint from '../models/Complaint.js';
 import Media from '../models/Media.js';
+import { generateComplaintId, isValidComplaintId } from '../services/complaintId.service.js';
 
 // @desc    Create a new complaint
 // @route   POST /api/complaints
@@ -44,7 +45,11 @@ export const createComplaint = async (req, res) => {
             mediaIds.push(media._id);
         }
 
+        // Generate unique complaint ID
+        const complaintId = await generateComplaintId();
+
         const complaint = await Complaint.create({
+            complaintId,
             user: req.user.id,
             type,
             title,
