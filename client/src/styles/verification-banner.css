@@ -1,0 +1,67 @@
+/* Verification Banner Styles */
+
+.verification-banner {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    animation: slideDown 0.3s ease;
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.banner-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.banner-text {
+    flex: 1;
+}
+
+.banner-text strong {
+    display: block;
+    color: #92400e;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.banner-text p {
+    color: #78350f;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.verification-banner .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .verification-banner .btn {
+        width: 100%;
+    }
+}

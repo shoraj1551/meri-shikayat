@@ -102,6 +102,26 @@ function renderPremiumContent(app, user, complaints, stats) {
                     </div>
                 </div>
 
+                <!-- Verification Banner -->
+                ${!user.isVerified || !user.verificationStatus?.email || !user.verificationStatus?.phone ? `
+                    <div class="verification-banner">
+                        <div class="banner-content">
+                            <div class="banner-icon">⚠️</div>
+                            <div class="banner-text">
+                                <strong>Account Verification Required</strong>
+                                <p>
+                                    ${user.userType === 'general_user'
+                ? 'Please verify your email or phone number to fully activate your account.'
+                : 'Please verify both your email and phone number to fully activate your account.'}
+                                </p>
+                            </div>
+                            <button class="btn btn-primary" onclick="window.router.navigate('/verify-account')">
+                                Verify Now
+                            </button>
+                        </div>
+                    </div>
+                ` : ''}
+
                 <!-- Enhanced CTA Button -->
                 <div class="cta-section">
                     <button class="btn-cta-primary-large" onclick="window.router.navigate('/submit-complaint')">
