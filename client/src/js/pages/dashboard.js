@@ -18,19 +18,17 @@ export async function renderDashboardPage() {
                 <div class="stats-grid-premium">
                     ${[1, 2, 3].map(() => `
                         <div class="stat-card-premium" style="height: 140px;">
-                            ${Loading.skeleton(100, '30%')}
-                            <div style="margin-top: 20px;">
-                                ${Loading.skeleton(100, '60%')}
-                            </div>
+                            <div class="skeleton-text" style="width: 30%; height: 20px; margin-bottom: 20px;"></div>
+                            <div class="skeleton-text" style="width: 60%; height: 30px;"></div>
                         </div>
                     `).join('')}
                 </div>
                 <div class="dashboard-layout">
                     <div class="main-content">
-                        ${Loading.skeleton(300, '100%')}
+                        <div class="skeleton-text" style="width: 100%; height: 300px;"></div>
                     </div>
                     <div class="sidebar">
-                        ${Loading.skeleton(200, '100%')}
+                        <div class="skeleton-text" style="width: 100%; height: 200px;"></div>
                     </div>
                 </div>
             </div>
@@ -73,14 +71,35 @@ function renderPremiumContent(app, user, complaints, stats) {
     app.innerHTML = `
         <div class="dashboard-page">
             <div class="container">
-                <!-- Header -->
-                <div class="dashboard-header">
-                    <div class="dashboard-welcome">
-                        <h1>Welcome back, ${user.firstName || 'User'}! 👋</h1>
-                        <p class="dashboard-date">${dateStr}</p>
+                <!-- Enhanced Header -->
+                <div class="dashboard-header-enhanced">
+                    <div class="header-left">
+                        <h1 class="welcome-title">Welcome back, ${user.firstName || 'User'} ${user.lastName || ''}! 👋</h1>
+                        <div class="header-meta">
+                            <span class="header-date">📅 ${dateStr}</span>
+                            ${user.location ? `<span class="header-location">📍 ${user.location.city || ''}, ${user.location.district || ''} - ${user.location.pincode || ''}</span>` : ''}
+                        </div>
                     </div>
-                    <button class="btn btn-primary btn-cta-main" onclick="window.router.navigate('/submit-complaint')">
-                        <i class="icon">＋</i> New Complaint
+                    <div class="header-right">
+                        <button class="btn-profile-enhanced" onclick="window.router.navigate('/profile')" title="View Profile">
+                            <span class="profile-avatar">${(user.firstName?.[0] || 'U')}${(user.lastName?.[0] || '')}</span>
+                            <span class="profile-text">Profile</span>
+                        </button>
+                        <button class="btn-logout" id="logoutBtn" title="Logout">
+                            <span class="logout-icon">🚪</span>
+                            <span class="logout-text">Logout</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Enhanced CTA Button -->
+                <div class="cta-section">
+                    <button class="btn-cta-primary-large" onclick="window.router.navigate('/submit-complaint')">
+                        <span class="cta-icon-large">📝</span>
+                        <div class="cta-content">
+                            <strong>Report an Issue</strong>
+                            <small>Help improve your community</small>
+                        </div>
                     </button>
                 </div>
 
@@ -122,17 +141,28 @@ function renderPremiumContent(app, user, complaints, stats) {
 
                 <!-- Main Layout -->
                 <div class="dashboard-layout">
-                    <!-- Left Column: Complaints List -->
+                    <!-- Left Column: My Complaints --  -->
                     <div class="main-content">
-                        <h2 class="section-title">
-                            Recent Activity
-                            <span class="badge" style="font-size: 0.8rem; background: var(--bg-secondary); color: var(--text-secondary); padding: 4px 8px; border-radius: 12px;">
-                                ${complaints.length}
-                            </span>
-                        </h2>
+                        <div class="my-complaints-header">
+                            <h2 class="section-title">My Complaints</h2>
+                            <div class="complaint-filters">
+                                <button class="filter-btn active" data-filter="all">
+                                    All <span class="filter-count">${stats.total}</span>
+                                </button>
+                                <button class="filter-btn" data-filter="pending">
+                                    Pending <span class="filter-count">${stats.pending}</span>
+                                </button>
+                                <button class="filter-btn" data-filter="resolved">
+                                    Resolved <span class="filter-count">${stats.resolved}</span>
+                                </button>
+                                <button class="filter-btn" data-filter="rejected">
+                                    Rejected <span class="filter-count">${stats.rejected}</span>
+                                </button>
+                            </div>
+                        </div>
 
                         ${complaints.length > 0 ? `
-                            <div class="complaints-list-premium">
+                            <div class="complaints-list-premium" id="complaintsGrid">
                                 ${complaints.map(c => renderPremiumComplaintCard(c)).join('')}
                             </div>
                         ` : renderEmptyState()}
@@ -169,6 +199,51 @@ function renderPremiumContent(app, user, complaints, stats) {
 
     // Initialize Animations
     animateCounters();
+
+    // Logout handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            // Clear session
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            // Redirect to home
+            window.router.navigate('/');
+        });
+    }
+
+    // Complaint filters
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const complaintsGrid = document.getElementById('complaintsGrid');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+            const allCards = complaintsGrid?.querySelectorAll('.complaint-card-premium');
+
+            if (!allCards) return;
+
+            allCards.forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = 'flex';
+                } else {
+                    const statusBadge = card.querySelector('.status-badge-premium');
+                    const status = statusBadge?.textContent.trim().toLowerCase();
+
+                    if (status && status.includes(filter)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
 }
 
 function renderPremiumComplaintCard(complaint) {

@@ -274,11 +274,31 @@ export function renderMultiRoleRegisterPage() {
                                         <span class="toggle-icon">👁️</span>
                                     </button>
                                 </div>
-                                <div class="password-strength"></div>
-                                <small class="form-hint-enhanced">
-                                    <span class="hint-icon">🔐</span>
-                                    <span>Must be 8+ characters with uppercase, lowercase, number, and special character</span>
-                                </small>
+                                <div class="password-strength" id="passwordStrength">
+                                    <div class="password-strength-bar"></div>
+                                </div>
+                                <div class="password-requirements" id="passwordRequirements" style="display: none;">
+                                    <div class="password-requirement" data-req="length">
+                                        <span class="password-requirement-icon">○</span>
+                                        <span>At least 8 characters</span>
+                                    </div>
+                                    <div class="password-requirement" data-req="uppercase">
+                                        <span class="password-requirement-icon">○</span>
+                                        <span>One uppercase letter</span>
+                                    </div>
+                                    <div class="password-requirement" data-req="lowercase">
+                                        <span class="password-requirement-icon">○</span>
+                                        <span>One lowercase letter</span>
+                                    </div>
+                                    <div class="password-requirement" data-req="number">
+                                        <span class="password-requirement-icon">○</span>
+                                        <span>One number</span>
+                                    </div>
+                                    <div class="password-requirement" data-req="special">
+                                        <span class="password-requirement-icon">○</span>
+                                        <span>One special character</span>
+                                    </div>
+                                </div>
                                 <div class="field-error" role="alert"></div>
                             </div>
 
@@ -386,8 +406,51 @@ export function renderMultiRoleRegisterPage() {
         });
 
         password.addEventListener('input', () => {
-            if (password.value) {
-                validator.validatePassword(password, true);
+            const value = password.value;
+            const strengthBar = document.querySelector('#passwordStrength .password-strength-bar');
+            const requirementsDiv = document.getElementById('passwordRequirements');
+
+            if (value) {
+                // Show requirements
+                requirementsDiv.style.display = 'block';
+
+                // Check requirements
+                const requirements = {
+                    length: value.length >= 8,
+                    uppercase: /[A-Z]/.test(value),
+                    lowercase: /[a-z]/.test(value),
+                    number: /[0-9]/.test(value),
+                    special: /[^A-Za-z0-9]/.test(value)
+                };
+
+                // Update requirement indicators
+                Object.keys(requirements).forEach(req => {
+                    const reqElement = document.querySelector(`[data-req="${req}"]`);
+                    if (requirements[req]) {
+                        reqElement.classList.add('met');
+                        reqElement.querySelector('.password-requirement-icon').textContent = '✓';
+                    } else {
+                        reqElement.classList.remove('met');
+                        reqElement.querySelector('.password-requirement-icon').textContent = '○';
+                    }
+                });
+
+                // Calculate strength
+                const metCount = Object.values(requirements).filter(Boolean).length;
+                let strengthClass = 'weak';
+                if (metCount >= 5) strengthClass = 'strong';
+                else if (metCount >= 3) strengthClass = 'medium';
+
+                // Update strength bar
+                strengthBar.className = `password-strength-bar ${strengthClass}`;
+
+                // Validate
+                if (metCount >= 5) {
+                    validator.clearError(password);
+                }
+            } else {
+                requirementsDiv.style.display = 'none';
+                strengthBar.className = 'password-strength-bar';
             }
         });
 
@@ -623,23 +686,60 @@ export function renderMultiRoleRegisterPage() {
                                 </h3>
 
                                 <div class="form-group">
-                                    <label for="department">Department *</label>
-                                    <select id="department" class="form-input" required>
-                                        <option value="">Select Department</option>
-                                        <option value="municipal">Municipal Corporation</option>
-                                        <option value="police">Police Department</option>
-                                        <option value="pwd">Public Works Department (PWD)</option>
-                                        <option value="water">Water Supply Department</option>
-                                        <option value="electricity">Electricity Board</option>
-                                        <option value="sanitation">Sanitation Department</option>
-                                        <option value="health">Health Department</option>
-                                        <option value="education">Education Department</option>
-                                        <option value="transport">Transport Department</option>
-                                        <option value="fire">Fire Department</option>
-                                        <option value="environment">Environment Department</option>
-                                        <option value="revenue">Revenue Department</option>
-                                    </select>
-                                    <div class="field-error"></div>
+                                    <label>Select Department *</label>
+                                    <p class="form-section-description" style="margin-top: 0.5rem;">Choose the department you work for</p>
+                                    <div class="department-cards-grid" id="departmentCardsGrid">
+                                        <div class="department-card" data-dept="municipal">
+                                            <div class="department-card-icon">🏛️</div>
+                                            <div class="department-card-name">Municipal Corporation</div>
+                                        </div>
+                                        <div class="department-card" data-dept="police">
+                                            <div class="department-card-icon">👮</div>
+                                            <div class="department-card-name">Police Department</div>
+                                        </div>
+                                        <div class="department-card" data-dept="pwd">
+                                            <div class="department-card-icon">🏗️</div>
+                                            <div class="department-card-name">Public Works (PWD)</div>
+                                        </div>
+                                        <div class="department-card" data-dept="water">
+                                            <div class="department-card-icon">💧</div>
+                                            <div class="department-card-name">Water Supply</div>
+                                        </div>
+                                        <div class="department-card" data-dept="electricity">
+                                            <div class="department-card-icon">⚡</div>
+                                            <div class="department-card-name">Electricity Board</div>
+                                        </div>
+                                        <div class="department-card" data-dept="sanitation">
+                                            <div class="department-card-icon">🧹</div>
+                                            <div class="department-card-name">Sanitation</div>
+                                        </div>
+                                        <div class="department-card" data-dept="health">
+                                            <div class="department-card-icon">🏥</div>
+                                            <div class="department-card-name">Health Department</div>
+                                        </div>
+                                        <div class="department-card" data-dept="education">
+                                            <div class="department-card-icon">📚</div>
+                                            <div class="department-card-name">Education</div>
+                                        </div>
+                                        <div class="department-card" data-dept="transport">
+                                            <div class="department-card-icon">🚌</div>
+                                            <div class="department-card-name">Transport</div>
+                                        </div>
+                                        <div class="department-card" data-dept="fire">
+                                            <div class="department-card-icon">🚒</div>
+                                            <div class="department-card-name">Fire Department</div>
+                                        </div>
+                                        <div class="department-card" data-dept="environment">
+                                            <div class="department-card-icon">🌳</div>
+                                            <div class="department-card-name">Environment</div>
+                                        </div>
+                                        <div class="department-card" data-dept="revenue">
+                                            <div class="department-card-icon">💰</div>
+                                            <div class="department-card-name">Revenue</div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="department" name="department" required>
+                                    <div class="field-error" id="departmentError"></div>
                                 </div>
 
                                 <div class="form-row">
@@ -711,6 +811,28 @@ export function renderMultiRoleRegisterPage() {
             });
         }
 
+        // Department card selection
+        const departmentCards = document.querySelectorAll('.department-card');
+        const departmentInput = document.getElementById('department');
+        let selectedDepartment = null;
+
+        departmentCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove selected class from all cards
+                departmentCards.forEach(c => c.classList.remove('selected'));
+
+                // Add selected class to clicked card
+                card.classList.add('selected');
+
+                // Update hidden input
+                selectedDepartment = card.dataset.dept;
+                departmentInput.value = selectedDepartment;
+
+                // Clear error
+                document.getElementById('departmentError').textContent = '';
+            });
+        });
+
         const form = document.getElementById('registerForm');
         const registerBtn = document.getElementById('registerBtn');
 
@@ -729,6 +851,13 @@ export function renderMultiRoleRegisterPage() {
             };
 
             const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validate department selection
+            if (!formData.department) {
+                document.getElementById('departmentError').textContent = 'Please select a department';
+                document.getElementById('departmentError').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
 
             if (formData.password !== confirmPassword) {
                 showFormError('Passwords do not match');
@@ -869,21 +998,67 @@ export function renderMultiRoleRegisterPage() {
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="specialization">Specialization *</label>
-                                    <select id="specialization" class="form-input" required multiple>
-                                        <option value="sanitation">Sanitation</option>
-                                        <option value="road_repair">Road Repair</option>
-                                        <option value="electrical">Electrical</option>
-                                        <option value="plumbing">Plumbing</option>
-                                        <option value="construction">Construction</option>
-                                        <option value="landscaping">Landscaping</option>
-                                        <option value="other">Other</option>
-                                    </select>
-                                    <small class="form-hint-enhanced">
-                                        <span class="hint-icon">💡</span>
-                                        <span>Hold Ctrl (Cmd on Mac) to select multiple</span>
-                                    </small>
-                                    <div class="field-error"></div>
+                                    <label>Specialization *</label>
+                                    <p class="form-section-description" style="margin-top: 0.5rem;">Select all services you provide (multiple allowed)</p>
+                                    <div class="specialization-grid" id="specializationGrid">
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-sanitation" name="specialization" value="sanitation">
+                                            <label for="spec-sanitation" class="specialization-label">
+                                                <span class="specialization-icon">🧹</span>
+                                                <span>Sanitation & Waste</span>
+                                            </label>
+                                        </div>
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-road" name="specialization" value="road_repair">
+                                            <label for="spec-road" class="specialization-label">
+                                                <span class="specialization-icon">🛣️</span>
+                                                <span>Road Repair</span>
+                                            </label>
+                                        </div>
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-electrical" name="specialization" value="electrical">
+                                            <label for="spec-electrical" class="specialization-label">
+                                                <span class="specialization-icon">⚡</span>
+                                                <span>Electrical Works</span>
+                                            </label>
+                                        </div>
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-plumbing" name="specialization" value="plumbing">
+                                            <label for="spec-plumbing" class="specialization-label">
+                                                <span class="specialization-icon">🔧</span>
+                                                <span>Plumbing</span>
+                                            </label>
+                                        </div>
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-construction" name="specialization" value="construction">
+                                            <label for="spec-construction" class="specialization-label">
+                                                <span class="specialization-icon">🏗️</span>
+                                                <span>Construction</span>
+                                            </label>
+                                        </div>
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-landscaping" name="specialization" value="landscaping">
+                                            <label for="spec-landscaping" class="specialization-label">
+                                                <span class="specialization-icon">🌳</span>
+                                                <span>Landscaping</span>
+                                            </label>
+                                        </div>
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-painting" name="specialization" value="painting">
+                                            <label for="spec-painting" class="specialization-label">
+                                                <span class="specialization-icon">🎨</span>
+                                                <span>Painting</span>
+                                            </label>
+                                        </div>
+                                        <div class="specialization-checkbox">
+                                            <input type="checkbox" id="spec-carpentry" name="specialization" value="carpentry">
+                                            <label for="spec-carpentry" class="specialization-label">
+                                                <span class="specialization-icon">🪚</span>
+                                                <span>Carpentry</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="field-error" id="specializationError"></div>
                                 </div>
                             </div>
 
@@ -944,8 +1119,16 @@ export function renderMultiRoleRegisterPage() {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const specializationSelect = document.getElementById('specialization');
-            const selectedOptions = Array.from(specializationSelect.selectedOptions).map(opt => opt.value);
+            // Collect selected specializations from checkboxes
+            const specializationCheckboxes = document.querySelectorAll('input[name="specialization"]:checked');
+            const selectedSpecializations = Array.from(specializationCheckboxes).map(cb => cb.value);
+
+            // Validate at least one specialization selected
+            if (selectedSpecializations.length === 0) {
+                document.getElementById('specializationError').textContent = 'Please select at least one specialization';
+                document.getElementById('specializationError').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
 
             const formData = {
                 firstName: document.getElementById('firstName').value.trim(),
@@ -956,7 +1139,7 @@ export function renderMultiRoleRegisterPage() {
                 companyName: document.getElementById('companyName').value.trim(),
                 registrationNumber: document.getElementById('registrationNumber').value.trim(),
                 gstNumber: document.getElementById('gstNumber').value.trim() || undefined,
-                specialization: selectedOptions,
+                specialization: selectedSpecializations,
                 serviceAreas: []
             };
 
@@ -1027,12 +1210,17 @@ export function renderMultiRoleRegisterPage() {
                         <form id="registerForm" class="auth-form">
                             <div class="form-group">
                                 <label for="invitationCode">Invitation Code *</label>
-                                <input type="text" id="invitationCode" class="form-input" required placeholder="Enter your invitation code">
+                                <div class="invitation-code-wrapper">
+                                    <input type="text" id="invitationCode" class="form-input" required placeholder="Enter your invitation code" autocomplete="off">
+                                    <div class="invitation-code-status" id="codeStatus" style="display: none;">
+                                        <span class="code-spinner"></span>
+                                    </div>
+                                </div>
                                 <small class="form-hint-enhanced">
                                     <span class="hint-icon">🔐</span>
                                     <span>Super Admin registration requires a valid invitation code</span>
                                 </small>
-                                <div class="field-error"></div>
+                                <div class="field-error" id="invitationCodeError"></div>
                             </div>
 
                             <div class="form-row">
@@ -1103,6 +1291,44 @@ export function renderMultiRoleRegisterPage() {
                 showRoleSelection();
             });
         }
+
+        // Invitation code validation
+        const invitationCodeInput = document.getElementById('invitationCode');
+        const codeStatus = document.getElementById('codeStatus');
+        const codeError = document.getElementById('invitationCodeError');
+        let isCodeValid = false;
+
+        invitationCodeInput.addEventListener('input', () => {
+            const code = invitationCodeInput.value.trim();
+
+            if (code.length >= 8) {
+                // Show spinner
+                codeStatus.style.display = 'flex';
+                codeStatus.innerHTML = '<span class="code-spinner"></span>';
+                codeError.textContent = '';
+
+                // Simulate validation (in real app, this would be an API call)
+                setTimeout(() => {
+                    // For demo: accept "SUPER_ADMIN_2024" or any code with "SUPER" in it
+                    if (code === 'SUPER_ADMIN_2024' || code.toUpperCase().includes('SUPER')) {
+                        isCodeValid = true;
+                        codeStatus.innerHTML = '<span class="code-valid-icon">✓</span>';
+                        invitationCodeInput.classList.add('valid');
+                        invitationCodeInput.classList.remove('invalid');
+                    } else {
+                        isCodeValid = false;
+                        codeStatus.innerHTML = '<span class="code-invalid-icon">✗</span>';
+                        invitationCodeInput.classList.add('invalid');
+                        invitationCodeInput.classList.remove('valid');
+                        codeError.textContent = 'Invalid invitation code';
+                    }
+                }, 500);
+            } else {
+                codeStatus.style.display = 'none';
+                invitationCodeInput.classList.remove('valid', 'invalid');
+                isCodeValid = false;
+            }
+        });
 
         const form = document.getElementById('registerForm');
         const registerBtn = document.getElementById('registerBtn');
