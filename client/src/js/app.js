@@ -42,6 +42,8 @@ import { renderAuthoritiesPage } from './pages/authorities.js';
 import { renderAuthorityDetailPage } from './pages/authority-detail.js';
 import { renderContractorsPage } from './pages/contractors.js';
 import { renderMultiRoleRegisterPage } from './pages/multi-role-register.js';
+import { renderVerifyAccountPage } from './pages/verify-account.js';
+import { renderFileComplaintNew } from './pages/file-complaint-new.js';
 
 // Import UI components
 import { tooltip } from './components/tooltip.js';
@@ -66,6 +68,8 @@ export function initializeApp() {
     router.register('/profile', renderProfilePage);
     router.register('/file-complaint', renderComplaintForm);
     router.register('/register-gateway', renderRegistrationGatewayPage);
+    router.register('/verify-account', renderVerifyAccountPage);
+    router.register('/file-complaint', renderFileComplaintNew);  // New redesigned complaint page
 
     // Admin Routes
     router.register('/admin/login', renderAdminLoginPage);

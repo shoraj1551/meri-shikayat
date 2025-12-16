@@ -302,6 +302,25 @@ const userSchema = new mongoose.Schema({
     lastPasswordResetRequest: Date,
 
     // ========================================
+    // EMAIL & PHONE VERIFICATION OTP
+    // ========================================
+    emailVerificationOTP: String,
+    emailVerificationOTPExpiry: Date,
+    emailVerificationAttempts: {
+        type: Number,
+        default: 0
+    },
+    lastEmailOTPRequest: Date,
+
+    phoneVerificationOTP: String,
+    phoneVerificationOTPExpiry: Date,
+    phoneVerificationAttempts: {
+        type: Number,
+        default: 0
+    },
+    lastPhoneOTPRequest: Date,
+
+    // ========================================
     // SECURITY
     // ========================================
     // ENHANCED PROFILE FIELDS

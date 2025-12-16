@@ -3,7 +3,17 @@ import Loading from '../components/loading.js';
 
 export async function renderDashboardPage() {
     const app = document.getElementById('app');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    // Check authentication
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    // Redirect to login if not authenticated
+    if (!token || !user || !user.id) {
+        window.router.navigate('/login?redirect=/dashboard');
+        return;
+    }
 
     // Initial Skeleton State
     app.innerHTML = `
@@ -91,6 +101,26 @@ function renderPremiumContent(app, user, complaints, stats) {
                         </button>
                     </div>
                 </div>
+
+                <!-- Verification Banner -->
+                ${!user.isVerified || !user.verificationStatus?.email || !user.verificationStatus?.phone ? `
+                    <div class="verification-banner">
+                        <div class="banner-content">
+                            <div class="banner-icon">⚠️</div>
+                            <div class="banner-text">
+                                <strong>Account Verification Required</strong>
+                                <p>
+                                    ${user.userType === 'general_user'
+                ? 'Please verify your email or phone number to fully activate your account.'
+                : 'Please verify both your email and phone number to fully activate your account.'}
+                                </p>
+                            </div>
+                            <button class="btn btn-primary" onclick="window.router.navigate('/verify-account')">
+                                Verify Now
+                            </button>
+                        </div>
+                    </div>
+                ` : ''}
 
                 <!-- Enhanced CTA Button -->
                 <div class="cta-section">
@@ -209,6 +239,7 @@ function renderPremiumContent(app, user, complaints, stats) {
                                 <ul class="footer-links-list">
                                     <li><a href="#" onclick="window.router.navigate('/about')">About Us</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/how-it-works')">How It Works</a></li>
+                                    <li><a href="#" onclick="window.router.navigate('/success-stories')">Success Stories</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/contact')">Contact</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/faq')">FAQ</a></li>
                                 </ul>
@@ -219,6 +250,7 @@ function renderPremiumContent(app, user, complaints, stats) {
                                     <li><a href="#" onclick="window.router.navigate('/privacy')">Privacy Policy</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/terms')">Terms of Service</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/disclaimer')">Disclaimer</a></li>
+                                    <li><a href="#" onclick="window.router.navigate('/guidelines')">Community Guidelines</a></li>
                                 </ul>
                             </div>
                             <div class="footer-col">

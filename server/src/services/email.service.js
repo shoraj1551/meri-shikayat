@@ -93,6 +93,72 @@ export async function sendPasswordResetOTP(email, otp, firstName) {
 }
 
 /**
+ * Send OTP email for account verification
+ */
+export async function sendVerificationOTP(email, otp, firstName) {
+    if (!transporter) {
+        console.log(`📧 Email not configured. OTP for ${email}: ${otp}`);
+        return { success: true, messageId: 'demo-mode' };
+    }
+
+    const mailOptions = {
+        from: `Meri Shikayat <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'Verify Your Email - Meri Shikayat',
+        html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+                    .otp-box { background: white; border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+                    .otp { font-size: 32px; font-weight: bold; color: #3b82f6; letter-spacing: 5px; }
+                    .footer { text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>✉️ Verify Your Email</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hi <strong>${firstName}</strong>,</p>
+                        <p>Welcome to Meri Shikayat! Please verify your email address to complete your registration.</p>
+                        
+                        <div class="otp-box">
+                            <p style="margin: 0; font-size: 14px; color: #6b7280;">Your verification OTP is:</p>
+                            <div class="otp">${otp}</div>
+                            <p style="margin: 10px 0 0 0; font-size: 14px; color: #6b7280;">Valid for 5 minutes</p>
+                        </div>
+                        
+                        <p>If you didn't create an account with Meri Shikayat, please ignore this email.</p>
+                        
+                        <p>Best regards,<br><strong>Meri Shikayat Team</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>This is an automated email. Please do not reply.</p>
+                        <p>&copy; ${new Date().getFullYear()} Meri Shikayat. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Verification email sent:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('❌ Error sending verification email:', error);
+        throw new Error('Failed to send verification email');
+    }
+}
+
+/**
  * Send password reset confirmation email
  */
 export async function sendPasswordResetConfirmation(email, firstName) {
