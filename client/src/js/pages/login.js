@@ -2,22 +2,102 @@ import { authService } from '../api/auth.service.js';
 import FormValidator from '../utils/form-validator.js';
 import Loading from '../components/loading.js';
 
+let selectedRole = null;
+
 export function renderLoginPage() {
     const app = document.getElementById('app');
 
     app.innerHTML = `
-        <div class="auth-page">
-            <div class="auth-container">
-                <div class="auth-card">
+        <div class="auth-page multi-role-register">
+            <div class="auth-container" style="max-width: 1200px;">
+                <!-- Role Selection Step -->
+                <div class="auth-card" id="roleSelectionStep">
                     <div class="auth-header-actions">
                         <a href="/" class="auth-back-link">← Back to Home</a>
-                        <button class="role-toggle-btn" onclick="window.router.navigate('/admin/login')" title="Switch to Admin Login">
-                            <i class="icon">🛡️</i> Admin Login
-                        </button>
                     </div>
-                    <h2 class="auth-title">Welcome Back!</h2>
-                    <p class="auth-subtitle">Login to access your account and manage complaints</p>
                     
+                    <div class="role-selector-container">
+                        <h2 class="role-selector-title">Welcome Back!</h2>
+                        <p class="role-selector-subtitle">Choose your account type to login</p>
+                        
+                        <div class="role-cards-grid">
+                            <!-- General User Card -->
+                            <div class="role-card" data-role="general_user">
+                                <div class="role-card-icon">👤</div>
+                                <h3 class="role-card-title">General User</h3>
+                                <p class="role-card-description">Login to file and track your complaints</p>
+                                <ul class="role-card-features">
+                                    <li>✓ File complaints</li>
+                                    <li>✓ Track status</li>
+                                    <li>✓ Community feed</li>
+                                </ul>
+                                <div class="role-card-badge instant">Instant Access</div>
+                            </div>
+
+                            <!-- Admin Card -->
+                            <div class="role-card" data-role="admin">
+                                <div class="role-card-icon">🛡️</div>
+                                <h3 class="role-card-title">Admin</h3>
+                                <p class="role-card-description">Access admin dashboard and manage complaints</p>
+                                <ul class="role-card-features">
+                                    <li>✓ Manage complaints</li>
+                                    <li>✓ Assign tasks</li>
+                                    <li>✓ View analytics</li>
+                                </ul>
+                                <div class="role-card-badge approval">Admin Portal</div>
+                            </div>
+
+                            <!-- Contractor Card -->
+                            <div class="role-card" data-role="contractor">
+                                <div class="role-card-icon">🏗️</div>
+                                <h3 class="role-card-title">Contractor</h3>
+                                <p class="role-card-description">Access assigned jobs and update progress</p>
+                                <ul class="role-card-features">
+                                    <li>✓ View assignments</li>
+                                    <li>✓ Update progress</li>
+                                    <li>✓ Track earnings</li>
+                                </ul>
+                                <div class="role-card-badge verification">Work Portal</div>
+                            </div>
+
+                            <!-- Super Admin Card -->
+                            <div class="role-card super-admin-card" data-role="super_admin">
+                                <div class="role-card-icon">⭐</div>
+                                <h3 class="role-card-title">Super Admin</h3>
+                                <p class="role-card-description">Full system access and control</p>
+                                <ul class="role-card-features">
+                                    <li>✓ Full access</li>
+                                    <li>✓ System settings</li>
+                                    <li>✓ User management</li>
+                                </ul>
+                                <div class="role-card-badge invitation">Master Control</div>
+                            </div>
+                        </div>
+
+                        <div class="role-selector-note">
+                            <span class="note-icon">ℹ️</span>
+                            <span><strong>Note:</strong> Select your account type to access the appropriate dashboard and features.</span>
+                        </div>
+                    </div>
+
+                    <p class="auth-footer">
+                        Don't have an account? 
+                        <a href="/register" class="auth-link">Register here</a>
+                    </p>
+                </div>
+
+                <!-- Login Form Step (Hidden Initially) -->
+                <div class="auth-card" id="loginFormStep" style="display: none;">
+                    <div class="auth-header-actions">
+                        <button class="auth-back-link" id="backToRoleSelection">← Change Account Type</button>
+                    </div>
+                    
+                    <div class="auth-header">
+                        <div class="selected-role-badge" id="selectedRoleBadge"></div>
+                        <h2 class="auth-title" id="loginTitle">Login</h2>
+                        <p class="auth-subtitle" id="loginSubtitle">Enter your credentials to continue</p>
+                    </div>
+
                     <form id="loginForm" class="auth-form" autocomplete="on">
                         <div class="form-group">
                             <label for="identifier">
@@ -98,168 +178,260 @@ export function renderLoginPage() {
         </div>
     `;
 
-    // Initialize tooltips
-    if (window.tooltip) {
-        window.tooltip.initializeTooltips();
-    }
+    initializeLoginListeners();
+}
 
-    // Initialize form validator
-    const form = document.getElementById('loginForm');
-    const validator = new FormValidator(form);
+function initializeLoginListeners() {
+    // Role selection
+    const roleCards = document.querySelectorAll('.role-card');
+    roleCards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Remove active class from all cards
+            roleCards.forEach(c => c.classList.remove('active'));
 
-    // Get form elements
-    const identifierInput = document.getElementById('identifier');
-    const passwordInput = document.getElementById('password');
-    const loginBtn = document.getElementById('loginBtn');
+            // Add active class to clicked card
+            card.classList.add('active');
 
-    // Real-time validation
-    identifierInput.addEventListener('blur', () => {
-        const value = identifierInput.value.trim();
-        if (value) {
-            // Check if it's email or phone
-            const isEmail = value.includes('@');
-            if (isEmail) {
-                validator.validateEmail(identifierInput);
-            } else {
-                validator.validatePhone(identifierInput);
+            // Get selected role
+            selectedRole = card.dataset.role;
+
+            // Show login form after a short delay for visual feedback
+            setTimeout(() => {
+                showLoginForm(selectedRole);
+            }, 300);
+        });
+
+        // Keyboard accessibility
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `Login as ${card.querySelector('.role-card-title').textContent}`);
+
+        card.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                card.click();
             }
-        }
+        });
     });
 
-    passwordInput.addEventListener('blur', () => {
-        if (passwordInput.value) {
-            validator.validateRequired(passwordInput, 'Password');
-        }
-    });
+    // Back to role selection
+    const backBtn = document.getElementById('backToRoleSelection');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            showRoleSelection();
+        });
+    }
 
     // Password toggle
-    document.getElementById('togglePassword').addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-    });
+    const togglePassword = document.getElementById('togglePassword');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', () => {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = togglePassword.querySelector('.toggle-icon');
 
-    // Handle form submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const identifier = identifierInput.value.trim().toLowerCase();
-        const password = passwordInput.value;
-        const rememberMe = document.getElementById('rememberMe').checked;
-
-        // Validate identifier
-        const isEmail = identifier.includes('@');
-        let isValid = false;
-
-        if (isEmail) {
-            isValid = validator.validateEmail(identifierInput);
-        } else {
-            isValid = validator.validatePhone(identifierInput);
-        }
-
-        const isPasswordValid = validator.validateRequired(passwordInput, 'Password');
-
-        if (!isValid || !isPasswordValid) {
-            showError('Please fix the errors above before logging in');
-            return;
-        }
-
-        try {
-            hideError();
-            Loading.buttonLoading(loginBtn, 'Logging in...');
-
-            const response = await authService.login({ identifier, password, rememberMe });
-
-            if (response.success) {
-                // Store authentication token based on Remember Me preference
-                const token = response.token || 'demo-token-' + Date.now();
-                const userData = response.data || { identifier, role: 'user' };
-
-                if (rememberMe) {
-                    // Remember Me checked: Use localStorage (persists across sessions)
-                    localStorage.setItem('authToken', token);
-                    localStorage.setItem('user', JSON.stringify(userData));
-                    localStorage.setItem('rememberMe', 'true');
-                } else {
-                    // Remember Me unchecked: Use sessionStorage (clears on browser close)
-                    sessionStorage.setItem('authToken', token);
-                    sessionStorage.setItem('user', JSON.stringify(userData));
-                }
-
-                // Show success message
-                showSuccess();
-
-                // Navigate based on user type and setup status
-                setTimeout(() => {
-                    const userType = response.data.userType || 'general_user';
-
-                    // Route based on user type
-                    if (userType === 'super_admin' || userType === 'admin') {
-                        // Admins and Super Admins go to admin dashboard
-                        window.router.navigate('/admin/dashboard');
-                    } else if (userType === 'contractor') {
-                        // Contractors go to contractor dashboard (future implementation)
-                        window.router.navigate('/dashboard'); // For now, use regular dashboard
-                    } else {
-                        // General users check location setup
-                        if (!response.data.isLocationSet) {
-                            window.router.navigate('/location-setup');
-                        } else {
-                            window.router.navigate('/dashboard');
-                        }
-                    }
-                }, 1500);
-            }
-        } catch (error) {
-            Loading.buttonReset(loginBtn);
-            const errorMsg = error.response?.data?.message || 'Login failed. Please try again.';
-
-            // Enhanced error messages
-            if (errorMsg.includes('not found') || errorMsg.includes('Invalid')) {
-                showError('Invalid email/phone or password. Please check your credentials and try again. <a href="/forgot-password">Forgot your password?</a>');
-            } else if (errorMsg.includes('locked') || errorMsg.includes('suspended')) {
-                showError('Your account has been temporarily locked. Please contact support or try again later.');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+                togglePassword.title = 'Hide password';
             } else {
-                showError(errorMsg + ' Need help? <a href="/contact">Contact support</a>');
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+                togglePassword.title = 'Show password';
             }
+        });
+    }
+
+    // Form submission
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    // Initialize tooltips
+    initializeTooltips();
+}
+
+function showLoginForm(role) {
+    const roleSelectionStep = document.getElementById('roleSelectionStep');
+    const loginFormStep = document.getElementById('loginFormStep');
+    const selectedRoleBadge = document.getElementById('selectedRoleBadge');
+    const loginTitle = document.getElementById('loginTitle');
+    const loginSubtitle = document.getElementById('loginSubtitle');
+
+    // Hide role selection, show login form
+    roleSelectionStep.style.display = 'none';
+    loginFormStep.style.display = 'block';
+
+    // Update badge and titles based on role
+    const roleInfo = {
+        general_user: {
+            icon: '👤',
+            title: 'General User Login',
+            subtitle: 'Login to access your account and manage complaints',
+            badge: 'General User'
+        },
+        admin: {
+            icon: '🛡️',
+            title: 'Admin Login',
+            subtitle: 'Access admin dashboard and manage system',
+            badge: 'Admin'
+        },
+        contractor: {
+            icon: '🏗️',
+            title: 'Contractor Login',
+            subtitle: 'Access your assigned jobs and update progress',
+            badge: 'Contractor'
+        },
+        super_admin: {
+            icon: '⭐',
+            title: 'Super Admin Login',
+            subtitle: 'Full system access and control',
+            badge: 'Super Admin'
         }
-    });
+    };
 
-    // Helper functions
-    function showError(message) {
-        const errorDiv = document.getElementById('errorMessage');
-        errorDiv.innerHTML = message;
-        errorDiv.style.display = 'block';
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const info = roleInfo[role];
+    selectedRoleBadge.innerHTML = `<span class="role-icon-small">${info.icon}</span> ${info.badge}`;
+    loginTitle.textContent = info.title;
+    loginSubtitle.textContent = info.subtitle;
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+}
+
+function showRoleSelection() {
+    const roleSelectionStep = document.getElementById('roleSelectionStep');
+    const loginFormStep = document.getElementById('loginFormStep');
+
+    roleSelectionStep.style.display = 'block';
+    loginFormStep.style.display = 'none';
+    selectedRole = null;
+
+    // Remove active class from all cards
+    const roleCards = document.querySelectorAll('.role-card');
+    roleCards.forEach(c => c.classList.remove('active'));
+
+    // Clear form
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.reset();
     }
 
-    function hideError() {
-        const errorDiv = document.getElementById('errorMessage');
-        errorDiv.style.display = 'none';
+    // Clear errors
+    const errorMessage = document.getElementById('errorMessage');
+    if (errorMessage) {
+        errorMessage.style.display = 'none';
     }
 
-    function showSuccess() {
-        const form = document.getElementById('loginForm');
-        form.innerHTML = `
-            <div class="success-message">
-                <div class="success-icon">✓</div>
-                <h3>Login Successful!</h3>
-                <p>Welcome back! Redirecting to your dashboard...</p>
-                <div class="loading-state">
-                    <span class="spinner"></span>
-                    <span>Loading your account...</span>
-                </div>
-            </div>
-        `;
+    // Scroll to top
+    window.scrollTo(0, 0);
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+
+    const identifier = document.getElementById('identifier').value.trim();
+    const password = document.getElementById('password').value;
+    const rememberMe = document.getElementById('rememberMe').checked;
+    const errorMessage = document.getElementById('errorMessage');
+    const loginBtn = document.getElementById('loginBtn');
+
+    // Clear previous errors
+    errorMessage.style.display = 'none';
+    errorMessage.textContent = '';
+
+    // Basic validation
+    if (!identifier || !password) {
+        errorMessage.textContent = 'Please fill in all required fields';
+        errorMessage.style.display = 'block';
+        return;
     }
 
-    // Handle links
-    app.querySelectorAll('a').forEach(link => {
-        if (!link.hasAttribute('target')) {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const href = link.getAttribute('href');
-                window.router.navigate(href);
-            });
+    if (!selectedRole) {
+        errorMessage.textContent = 'Please select an account type';
+        errorMessage.style.display = 'block';
+        return;
+    }
+
+    try {
+        // Show loading
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = Loading.spinner('Logging in...');
+
+        // Attempt login
+        const response = await authService.login(identifier, password, selectedRole);
+
+        // Store user data
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.data));
+
+        if (rememberMe) {
+            localStorage.setItem('rememberMe', 'true');
         }
+
+        // Show success message
+        errorMessage.className = 'success-message';
+        errorMessage.textContent = '✓ Login successful! Redirecting...';
+        errorMessage.style.display = 'block';
+
+        // Redirect based on user type
+        setTimeout(() => {
+            const userType = response.data.userType;
+            if (userType === 'admin' || userType === 'super_admin') {
+                window.router.navigate('/admin/dashboard');
+            } else if (userType === 'contractor') {
+                window.router.navigate('/contractor/dashboard');
+            } else {
+                window.router.navigate('/dashboard');
+            }
+        }, 1000);
+
+    } catch (error) {
+        console.error('Login error:', error);
+
+        // Show error message
+        errorMessage.className = 'error-message';
+        errorMessage.textContent = error.message || 'Login failed. Please check your credentials and try again.';
+        errorMessage.style.display = 'block';
+
+        // Reset button
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login to Your Account';
+    }
+}
+
+function initializeTooltips() {
+    const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+
+    tooltipTriggers.forEach(trigger => {
+        trigger.addEventListener('mouseenter', (e) => {
+            const tooltipText = trigger.dataset.tooltip;
+            const position = trigger.dataset.tooltipPosition || 'top';
+
+            const tooltip = document.createElement('div');
+            tooltip.className = `tooltip tooltip-${position}`;
+            tooltip.textContent = tooltipText;
+            tooltip.id = 'active-tooltip';
+
+            document.body.appendChild(tooltip);
+
+            const rect = trigger.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+
+            if (position === 'top') {
+                tooltip.style.left = rect.left + (rect.width / 2) - (tooltipRect.width / 2) + 'px';
+                tooltip.style.top = rect.top - tooltipRect.height - 8 + 'px';
+            }
+
+            setTimeout(() => tooltip.classList.add('show'), 10);
+        });
+
+        trigger.addEventListener('mouseleave', () => {
+            const tooltip = document.getElementById('active-tooltip');
+            if (tooltip) {
+                tooltip.classList.remove('show');
+                setTimeout(() => tooltip.remove(), 200);
+            }
+        });
     });
 }

@@ -145,6 +145,17 @@ export const updateComplaintStatus = async (req, res) => {
 
         await complaint.save();
 
+        // Update user stats if complaint is resolved
+        if (status === 'resolved' && complaint.user) {
+            const User = (await import('../models/User.js')).default;
+            await User.findByIdAndUpdate(complaint.user, {
+                $inc: {
+                    'stats.resolvedComplaints': 1,
+                    'stats.impactScore': 20  // 20 points for getting a complaint resolved
+                }
+            });
+        }
+
         // Populate for response
         await complaint.populate('statusHistory.changedBy', 'firstName lastName');
 

@@ -1,0 +1,140 @@
+/* ========================================
+   DASHBOARD PAGE LAYOUT IMPROVEMENTS
+   ======================================== */
+
+/* Container spacing */
+.dashboard-page .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* Section spacing improvements */
+.my-complaints-header {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.my-complaints-header .section-title {
+    margin-bottom: 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+/* Stats grid improvements */
+.stats-grid-premium {
+    margin-bottom: 3rem;
+}
+
+.stat-card-premium {
+    padding: 2rem 1.75rem;
+}
+
+.stat-value-big {
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--stat-color), var(--stat-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Complaint cards improvements */
+.complaints-list-premium {
+    gap: 1.25rem;
+}
+
+.complaint-card-premium {
+    padding: 1.5rem;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+}
+
+.complaint-card-premium:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+}
+
+.complaint-info h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* Dashboard layout spacing */
+.dashboard-layout {
+    gap: 2.5rem;
+}
+
+.main-content {
+    background: transparent;
+}
+
+.sidebar {
+    position: sticky;
+    top: 2rem;
+    align-self: flex-start;
+}
+
+/* Community feed card improvements */
+.community-feed-card {
+    background: white;
+    border-radius: 18px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+/* Improved visual hierarchy */
+.section-title {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.3px;
+}
+
+/* Better button spacing */
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 1200px) {
+    .dashboard-page .container {
+        padding: 1.5rem 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        position: static;
+    }
+
+    .dashboard-layout {
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-page .container {
+        padding: 1rem 0.75rem;
+    }
+
+    .my-complaints-header {
+        padding: 1.25rem;
+    }
+
+    .stat-card-premium {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .stat-value-big {
+        font-size: 2.25rem;
+    }
+}

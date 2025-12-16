@@ -12,6 +12,9 @@ Meri Shikayat is a citizen grievance redressal platform designed to bridge the g
 - **Department Integration**: Auto-routing of complaints to relevant departments (PWD, Water, Sanitation, etc.).
 - **Connected Authorities**: Dynamic directory of 12 government departments with real-time statistics, offices, and personnel.
 - **Private Contractors**: Management system for verified contractors with performance tracking and job assignments.
+- **User Profile Management**: Comprehensive profile system with personal information, location tracking, and complaint history.
+- **Gamification System**: Earn points, badges, and achievements for civic engagement and community participation.
+- **Community Features**: Success stories, leaderboards, and social engagement to foster community involvement.
 
 ## Tech Stack
 

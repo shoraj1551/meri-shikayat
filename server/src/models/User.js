@@ -24,9 +24,9 @@ const userSchema = new mongoose.Schema({
     },
     dateOfBirth: {
         type: Date,
-        required: [true, 'Date of birth is required'],
         validate: {
             validator: function (value) {
+                if (!value) return true; // Allow empty
                 const age = Math.floor((new Date() - new Date(value)) / (365.25 * 24 * 60 * 60 * 1000));
                 return age >= 13;
             },
@@ -80,6 +80,7 @@ const userSchema = new mongoose.Schema({
     // LOCATION (General Users)
     // ========================================
     location: {
+        address: String,
         pincode: {
             type: String,
             match: [/^[0-9]{6}$/, 'Please provide a valid 6-digit pincode']
@@ -88,6 +89,11 @@ const userSchema = new mongoose.Schema({
         city: String,
         district: String,
         state: String,
+        landmark: String,
+        residentialType: {
+            type: String,
+            enum: ['Own', 'Rent', 'Other']
+        },
         country: {
             type: String,
             default: 'India'
@@ -294,6 +300,149 @@ const userSchema = new mongoose.Schema({
         default: 0
     },
     lastPasswordResetRequest: Date,
+
+    // ========================================
+    // SECURITY
+    // ========================================
+    // ENHANCED PROFILE FIELDS
+    // ========================================
+
+    // Profile Picture
+    profilePicture: {
+        url: String,
+        publicId: String,  // Cloudinary ID
+        uploadedAt: Date
+    },
+
+    // Additional Personal Info
+    middleName: {
+        type: String,
+        trim: true,
+        maxlength: [50, 'Middle name cannot exceed 50 characters']
+    },
+    displayName: {
+        type: String,
+        trim: true,
+        maxlength: [50, 'Display name cannot exceed 50 characters']
+    },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other', 'Prefer not to say']
+    },
+    bio: {
+        type: String,
+        maxlength: [150, 'Bio cannot exceed 150 characters']
+    },
+    phoneNumber: {
+        type: String,
+        match: [/^(\+91)?[0-9]{10}$/, 'Please provide a valid phone number']
+    },
+
+    // Enhanced Location (keeping existing location field, adding more details)
+    // Note: location field already exists above, we're adding to it via updates
+
+    // Education Information
+    education: {
+        highestQualification: {
+            type: String,
+            enum: ['High School', 'Diploma', 'Bachelor', 'Master', 'PhD', 'Other']
+        },
+        institutionName: String,
+        fieldOfStudy: String,
+        yearOfCompletion: {
+            type: Number,
+            min: 1950,
+            max: 2030
+        },
+        certifications: [String]
+    },
+
+    // Work Information
+    work: {
+        employmentStatus: {
+            type: String,
+            enum: ['Employed', 'Self-employed', 'Student', 'Retired', 'Unemployed', 'Other']
+        },
+        companyName: String,
+        jobTitle: String,
+        industry: String,
+        yearsOfExperience: {
+            type: Number,
+            min: 0,
+            max: 50
+        },
+        workLocation: String
+    },
+
+    // Social Links
+    socialLinks: {
+        linkedin: {
+            type: String,
+            match: [/^https?:\/\/(www\.)?linkedin\.com\/.*$/, 'Please provide a valid LinkedIn URL']
+        },
+        twitter: {
+            type: String,
+            match: [/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.*$/, 'Please provide a valid Twitter/X URL']
+        },
+        facebook: {
+            type: String,
+            match: [/^https?:\/\/(www\.)?facebook\.com\/.*$/, 'Please provide a valid Facebook URL']
+        },
+        website: {
+            type: String,
+            match: [/^https?:\/\/.*$/, 'Please provide a valid URL']
+        },
+        other: [String]
+    },
+
+    // Preferences
+    preferences: {
+        emailNotifications: { type: Boolean, default: true },
+        smsNotifications: { type: Boolean, default: true },
+        pushNotifications: { type: Boolean, default: true },
+        language: { type: String, default: 'en', enum: ['en', 'hi'] },
+        profileVisibility: { type: String, default: 'public', enum: ['public', 'private'] },
+        newsletter: { type: Boolean, default: false }
+    },
+
+    // Verification Status
+    verification: {
+        email: { type: Boolean, default: false },
+        phone: { type: Boolean, default: false },
+        id: { type: Boolean, default: false },
+        address: { type: Boolean, default: false }
+    },
+
+    // Civic Engagement Stats
+    stats: {
+        reputationScore: { type: Number, default: 0 },
+        impactScore: { type: Number, default: 0 },
+        totalComplaints: { type: Number, default: 0 },
+        resolvedComplaints: { type: Number, default: 0 },
+        totalComments: { type: Number, default: 0 },
+        totalHypes: { type: Number, default: 0 },
+        totalShares: { type: Number, default: 0 }
+    },
+
+    // Badges
+    badges: [{
+        name: String,
+        icon: String,
+        earnedAt: { type: Date, default: Date.now },
+        description: String
+    }],
+
+    // Profile Completion
+    profileCompletion: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+
+    // Member Since
+    memberSince: { type: Date, default: Date.now },
+    lastProfileUpdate: Date,
 
     // ========================================
     // SECURITY

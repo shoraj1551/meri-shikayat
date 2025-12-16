@@ -62,6 +62,14 @@ export const createComplaint = async (req, res) => {
             );
         }
 
+        // Update user stats - increment totalComplaints and impactScore
+        await req.user.constructor.findByIdAndUpdate(req.user.id, {
+            $inc: {
+                'stats.totalComplaints': 1,
+                'stats.impactScore': 5  // 5 points for filing a complaint
+            }
+        });
+
         res.status(201).json({
             success: true,
             data: complaint
