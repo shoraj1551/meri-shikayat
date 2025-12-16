@@ -150,9 +150,8 @@
 
 /* Dashboard Layout */
 .dashboard-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
+    display: block;
+    width: 100%;
 }
 
 @media (max-width: 992px) {

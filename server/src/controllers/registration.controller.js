@@ -51,7 +51,7 @@ export const registerGeneralUser = async (req, res) => {
         const user = await User.create({
             firstName,
             lastName,
-            dateOfBirth,
+            dateOfBirth: dateOfBirth || null, // Optional - can be added later in profile
             email,
             phone,
             password,

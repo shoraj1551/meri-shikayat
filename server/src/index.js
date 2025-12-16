@@ -19,6 +19,7 @@ import storiesRoutes from './routes/stories.routes.js';
 import departmentsRoutes from './routes/departments.js';
 import contractorsRoutes from './routes/contractors.js';
 import registrationRoutes from './routes/registration.routes.js';
+import profileRoutes from './routes/profile.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -88,6 +89,7 @@ app.use('/api/social', socialRoutes);  // Changed from '/api' to '/api/social'
 app.use('/api/stories', storiesRoutes);
 app.use('/api/departments', departmentsRoutes);
 app.use('/api/contractors', contractorsRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
