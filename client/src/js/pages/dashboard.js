@@ -3,7 +3,17 @@ import Loading from '../components/loading.js';
 
 export async function renderDashboardPage() {
     const app = document.getElementById('app');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    // Check authentication
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    // Redirect to login if not authenticated
+    if (!token || !user || !user.id) {
+        window.router.navigate('/login?redirect=/dashboard');
+        return;
+    }
 
     // Initial Skeleton State
     app.innerHTML = `
