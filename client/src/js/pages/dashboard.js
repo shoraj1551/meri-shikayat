@@ -209,6 +209,7 @@ function renderPremiumContent(app, user, complaints, stats) {
                                 <ul class="footer-links-list">
                                     <li><a href="#" onclick="window.router.navigate('/about')">About Us</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/how-it-works')">How It Works</a></li>
+                                    <li><a href="#" onclick="window.router.navigate('/success-stories')">Success Stories</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/contact')">Contact</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/faq')">FAQ</a></li>
                                 </ul>
@@ -219,6 +220,7 @@ function renderPremiumContent(app, user, complaints, stats) {
                                     <li><a href="#" onclick="window.router.navigate('/privacy')">Privacy Policy</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/terms')">Terms of Service</a></li>
                                     <li><a href="#" onclick="window.router.navigate('/disclaimer')">Disclaimer</a></li>
+                                    <li><a href="#" onclick="window.router.navigate('/guidelines')">Community Guidelines</a></li>
                                 </ul>
                             </div>
                             <div class="footer-col">

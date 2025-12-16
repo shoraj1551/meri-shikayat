@@ -273,6 +273,7 @@ function generateHomeHTML(lang) {
                             <ul class="footer-links-list">
                                 <li><a href="/about">${lang === 'hi' ? 'हमारे बारे में' : 'About Us'}</a></li>
                                 <li><a href="/how-it-works">${lang === 'hi' ? 'यह कैसे काम करता है' : 'How It Works'}</a></li>
+                                <li><a href="/success-stories">${lang === 'hi' ? 'सफलता की कहानियां' : 'Success Stories'}</a></li>
                                 <li><a href="/contact" data-i18n="footer.quick.contact">${t('footer.quick.contact', lang)}</a></li>
                                 <li><a href="/faq" data-i18n="footer.quick.faq">${t('footer.quick.faq', lang)}</a></li>
                             </ul>
@@ -283,6 +284,7 @@ function generateHomeHTML(lang) {
                                 <li><a href="/privacy" data-i18n="footer.legal.privacy">${t('footer.legal.privacy', lang)}</a></li>
                                 <li><a href="/terms" data-i18n="footer.legal.terms">${t('footer.legal.terms', lang)}</a></li>
                                 <li><a href="/disclaimer" data-i18n="footer.legal.disclaimer">${t('footer.legal.disclaimer', lang)}</a></li>
+                                <li><a href="/guidelines">${lang === 'hi' ? 'सामुदायिक दिशानिर्देश' : 'Community Guidelines'}</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
