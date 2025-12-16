@@ -19,7 +19,6 @@ import { renderAdminComplaintsPage } from './pages/admin-complaints.js';
 import { renderProfilePage } from './pages/profile.js';
 import { renderComplaintQuickPage } from './pages/complaint-quick.js';
 import { renderRegistrationGatewayPage } from './pages/registration-gateway.js';
-import { renderComplaintForm } from './pages/complaint-form.js';
 import { renderPrivacyPage } from './pages/privacy.js';
 import { renderTermsPage } from './pages/terms.js';
 import { renderGuidelinesPage } from './pages/guidelines.js';
@@ -66,10 +65,9 @@ export function initializeApp() {
     router.register('/dashboard', renderDashboardPage);
     router.register('/submit-complaint', renderSubmitComplaintPage);
     router.register('/profile', renderProfilePage);
-    router.register('/file-complaint', renderComplaintForm);
+    router.register('/file-complaint', renderFileComplaintNew);  // New redesigned complaint page
     router.register('/register-gateway', renderRegistrationGatewayPage);
     router.register('/verify-account', renderVerifyAccountPage);
-    router.register('/file-complaint', renderFileComplaintNew);  // New redesigned complaint page
 
     // Admin Routes
     router.register('/admin/login', renderAdminLoginPage);
