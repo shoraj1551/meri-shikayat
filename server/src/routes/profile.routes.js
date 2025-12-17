@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { protect } from '../middleware/auth.middleware.js';
+import { protect } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.middleware.js';
 import * as profileController from '../controllers/profile.controller.js';
 

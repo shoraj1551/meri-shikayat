@@ -3,6 +3,8 @@
  * Ensures critical environment variables are set and secure
  */
 
+import logger from './logger.js';
+
 export const validateEnvironment = () => {
     const errors = [];
     const warnings = [];
@@ -48,19 +50,17 @@ export const validateEnvironment = () => {
 
     // Display errors and warnings
     if (errors.length > 0) {
-        console.error('\n🚨 ENVIRONMENT VALIDATION ERRORS:');
-        errors.forEach(err => console.error(`  ❌ ${err}`));
-        console.error('\n');
+        logger.error('ENVIRONMENT VALIDATION ERRORS');
+        errors.forEach(err => logger.error(`  ${err}`));
         process.exit(1);
     }
 
     if (warnings.length > 0) {
-        console.warn('\n⚠️  ENVIRONMENT VALIDATION WARNINGS:');
-        warnings.forEach(warn => console.warn(`  ⚠️  ${warn}`));
-        console.warn('\n');
+        logger.warn('ENVIRONMENT VALIDATION WARNINGS');
+        warnings.forEach(warn => logger.warn(`  ${warn}`));
     }
 
     if (errors.length === 0 && warnings.length === 0) {
-        console.log('✅ Environment validation passed\n');
+        logger.info('Environment validation passed');
     }
 };

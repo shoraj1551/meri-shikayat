@@ -4,6 +4,7 @@
  */
 
 import fast2sms from 'fast-two-sms';
+import logger from '../utils/logger.js';
 
 /**
  * Send OTP via SMS
@@ -14,7 +15,7 @@ import fast2sms from 'fast-two-sms';
 export async function sendOTPSMS(phone, otp) {
     // Check if SMS is configured
     if (!process.env.FAST2SMS_API_KEY) {
-        console.log(`📱 SMS not configured. OTP for ${phone}: ${otp}`);
+        logger.warn('SMS not configured - running in demo mode', { phone: phone.slice(-4) });
         return { success: true, messageId: 'demo-mode' };
     }
 
@@ -28,18 +29,18 @@ export async function sendOTPSMS(phone, otp) {
         });
 
         if (response.return) {
-            console.log('✅ SMS sent successfully:', response.message_id);
+            logger.info('SMS sent successfully', { messageId: response.message_id, phone: phone.slice(-4) });
             return {
                 success: true,
                 messageId: response.message_id,
                 response: response
             };
         } else {
-            console.error('❌ SMS sending failed:', response);
+            logger.error('SMS sending failed', { error: response.message });
             throw new Error(response.message || 'Failed to send SMS');
         }
     } catch (error) {
-        console.error('❌ Error sending SMS:', error);
+        logger.error('Error sending SMS', { error: error.message, stack: error.stack });
         throw new Error('Failed to send SMS: ' + error.message);
     }
 }
@@ -51,7 +52,7 @@ export async function sendOTPSMS(phone, otp) {
  */
 export async function sendVerificationSuccessSMS(phone, firstName) {
     if (!process.env.FAST2SMS_API_KEY) {
-        console.log(`📱 SMS not configured. Verification success for ${phone}`);
+        logger.warn('SMS not configured - verification success in demo mode', { phone: phone.slice(-4) });
         return { success: true, messageId: 'demo-mode' };
     }
 
@@ -64,10 +65,10 @@ export async function sendVerificationSuccessSMS(phone, firstName) {
             numbers: [phone]
         });
 
-        console.log('✅ Verification success SMS sent');
+        logger.info('Verification success SMS sent', { phone: phone.slice(-4) });
         return { success: true, messageId: response.message_id };
     } catch (error) {
-        console.error('❌ Error sending verification SMS:', error);
+        logger.error('Error sending verification SMS', { error: error.message });
         // Don't throw error for confirmation messages
         return { success: false };
     }
@@ -78,10 +79,10 @@ export async function sendVerificationSuccessSMS(phone, firstName) {
  */
 export async function testSMSConfig() {
     if (!process.env.FAST2SMS_API_KEY) {
-        console.warn('⚠️  SMS service not configured. Set FAST2SMS_API_KEY in .env');
+        logger.warn('SMS service not configured. Set FAST2SMS_API_KEY in .env');
         return false;
     }
 
-    console.log('✅ SMS service is configured');
+    logger.info('SMS service is configured');
     return true;
 }
