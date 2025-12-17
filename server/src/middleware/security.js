@@ -19,20 +19,45 @@ export const globalRateLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Security headers middleware
+// Security headers middleware - TASK-012: Strengthened
 export const securityHeaders = helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", "'nonce-{NONCE}'"], // Use nonces instead of unsafe-inline
+            scriptSrc: ["'self'", "'nonce-{NONCE}'"], // Use nonces instead of unsafe-inline
             imgSrc: ["'self'", 'data:', 'https:'],
+            fontSrc: ["'self'", 'data:'],
+            connectSrc: ["'self'"],
+            frameSrc: ["'none'"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            manifestSrc: ["'self'"],
+            workerSrc: ["'self'"],
+            formAction: ["'self'"],
+            frameAncestors: ["'none'"],
+            baseUri: ["'self'"],
+            upgradeInsecureRequests: []
         },
     },
     hsts: {
         maxAge: 31536000, // 1 year
         includeSubDomains: true,
         preload: true
+    },
+    frameguard: {
+        action: 'deny' // Prevent clickjacking
+    },
+    noSniff: true, // Prevent MIME type sniffing
+    xssFilter: true, // Enable XSS filter
+    referrerPolicy: {
+        policy: 'strict-origin-when-cross-origin'
+    },
+    permittedCrossDomainPolicies: {
+        permittedPolicies: 'none'
+    },
+    dnsPrefetchControl: {
+        allow: false
     }
 });
 
