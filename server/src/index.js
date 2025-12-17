@@ -2,9 +2,13 @@
  * Main server entry point for Meri Shikayat API
  */
 
+// CRITICAL: Load environment variables FIRST before any other imports
+// This ensures .env is loaded before modules that use process.env
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connectDatabase } from './config/database.js';
 import { validateEnvironment } from './utils/validateEnv.js';
@@ -22,9 +26,6 @@ import contractorsRoutes from './routes/contractors.js';
 import registrationRoutes from './routes/registration.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import verificationRoutes from './routes/verification.routes.js';
-
-// Load environment variables
-dotenv.config();
 
 // Validate environment variables
 validateEnvironment();
