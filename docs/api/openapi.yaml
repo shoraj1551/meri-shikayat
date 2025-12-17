@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: Meri Shikayat API
+  description: Citizen Grievance Redressal Platform API
+  version: 1.0.5
+  contact:
+    name: API Support
+    email: support@merishikayat.com
+
+servers:
+  - url: https://api.merishikayat.com/api/v1
+    description: Production
+  - url: https://staging-api.merishikayat.com/api/v1
+    description: Staging
+  - url: http://localhost:5000/api/v1
+    description: Development
+
+tags:
+  - name: Authentication
+    description: User authentication endpoints
+  - name: Complaints
+    description: Complaint management
+  - name: Admin
+    description: Admin operations
+  - name: Health
+    description: Health check endpoints
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  timestamp:
+                    type: string
+                    format: date-time
+                  checks:
+                    type: object
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - dateOfBirth
+                - password
+              properties:
+                firstName:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                lastName:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  pattern: "^[6-9][0-9]{9}$"
+                dateOfBirth:
+                  type: string
+                  format: date
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        "201":
+          description: User registered successfully
+        "400":
+          description: Validation error
+
+  /complaints:
+    get:
+      tags: [Complaints]
+      summary: List complaints
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, resolved, rejected]
+      responses:
+        "200":
+          description: List of complaints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Complaint"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+
+components:
+  schemas:
+    Complaint:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
