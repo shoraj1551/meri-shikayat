@@ -19,17 +19,25 @@ export const validateEnvironment = () => {
     if (process.env.NODE_ENV === 'production') {
         const insecureSecrets = [
             'meri-shikayat-secret-key-change-this-in-production-2024',
+            'your-super-secret-jwt-key-change-in-production',
             'secret',
             'changeme',
-            'default'
+            'default',
+            'test',
+            'development'
         ];
 
-        if (insecureSecrets.some(secret => process.env.JWT_SECRET?.includes(secret))) {
-            errors.push('CRITICAL: Default or insecure JWT_SECRET detected in production! Generate a secure random secret.');
+        if (insecureSecrets.some(secret => process.env.JWT_SECRET?.toLowerCase().includes(secret.toLowerCase()))) {
+            errors.push('CRITICAL: Default or insecure JWT_SECRET detected in production! Generate a secure random secret using: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
         }
 
-        if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
-            warnings.push('JWT_SECRET should be at least 32 characters long for production');
+        if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 64) {
+            errors.push('CRITICAL: JWT_SECRET must be at least 64 characters long for production. Current length: ' + process.env.JWT_SECRET.length);
+        }
+    } else {
+        // Even in development, warn about weak secrets
+        if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 64) {
+            warnings.push('JWT_SECRET should be at least 64 characters long. Current length: ' + process.env.JWT_SECRET.length);
         }
     }
 

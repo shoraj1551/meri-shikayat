@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import { connectDatabase } from './config/database.js';
 import { validateEnvironment } from './utils/validateEnv.js';
 import { securityHeaders, mongoSanitization, globalRateLimiter } from './middleware/security.js';
+import getRedisClient, { isRedisAvailable, closeRedisConnection } from './config/redis.js';
 import authRoutes from './routes/auth.routes.js';
 import complaintRoutes from './routes/complaint.routes.js';
 import locationRoutes from './routes/location.routes.js';
@@ -27,6 +28,18 @@ dotenv.config();
 
 // Validate environment variables
 validateEnvironment();
+
+// Initialize Redis connection
+try {
+    const redisClient = getRedisClient();
+    const redisAvailable = await isRedisAvailable();
+    if (!redisAvailable) {
+        console.warn('⚠️  Redis connection failed - rate limiting will use memory store (single instance only)');
+    }
+} catch (error) {
+    console.warn('⚠️  Redis initialization error:', error.message);
+    console.warn('⚠️  Continuing without Redis - rate limiting will use memory store');
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -93,15 +106,18 @@ app.use('/api/contractors', contractorsRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/verification', verificationRoutes);
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-});
+// Import error handlers
+import { errorHandler, notFoundHandler, handleUnhandledRejection, handleUncaughtException } from './middleware/errorHandler.js';
+
+// Handle unhandled rejections and uncaught exceptions
+handleUnhandledRejection();
+handleUncaughtException();
+
+// 404 handler - must be after all routes
+app.use(notFoundHandler);
+
+// Centralized error handling middleware - must be last
+app.use(errorHandler);
 
 // Export app for Vercel
 export default app;
@@ -122,3 +138,18 @@ if (process.env.NODE_ENV !== 'production') {
     };
     startServer();
 }
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    await closeRedisConnection();
+    await mongoose.connection.close();
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    console.log('SIGINT signal received: closing HTTP server');
+    await closeRedisConnection();
+    await mongoose.connection.close();
+    process.exit(0);
+});

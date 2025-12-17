@@ -5,6 +5,7 @@
 
 import express from 'express';
 import { protect } from '../middleware/auth.js';
+import { otpRateLimiter } from '../middleware/rateLimiting.js';
 import {
     sendEmailOTP,
     verifyEmail,
@@ -18,12 +19,12 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
-// Email verification
-router.post('/send-email-otp', sendEmailOTP);
+// Email verification with OTP rate limiting
+router.post('/send-email-otp', otpRateLimiter, sendEmailOTP);
 router.post('/verify-email', verifyEmail);
 
-// Phone verification
-router.post('/send-phone-otp', sendPhoneOTP);
+// Phone verification with OTP rate limiting
+router.post('/send-phone-otp', otpRateLimiter, sendPhoneOTP);
 router.post('/verify-phone', verifyPhone);
 
 // Get verification status
