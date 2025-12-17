@@ -1,0 +1,86 @@
+# Docker Compose for Local Development
+# TASK-PR-022: One-command local development setup
+
+version: "3.8"
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:8.0
+    container_name: meri-shikayat-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: meri-shikayat-dev
+    volumes:
+      - mongodb_data:/data/db
+      - ./server/src/seeds:/docker-entrypoint-initdb.d
+    networks:
+      - meri-shikayat-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: meri-shikayat-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - meri-shikayat-network
+
+  # API Server
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: meri-shikayat-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      MONGODB_URI: mongodb://mongodb:27017/meri-shikayat-dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: dev-secret-key-change-in-production
+      LOG_LEVEL: debug
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - meri-shikayat-network
+    command: npm run dev
+
+  # Client (Optional - if needed)
+  # client:
+  #   build:
+  #     context: ./client
+  #   container_name: meri-shikayat-client
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./client:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - meri-shikayat-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  meri-shikayat-network:
+    driver: bridge
