@@ -89,23 +89,33 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Routes
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Meri Shikayat API is running' });
+// Health check endpoint
+app.get('/api/v1/health', (req, res) => {
+    res.json({ status: 'OK', message: 'Meri Shikayat API v1 is running', version: '1.0.5' });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/auth', registrationRoutes);  // Multi-role registration
-app.use('/api/users', userRoutes);
-app.use('/api/complaints', complaintRoutes);
-app.use('/api/location', locationRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/social', socialRoutes);  // Changed from '/api' to '/api/social'
-app.use('/api/stories', storiesRoutes);
-app.use('/api/departments', departmentsRoutes);
-app.use('/api/contractors', contractorsRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/verification', verificationRoutes);
+// Legacy health check (deprecated)
+app.get('/api/health', (req, res) => {
+    res.setHeader('X-API-Deprecated', 'true');
+    res.setHeader('X-API-Deprecation-Info', 'Please use /api/v1/health instead');
+    res.json({ status: 'OK', message: 'Meri Shikayat API is running (deprecated endpoint)' });
+});
+
+// API Routes with versioning (v1)
+const API_VERSION = '/api/v1';
+
+app.use(`${API_VERSION}/auth`, authRoutes);
+app.use(`${API_VERSION}/auth`, registrationRoutes);  // Multi-role registration
+app.use(`${API_VERSION}/users`, userRoutes);
+app.use(`${API_VERSION}/complaints`, complaintRoutes);
+app.use(`${API_VERSION}/location`, locationRoutes);
+app.use(`${API_VERSION}/admin`, adminRoutes);
+app.use(`${API_VERSION}/social`, socialRoutes);
+app.use(`${API_VERSION}/stories`, storiesRoutes);
+app.use(`${API_VERSION}/departments`, departmentsRoutes);
+app.use(`${API_VERSION}/contractors`, contractorsRoutes);
+app.use(`${API_VERSION}/profile`, profileRoutes);
+app.use(`${API_VERSION}/verification`, verificationRoutes);
 
 // Import error handlers
 import { errorHandler, notFoundHandler, handleUnhandledRejection, handleUncaughtException } from './middleware/errorHandler.js';
