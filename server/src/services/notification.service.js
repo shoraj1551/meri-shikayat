@@ -3,6 +3,8 @@
  * Handles email and SMS notifications for admin workflows
  */
 
+import logger from '../utils/logger.js';
+
 /**
  * Send approval notification to admin
  * @param {Object} admin - Admin object
@@ -45,26 +47,15 @@ Meri Shikayat Team
             `
         };
 
-        console.log('\n📧 ===== EMAIL NOTIFICATION =====');
-        console.log('To:', emailContent.to);
-        console.log('Subject:', emailContent.subject);
-        console.log('Body:', emailContent.body);
-        console.log('================================\n');
-
-        // SMS notification (optional)
-        const smsContent = {
-            to: admin.phone,
-            message: `Meri Shikayat: Your admin account (${admin.adminId}) has been approved as ${role}. Login at http://localhost:3000/admin/login`
-        };
-
-        console.log('\n📱 ===== SMS NOTIFICATION =====');
-        console.log('To:', smsContent.to);
-        console.log('Message:', smsContent.message);
-        console.log('==============================\n');
+        logger.info('Admin approval notification prepared', {
+            adminId: admin.adminId,
+            email: admin.email.split('@')[1],
+            role
+        });
 
         return { success: true, message: 'Approval notification sent' };
     } catch (error) {
-        console.error('Error sending approval notification:', error);
+        logger.error('Error sending approval notification', { error: error.message });
         return { success: false, message: 'Failed to send notification' };
     }
 };
@@ -105,26 +96,14 @@ Meri Shikayat Team
             `
         };
 
-        console.log('\n📧 ===== EMAIL NOTIFICATION =====');
-        console.log('To:', emailContent.to);
-        console.log('Subject:', emailContent.subject);
-        console.log('Body:', emailContent.body);
-        console.log('================================\n');
-
-        // SMS notification (optional)
-        const smsContent = {
-            to: admin.phone,
-            message: `Meri Shikayat: Your admin application (${admin.adminId}) has been rejected. Check your email for details.`
-        };
-
-        console.log('\n📱 ===== SMS NOTIFICATION =====');
-        console.log('To:', smsContent.to);
-        console.log('Message:', smsContent.message);
-        console.log('==============================\n');
+        logger.info('Admin rejection notification prepared', {
+            adminId: admin.adminId,
+            email: admin.email.split('@')[1]
+        });
 
         return { success: true, message: 'Rejection notification sent' };
     } catch (error) {
-        console.error('Error sending rejection notification:', error);
+        logger.error('Error sending rejection notification', { error: error.message });
         return { success: false, message: 'Failed to send notification' };
     }
 };

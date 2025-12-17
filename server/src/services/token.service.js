@@ -5,6 +5,7 @@
 
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import logger from '../utils/logger.js';
 
 // Validate JWT_SECRET exists and is secure
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -35,9 +36,9 @@ if (INSECURE_SECRETS.some(insecure => JWT_SECRET.toLowerCase().includes(insecure
     throw new Error('FATAL: JWT_SECRET contains an insecure default value. Please generate a secure random secret.');
 }
 
-console.log('✅ JWT_SECRET validation passed');
+logger.info('JWT_SECRET validation passed');
 if (JWT_SECRET_PREVIOUS) {
-    console.log('✅ Secret rotation enabled with JWT_SECRET_PREVIOUS');
+    logger.info('Secret rotation enabled with JWT_SECRET_PREVIOUS');
 }
 
 /**
@@ -99,7 +100,7 @@ export function verifyAccessToken(token) {
                     throw new Error('Invalid token type');
                 }
 
-                console.log('⚠️ Token verified with previous secret - rotation in progress');
+                logger.warn('Token verified with previous secret - rotation in progress');
                 return decoded;
             } catch (rotationError) {
                 // Both secrets failed

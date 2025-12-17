@@ -4,6 +4,7 @@
  */
 
 import nodemailer from 'nodemailer';
+import logger from '../utils/logger.js';
 
 // Create transporter (only if email credentials are configured)
 let transporter = null;
@@ -17,7 +18,7 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
         }
     });
 } else {
-    console.warn('⚠️  Email service not configured. Set EMAIL_USER and EMAIL_PASSWORD in .env');
+    logger.warn('Email service not configured. Set EMAIL_USER and EMAIL_PASSWORD in .env');
 }
 
 /**
@@ -25,7 +26,7 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
  */
 export async function sendPasswordResetOTP(email, otp, firstName) {
     if (!transporter) {
-        console.log(`📧 Email not configured. OTP for ${email}: ${otp}`);
+        logger.warn('Email not configured - running in demo mode', { email: email.split('@')[1] });
         return { success: true, messageId: 'demo-mode' };
     }
 
@@ -84,10 +85,10 @@ export async function sendPasswordResetOTP(email, otp, firstName) {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Password reset email sent:', info.messageId);
+        logger.info('Password reset email sent', { messageId: info.messageId, emailDomain: email.split('@')[1] });
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('❌ Error sending email:', error);
+        logger.error('Error sending email', { error: error.message, stack: error.stack });
         throw new Error('Failed to send email');
     }
 }
@@ -97,7 +98,7 @@ export async function sendPasswordResetOTP(email, otp, firstName) {
  */
 export async function sendVerificationOTP(email, otp, firstName) {
     if (!transporter) {
-        console.log(`📧 Email not configured. OTP for ${email}: ${otp}`);
+        logger.warn('Email not configured - verification OTP in demo mode', { email: email.split('@')[1] });
         return { success: true, messageId: 'demo-mode' };
     }
 
@@ -150,10 +151,10 @@ export async function sendVerificationOTP(email, otp, firstName) {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Verification email sent:', info.messageId);
+        logger.info('Verification email sent', { messageId: info.messageId, emailDomain: email.split('@')[1] });
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('❌ Error sending verification email:', error);
+        logger.error('Error sending verification email', { error: error.message, stack: error.stack });
         throw new Error('Failed to send verification email');
     }
 }
@@ -208,10 +209,10 @@ export async function sendPasswordResetConfirmation(email, firstName) {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Password reset confirmation sent:', info.messageId);
+        logger.info('Password reset confirmation sent', { messageId: info.messageId });
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('❌ Error sending confirmation email:', error);
+        logger.error('Error sending confirmation email', { error: error.message });
         // Don't throw error for confirmation emails
         return { success: false };
     }
@@ -223,10 +224,10 @@ export async function sendPasswordResetConfirmation(email, firstName) {
 export async function testEmailConfig() {
     try {
         await transporter.verify();
-        console.log('✅ Email service is ready');
+        logger.info('Email service is ready');
         return true;
     } catch (error) {
-        console.error('❌ Email service error:', error);
+        logger.error('Email service error', { error: error.message });
         return false;
     }
 }

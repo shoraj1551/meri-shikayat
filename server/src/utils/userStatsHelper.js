@@ -4,6 +4,8 @@
  */
 
 import User from '../models/User.js';
+import Complaint from '../models/Complaint.js';
+import logger from './logger.js';
 
 /**
  * Increment user's complaint count and impact score
@@ -127,8 +129,9 @@ export const recalculateAllUserStats = async () => {
             await updateReputationScore(user._id);
         }
 
-        console.log(`Recalculated stats for ${users.length} users`);
+        logger.info('Recalculated stats for users', { count: users.length });
+        return { success: true, count: users.length };
     } catch (error) {
-        console.error('Error recalculating user stats:', error);
+        logger.error('Error recalculating user stats', { error: error.message, stack: error.stack });
     }
 };
