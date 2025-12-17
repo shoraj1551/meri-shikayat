@@ -4,6 +4,7 @@
 
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
+import { logAuth } from '../services/audit.service.js';
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -61,6 +62,13 @@ export const register = async (req, res) => {
 
         // Generate token
         const token = generateToken(user._id);
+
+        // Log registration
+        await logAuth('register', user._id, req, {
+            email: user.email,
+            phone: user.phone,
+            role: user.role
+        });
 
         res.status(201).json({
             success: true,
@@ -209,6 +217,14 @@ export const login = async (req, res) => {
 
         await user.save();
 
+        // Log successful login
+        await logAuth('login', user._id, req, {
+            email: user.email,
+            phone: user.phone,
+            userType: user.userType,
+            rememberMe
+        });
+
         const response = {
             success: true,
             message: 'User logged in successfully',
@@ -309,6 +325,12 @@ export const logout = async (req, res) => {
         }
 
         await user.save();
+
+        // Log logout
+        await logAuth('logout', userId, req, {
+            logoutAll,
+            deviceInfo: req.headers['user-agent']
+        });
 
         res.status(200).json({
             success: true,

@@ -7,6 +7,8 @@ import User from '../models/User.js';
 import { generateOTP, hashOTP, verifyOTP, getOTPExpiry, isOTPExpired, isMaxAttemptsExceeded } from '../services/otp.service.js';
 import { generateResetToken, verifyResetToken } from '../services/token.service.js';
 import { sendPasswordResetOTP, sendPasswordResetConfirmation } from '../services/email.service.js';
+import logger from '../utils/logger.js';
+import { logAuth } from '../services/audit.service.js';
 
 /**
  * @route   POST /api/auth/forgot-password
@@ -37,11 +39,18 @@ export async function requestPasswordReset(req, res) {
             success: true,
             message: 'If an account exists with this identifier, you will receive an OTP shortly',
             data: {
-                expiresIn: 300 // 5 minutes in seconds
+                expiresIn: 600 // 10 minutes in seconds (updated from 5)
             }
         };
 
         if (!user) {
+            // Log potential account enumeration attempt
+            logger.security('Password reset requested for non-existent account', {
+                identifier: identifier.substring(0, 3) + '***', // Partial identifier for security
+                ip: req.ip,
+                userAgent: req.get('user-agent')
+            });
+
             return res.status(200).json(genericResponse);
         }
 
@@ -52,6 +61,12 @@ export async function requestPasswordReset(req, res) {
             const requestsInLastHour = timeSinceLastRequest < 60 * 60 * 1000 ? 1 : 0;
 
             if (requestsInLastHour >= 3) {
+                logger.security('Password reset rate limit exceeded', {
+                    userId: user._id,
+                    email: user.email,
+                    ip: req.ip
+                });
+
                 return res.status(429).json({
                     success: false,
                     message: 'Too many password reset requests. Please try again later.'
@@ -70,18 +85,31 @@ export async function requestPasswordReset(req, res) {
         user.lastPasswordResetRequest = new Date();
         await user.save();
 
+        // Log security event
+        logger.security('Password reset OTP generated', {
+            userId: user._id,
+            email: user.email,
+            expiresAt: user.passwordResetOTPExpiry,
+            ip: req.ip
+        });
+
         // Send OTP via email or SMS
         if (user.email) {
             await sendPasswordResetOTP(user.email, otp, user.firstName);
-            console.log(`🔐 Password Reset OTP sent to ${user.email}: ${otp}`);
+            logger.info(`Password Reset OTP sent to ${user.email}`);
         } else {
             // TODO: Implement SMS sending when Twilio is configured
-            console.log(`🔐 Password Reset OTP (SMS not configured): ${otp}`);
+            logger.warn('SMS not configured for password reset', { userId: user._id });
         }
 
         res.status(200).json(genericResponse);
     } catch (error) {
-        console.error('Error in requestPasswordReset:', error);
+        logger.error('Error in requestPasswordReset', {
+            error: error.message,
+            stack: error.stack,
+            ip: req.ip
+        });
+
         res.status(500).json({
             success: false,
             message: 'Server error. Please try again later.'
@@ -232,6 +260,13 @@ export async function resetPassword(req, res) {
         user.refreshTokens = [];
 
         await user.save();
+
+        // Log password reset
+        await logAuth('change_password', user._id, req, {
+            method: 'reset',
+            email: user.email,
+            phone: user.phone
+        });
 
         // Send confirmation email
         if (user.email) {
