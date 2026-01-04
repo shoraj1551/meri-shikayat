@@ -3,18 +3,21 @@
  * [U] UI/UX Engineer Implementation
  */
 
+import { generateNavbar, initializeNavbar } from '../components/navbar.js';
+
 export function renderHowItWorksPage() {
     const app = document.getElementById('app');
 
     app.innerHTML = `
         <div class="legal-page how-it-works-page">
-            <header class="legal-header">
+            ${generateNavbar({ showAuth: true, showLanguage: false })}
+            
+            <div class="page-header-section">
                 <div class="container">
-                    <a href="/" class="back-link">← Back to Home</a>
                     <h1 class="page-title">How It Works</h1>
                     <p class="page-subtitle">From reporting to resolution in 4 simple steps</p>
                 </div>
-            </header>
+            </div>
             
             <main class="legal-content">
                 <div class="container">
@@ -250,9 +253,6 @@ export function renderHowItWorksPage() {
         </div>
     `;
 
-    // Add event listener for back link
-    app.querySelector('.back-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.history.back();
-    });
+    // Initialize navbar
+    initializeNavbar();
 }

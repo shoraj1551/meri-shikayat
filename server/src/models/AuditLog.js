@@ -61,14 +61,14 @@ const auditLogSchema = new mongoose.Schema({
     timestamps: false // Using custom timestamp field
 });
 
-// Indexes
+// Indexes for efficient querying
 auditLogSchema.index({ user: 1, timestamp: -1 });
 auditLogSchema.index({ action: 1, timestamp: -1 });
 auditLogSchema.index({ resource: 1, resourceId: 1 });
-auditLogSchema.index({ timestamp: -1 });
+// Removed duplicate timestamp index - already covered by compound indexes above
 auditLogSchema.index({ environment: 1 });
 
-// TTL index - automatically delete logs older than 90 days
+// TTL index - auto-delete after 90 days
 auditLogSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7776000 }); // 90 days
 
 export default mongoose.model('AuditLog', auditLogSchema);

@@ -1,26 +1,23 @@
 /**
- * FAQ Page - Professional Redesign with Accordion
+ * FAQ Page - Professional Redesign
  * [U] UI/UX Engineer Implementation
  */
+
+import { generateNavbar, initializeNavbar } from '../components/navbar.js';
 
 export function renderFAQPage() {
     const app = document.getElementById('app');
 
     app.innerHTML = `
         <div class="legal-page faq-page">
-            <header class="legal-header">
+            ${generateNavbar({ showAuth: true, showLanguage: false })}
+            
+            <div class="page-header-section">
                 <div class="container">
-                    <a href="/" class="back-link">← Back to Home</a>
                     <h1 class="page-title">Frequently Asked Questions</h1>
-                    <p class="page-subtitle">Quick answers to common questions</p>
-                    
-                    <!-- Search Bar -->
-                    <div class="faq-search">
-                        <input type="text" class="search-input" placeholder="Search FAQs..." id="faqSearch">
-                        <button class="search-btn">🔍</button>
-                    </div>
+                    <p class="page-subtitle">Find answers to common questions</p>
                 </div>
-            </header>
+            </div>
             
             <main class="legal-content">
                 <div class="container">
@@ -359,11 +356,8 @@ export function renderFAQPage() {
         </div>
     `;
 
-    // Add event listener for back link
-    app.querySelector('.back-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.history.back();
-    });
+    // Initialize navbar
+    initializeNavbar();
 
     // Add FAQ accordion functionality
     const faqItems = app.querySelectorAll('.faq-item');
@@ -380,23 +374,4 @@ export function renderFAQPage() {
             item.classList.toggle('active');
         });
     });
-
-    // Add search functionality
-    const searchInput = app.querySelector('#faqSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-
-            faqItems.forEach(item => {
-                const question = item.querySelector('h4').textContent.toLowerCase();
-                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
-
-                if (question.includes(searchTerm) || answer.includes(searchTerm) || searchTerm === '') {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
 }

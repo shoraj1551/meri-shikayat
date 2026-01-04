@@ -484,12 +484,15 @@ const userSchema = new mongoose.Schema({
 // ========================================
 // INDEXES
 // ========================================
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
-userSchema.index({ userType: 1, status: 1 });
-userSchema.index({ 'adminProfile.employeeId': 1 });
-userSchema.index({ 'contractorProfile.registrationNumber': 1 });
-userSchema.index({ 'contractorProfile.gstNumber': 1 });
+// Note: email, phone, employeeId, registrationNumber, gstNumber already have unique: true in schema
+// Mongoose automatically creates unique indexes for these fields
+// Only add compound indexes and additional query optimization indexes here
+
+userSchema.index({ userType: 1, status: 1 }); // For filtering users by type and status
+userSchema.index({ 'location.pincode': 1 }); // For location-based queries
+userSchema.index({ createdAt: -1 }); // For sorting by registration date
+userSchema.index({ 'adminProfile.department': 1 }); // For admin queries by department
+userSchema.index({ 'contractorProfile.specialization': 1 }); // For contractor queries
 
 // ========================================
 // VALIDATION

@@ -5,7 +5,7 @@
 
 import { adminService } from '../api/admin.service.js';
 import * as complaintAdminService from '../api/complaint-admin.service.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 let currentView = 'kanban'; // 'kanban' or 'list'
 let complaintsData = [];
@@ -299,7 +299,7 @@ async function openComplaintDetail(id) {
             const reason = document.getElementById('statusReason').value;
 
             try {
-                await complaintAdminService.updateStatus(id, newStatus.toLowerCase().replace(' ', '_'), reason);
+                await complaintAdminService.updateComplaintStatus(id, newStatus.toLowerCase().replace(' ', '_'), reason);
                 alert('Status Updated!');
                 document.getElementById('complaintDetailModal').style.display = 'none';
                 loadData(); // Refresh board

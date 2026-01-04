@@ -95,16 +95,26 @@ export const createComplaint = async (req, res) => {
     }
 };
 
-// @desc    Get all complaints for logged in user
-// @route   GET /api/complaints/my-complaints
-// @access  Private (User)
 export const getMyComplaints = async (req, res) => {
     try {
         const complaints = await Complaint.find({ user: req.user.id })
-            .populate('category')
-            .populate('department')
-            .populate('media')
-            .sort({ createdAt: -1 });
+            .populate({
+                path: 'category',
+                select: 'name icon color',
+                options: { strictPopulate: false }
+            })
+            .populate({
+                path: 'department',
+                select: 'name',
+                options: { strictPopulate: false }
+            })
+            .populate({
+                path: 'media',
+                select: 'url type filename',
+                options: { strictPopulate: false }
+            })
+            .sort({ createdAt: -1 })
+            .lean(); // Use lean for better performance
 
         res.json({
             success: true,
@@ -113,9 +123,11 @@ export const getMyComplaints = async (req, res) => {
         });
     } catch (error) {
         console.error('Get My Complaints Error:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching complaints'
+            message: 'Server error while fetching complaints',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };

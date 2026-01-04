@@ -5,7 +5,7 @@
 
 import { authService } from '../api/auth.service.js';
 import { storiesService } from '../api/stories.service.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderStoriesPage() {
     const app = document.getElementById('app');

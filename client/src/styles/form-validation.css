@@ -1,0 +1,202 @@
+/**
+ * Form Validation Styles
+ * Visual feedback for form validation states
+ */
+
+/* Input validation states */
+.form-input,
+.form-select,
+.form-textarea {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input.valid,
+.form-select.valid,
+.form-textarea.valid {
+    border-color: #10b981;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%2310b981' d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 16px;
+    padding-right: 40px;
+}
+
+.form-input.invalid,
+.form-select.invalid,
+.form-textarea.invalid {
+    border-color: #ef4444;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ef4444' d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3Cpath fill='%23ef4444' d='M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 16px;
+    padding-right: 40px;
+}
+
+.form-input.invalid:focus,
+.form-select.invalid:focus,
+.form-textarea.invalid:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-input.valid:focus,
+.form-select.valid:focus,
+.form-textarea.valid:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Textarea doesn't need background image */
+.form-textarea.valid,
+.form-textarea.invalid {
+    background-image: none;
+    padding-right: 12px;
+}
+
+/* Error message */
+.error-message {
+    display: block;
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.375rem;
+    font-weight: 500;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form group with validation */
+.form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-group.has-error .form-label {
+    color: #ef4444;
+}
+
+.form-group.has-success .form-label {
+    color: #10b981;
+}
+
+/* Loading state */
+.form-input.validating {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%236b7280' d='M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM7 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm1 8a1 1 0 0 1-1-1V8a1 1 0 0 1 2 0v3a1 1 0 0 1-1 1z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 16px;
+    padding-right: 40px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Password strength indicator */
+.password-strength {
+    margin-top: 0.5rem;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
+}
+
+.password-strength-bar.weak {
+    width: 33%;
+    background: #ef4444;
+}
+
+.password-strength-bar.medium {
+    width: 66%;
+    background: #f59e0b;
+}
+
+.password-strength-bar.strong {
+    width: 100%;
+    background: #10b981;
+}
+
+.password-strength-label {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.password-strength-label.weak {
+    color: #ef4444;
+}
+
+.password-strength-label.medium {
+    color: #f59e0b;
+}
+
+.password-strength-label.strong {
+    color: #10b981;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+
+    .form-input.valid,
+    .form-input.invalid,
+    .form-select.valid,
+    .form-select.invalid {
+        background-size: 14px 14px;
+        background-position: right 10px center;
+        padding-right: 36px;
+    }
+
+    .error-message {
+        font-size: 0.8125rem;
+    }
+}
+
+/* Accessibility: High contrast mode */
+@media (prefers-contrast: high) {
+
+    .form-input.valid,
+    .form-select.valid {
+        border-width: 2px;
+    }
+
+    .form-input.invalid,
+    .form-select.invalid {
+        border-width: 2px;
+    }
+
+    .error-message {
+        font-weight: 600;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .error-message {
+        color: #fca5a5;
+    }
+
+    .form-input.invalid,
+    .form-select.invalid,
+    .form-textarea.invalid {
+        border-color: #dc2626;
+    }
+
+    .form-input.valid,
+    .form-select.valid,
+    .form-textarea.valid {
+        border-color: #059669;
+    }
+}

@@ -4,7 +4,7 @@
  */
 
 import { profileService } from '../api/profile.service.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderProfilePage() {
     const app = document.getElementById('app');

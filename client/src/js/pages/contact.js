@@ -5,6 +5,7 @@
 
 import { loadContactInfo } from '../services/contact.service.js';
 import { getCurrentLanguage } from '../i18n/translations.js';
+import { generateNavbar, initializeNavbar } from '../components/navbar.js';
 
 export function renderContactPage() {
     const app = document.getElementById('app');
@@ -15,14 +16,15 @@ export function renderContactPage() {
         const contact = data.contact;
 
         app.innerHTML = `
-            <div class="contact-page">
-                <header class="contact-header">
+            <div class="legal-page contact-page">
+                ${generateNavbar({ showAuth: true, showLanguage: false })}
+                
+                <div class="page-header-section">
                     <div class="container">
-                        <a href="/" class="back-link">← ${lang === 'hi' ? 'होम पर वापस जाएं' : 'Back to Home'}</a>
-                        <h1 class="page-title">${lang === 'hi' ? 'संपर्क करें' : 'Contact Us'}</h1>
+                        <h1 class="page-title">Contact Us</h1>
                         <p class="page-subtitle">${lang === 'hi' ? 'हम यहाँ मदद के लिए हैं। किसी भी तरह से संपर्क करें।' : 'We\'re here to help. Reach out through any of these channels.'}</p>
                     </div>
-                </header>
+                </div>
                 
                 <main class="contact-content">
                     <div class="container">
@@ -181,14 +183,8 @@ export function renderContactPage() {
             </div>
         `;
 
-        // Add event listener for back link
-        const backLink = app.querySelector('.back-link');
-        if (backLink) {
-            backLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.router.navigate('/');
-            });
-        }
+        // Initialize navbar event listeners after rendering
+        initializeNavbar();
     }).catch(error => {
         console.error('Failed to render contact page:', error);
         app.innerHTML = `<p>Error loading contact information. Please try again later.</p>`;

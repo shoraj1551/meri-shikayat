@@ -1,20 +1,23 @@
 /**
- * About Us Page - Professional Design
+ * About Us Page - Professional Redesign
  * [U] UI/UX Engineer Implementation
  */
+
+import { generateNavbar, initializeNavbar } from '../components/navbar.js';
 
 export function renderAboutPage() {
     const app = document.getElementById('app');
 
     app.innerHTML = `
         <div class="legal-page about-page">
-            <header class="legal-header">
+            ${generateNavbar({ showAuth: true, showLanguage: false })}
+            
+            <div class="page-header-section">
                 <div class="container">
-                    <a href="/" class="back-link">← Back to Home</a>
                     <h1 class="page-title">About Meri Shikayat</h1>
-                    <p class="page-subtitle">Empowering citizens, strengthening communities</p>
+                    <p class="page-subtitle">Empowering Citizens, Enabling Governance</p>
                 </div>
-            </header>
+            </div>
             
             <main class="legal-content">
                 <div class="container">
@@ -252,9 +255,6 @@ export function renderAboutPage() {
         </div>
     `;
 
-    // Add event listener for back link
-    app.querySelector('.back-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.history.back();
-    });
+    // Initialize navbar
+    initializeNavbar();
 }

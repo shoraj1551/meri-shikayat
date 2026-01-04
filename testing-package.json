@@ -1,0 +1,15 @@
+{
+    "name": "meri-shikayat-testing",
+    "version": "1.0.0",
+    "scripts": {
+        "lighthouse": "lighthouse http://localhost:3001 --output html --output-path ./lighthouse-report.html --view",
+        "lighthouse:ci": "lighthouse http://localhost:3001 --output json --output-path ./lighthouse-report.json --chrome-flags='--headless'",
+        "test:accessibility": "pa11y http://localhost:3001 --reporter html > accessibility-report.html",
+        "test:browsers": "echo 'Manual cross-browser testing required. See TESTING_GUIDE.md'",
+        "analyze:bundle": "cd client && npm run build -- --analyze"
+    },
+    "devDependencies": {
+        "lighthouse": "^11.0.0",
+        "pa11y": "^7.0.0"
+    }
+}

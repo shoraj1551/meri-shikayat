@@ -6,7 +6,7 @@
 import RoleSelector from '../components/role-selector.js';
 import { authService } from '../api/auth.service.js';
 import FormValidator from '../utils/form-validator.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 export function renderMultiRoleRegisterPage() {
     const app = document.getElementById('app');
@@ -537,7 +537,7 @@ export function renderMultiRoleRegisterPage() {
                 };
 
                 // Call new multi-role registration endpoint
-                const response = await fetch('/api/auth/register/general-user', {
+                const response = await fetch('/api/v1/auth/register/general-user', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -872,7 +872,7 @@ export function renderMultiRoleRegisterPage() {
             try {
                 Loading.buttonLoading(registerBtn, 'Submitting...');
 
-                const response = await fetch('/api/auth/register/admin', {
+                const response = await fetch('/api/v1/auth/register/admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -1158,7 +1158,7 @@ export function renderMultiRoleRegisterPage() {
             try {
                 Loading.buttonLoading(registerBtn, 'Submitting...');
 
-                const response = await fetch('/api/auth/register/contractor', {
+                const response = await fetch('/api/v1/auth/register/contractor', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -1360,7 +1360,7 @@ export function renderMultiRoleRegisterPage() {
             try {
                 Loading.buttonLoading(registerBtn, 'Creating account...');
 
-                const response = await fetch('/api/auth/register/super-admin', {
+                const response = await fetch('/api/v1/auth/register/super-admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)

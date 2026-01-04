@@ -43,10 +43,11 @@ import { renderContractorsPage } from './pages/contractors.js';
 import { renderMultiRoleRegisterPage } from './pages/multi-role-register.js';
 import { renderVerifyAccountPage } from './pages/verify-account.js';
 import { renderFileComplaintNew } from './pages/file-complaint-new.js';
+import { renderContractorDashboard } from './pages/contractor-dashboard.js';
 
 // Import UI components
 import { tooltip } from './components/tooltip.js';
-import Loading from './components/loading.js';
+import { Loading } from './components/loading.js';
 
 export function initializeApp() {
     console.log('Meri Shikayat application initialized');
@@ -77,6 +78,9 @@ export function initializeApp() {
     router.register('/admin/pending', renderAdminPendingPage);
     router.register('/admin/my-permissions', renderAdminPermissionsPage);
     router.register('/admin/permission-requests', renderPermissionRequestsPage);
+
+    // Contractor Routes
+    router.register('/contractor/dashboard', renderContractorDashboard);
 
     // Legal Pages
     router.register('/privacy', renderPrivacyPage);

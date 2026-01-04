@@ -26,6 +26,9 @@ let useRedisStore = false;
  * Create rate limiter with Redis or memory store
  */
 const createRateLimiter = (options) => {
+    // Extract prefix for Redis store (not a valid rateLimit option)
+    const { prefix, ...rateLimitOptions } = options;
+
     const config = {
         standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
         legacyHeaders: false, // Disable `X-RateLimit-*` headers
@@ -41,18 +44,18 @@ const createRateLimiter = (options) => {
 
             res.status(429).json({
                 success: false,
-                message: options.message || 'Too many requests. Please try again later.',
-                retryAfter: Math.ceil((req.rateLimit?.resetTime - Date.now()) / 1000) || options.windowMs / 1000
+                message: rateLimitOptions.message || 'Too many requests. Please try again later.',
+                retryAfter: Math.ceil((req.rateLimit?.resetTime - Date.now()) / 1000) || rateLimitOptions.windowMs / 1000
             });
         },
 
         // Skip successful requests (optional, based on config)
-        skipSuccessfulRequests: options.skipSuccessfulRequests || false,
+        skipSuccessfulRequests: rateLimitOptions.skipSuccessfulRequests || false,
 
         // Skip failed requests (optional, based on config)
-        skipFailedRequests: options.skipFailedRequests || false,
+        skipFailedRequests: rateLimitOptions.skipFailedRequests || false,
 
-        ...options
+        ...rateLimitOptions
     };
 
     // Add Redis store if available
@@ -61,13 +64,13 @@ const createRateLimiter = (options) => {
             const redisClient = getRedisClient();
             config.store = new RedisStore({
                 client: redisClient,
-                prefix: options.prefix || 'rl:',
+                prefix: prefix || 'rl:',  // Use extracted prefix here
                 sendCommand: (...args) => redisClient.call(...args)
             });
         } catch (error) {
             logger.error('Failed to create Redis store for rate limiter', {
                 error: error.message,
-                prefix: options.prefix
+                prefix: prefix
             });
             // Will fall back to memory store
         }

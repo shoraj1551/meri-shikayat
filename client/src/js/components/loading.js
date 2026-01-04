@@ -118,6 +118,16 @@ export class Loading {
             </div>
         `;
     }
+
+    /**
+     * Generate spinner HTML (for manual insertion)
+     */
+    static spinner(message = 'Loading...') {
+        return `
+            <span class="spinner"></span>
+            <span>${message}</span>
+        `;
+    }
 }
 
 // Add global loading styles
@@ -278,5 +288,3 @@ loadingStyles.textContent = `
 `;
 
 document.head.appendChild(loadingStyles);
-
-export default Loading;

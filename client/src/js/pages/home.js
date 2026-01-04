@@ -33,6 +33,8 @@ function generateHomeHTML(lang) {
                             <h1 class="logo-gradient">मेरी शिकायत</h1>
                             <p class="tagline">Your Voice, Our Priority</p>
                         </div>
+                        
+                        <!-- Desktop Navigation -->
                         <div class="nav-actions">
                             <div class="language-toggle">
                                 <button class="lang-btn ${lang === 'en' ? 'active' : ''}" data-lang="en">English</button>
@@ -42,9 +44,29 @@ function generateHomeHTML(lang) {
                             <a href="/login" class="btn btn-outline-light" data-i18n="nav.login">${t('nav.login', lang)}</a>
                             <a href="/register" class="btn btn-primary" data-i18n="nav.signup">${t('nav.signup', lang)}</a>
                         </div>
+                        
+                        <!-- Mobile Menu Toggle -->
+                        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
                     </nav>
                 </div>
             </header>
+
+            <!-- Mobile Navigation Drawer -->
+            <div class="mobile-nav-overlay"></div>
+            <nav class="mobile-nav">
+                <div class="mobile-nav-items">
+                    <div class="language-toggle">
+                        <button class="lang-btn ${lang === 'en' ? 'active' : ''}" data-lang="en">English</button>
+                        <button class="lang-btn ${lang === 'hi' ? 'active' : ''}" data-lang="hi">हिन्दी</button>
+                    </div>
+                    <a href="/login" class="btn btn-outline-light" data-i18n="nav.login">${t('nav.login', lang)}</a>
+                    <a href="/register" class="btn btn-primary" data-i18n="nav.signup">${t('nav.signup', lang)}</a>
+                </div>
+            </nav>
 
             <!-- Enhanced Hero Section -->
             <section class="enhanced-hero">
@@ -405,26 +427,61 @@ function getStatusLabel(status, lang) {
 function initializeEventListeners() {
     const app = document.getElementById('app');
 
-    // Navigation links
-    app.querySelectorAll('a[href^="/"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const path = link.getAttribute('href');
-            window.router.navigate(path);
+    // Language toggle buttons
+    const langButtons = document.querySelectorAll('.lang-btn');
+    langButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const lang = e.target.dataset.lang;
+            setLanguage(lang);
+            renderHomePage();
         });
     });
 
-    // Language toggle
-    const langBtns = app.querySelectorAll('.lang-btn');
-    langBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const newLang = btn.dataset.lang;
-            if (newLang !== getCurrentLanguage()) {
-                setLanguage(newLang);
-                renderHomePage(); // Re-render with new language
+    // Mobile menu toggle
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileNav = document.querySelector('.mobile-nav');
+    const mobileNavOverlay = document.querySelector('.mobile-nav-overlay');
+
+    if (mobileMenuToggle && mobileNav && mobileNavOverlay) {
+        // Toggle menu on button click
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+            mobileNavOverlay.classList.toggle('active');
+
+            // Prevent body scroll when menu is open
+            document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
+        });
+
+        // Close menu on overlay click
+        mobileNavOverlay.addEventListener('click', () => {
+            mobileMenuToggle.classList.remove('active');
+            mobileNav.classList.remove('active');
+            mobileNavOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Close menu on link click
+        const mobileNavLinks = mobileNav.querySelectorAll('a');
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuToggle.classList.remove('active');
+                mobileNav.classList.remove('active');
+                mobileNavOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileNav.classList.contains('active')) {
+                mobileMenuToggle.classList.remove('active');
+                mobileNav.classList.remove('active');
+                mobileNavOverlay.classList.remove('active');
+                document.body.style.overflow = '';
             }
         });
-    });
+    }
 
     // Feedback carousel
     const feedbackCards = app.querySelectorAll('.feedback-card');

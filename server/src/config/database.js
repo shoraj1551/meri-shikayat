@@ -47,9 +47,7 @@ function getRetryDelay(attempt) {
 async function connectWithRetry(attempt = 0) {
     try {
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
-            ...POOL_CONFIG,
-            useNewUrlParser: true,
-            useUnifiedTopology: true
+            ...POOL_CONFIG
         });
 
         logger.info('MongoDB connected successfully', {

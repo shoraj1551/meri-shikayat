@@ -5,7 +5,7 @@
 
 import { authService } from '../api/auth.service.js';
 import { socialService } from '../api/social.service.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderCommunityPage() {
     const app = document.getElementById('app');

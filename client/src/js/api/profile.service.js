@@ -2,7 +2,7 @@
  * Profile Service - API calls for user profile management
  */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api/v1';
 
 export const profileService = {
     /**

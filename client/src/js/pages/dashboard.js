@@ -1,5 +1,5 @@
 import { complaintService } from '../api/complaint.service.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderDashboardPage() {
     const app = document.getElementById('app');

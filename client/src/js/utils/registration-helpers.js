@@ -4,7 +4,7 @@
  */
 
 import FormValidator from '../utils/form-validator.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 // Helper function to show approval pending screen
 export function showApprovalPending(userType, userName) {

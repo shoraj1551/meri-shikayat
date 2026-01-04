@@ -4,7 +4,7 @@
  */
 
 import FormValidator from '../utils/form-validator.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 export function renderComplaintForm() {
     const app = document.getElementById('app');

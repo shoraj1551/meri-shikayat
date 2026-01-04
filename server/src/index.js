@@ -4,8 +4,8 @@
 
 // CRITICAL: Load environment variables FIRST before any other imports
 // This ensures .env is loaded before modules that use process.env
-import dotenv from 'dotenv';
-dotenv.config();
+import './config/env.js';
+
 
 import express from 'express';
 import cors from 'cors';
@@ -24,6 +24,7 @@ import storiesRoutes from './routes/stories.routes.js';
 import departmentsRoutes from './routes/departments.js';
 import contractorsRoutes from './routes/contractors.js';
 import registrationRoutes from './routes/registration.routes.js';
+import categoryRoutes from './routes/category.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import verificationRoutes from './routes/verification.routes.js';
 
@@ -51,7 +52,7 @@ const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = process.env.CORS_ORIGIN
             ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-            : ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:5173'];
+            : ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:5173', 'http://localhost:4176'];
 
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -116,6 +117,7 @@ app.use(`${API_VERSION}/departments`, departmentsRoutes);
 app.use(`${API_VERSION}/contractors`, contractorsRoutes);
 app.use(`${API_VERSION}/profile`, profileRoutes);
 app.use(`${API_VERSION}/verification`, verificationRoutes);
+app.use(`${API_VERSION}/categories`, categoryRoutes);
 
 // Import error handlers
 import { errorHandler, notFoundHandler, handleUnhandledRejection, handleUncaughtException } from './middleware/errorHandler.js';

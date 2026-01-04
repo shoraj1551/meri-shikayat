@@ -81,10 +81,9 @@ const departmentStatisticsSchema = new mongoose.Schema({
 });
 
 // Indexes
-departmentStatisticsSchema.index({ department: 1 });
-departmentStatisticsSchema.index({ office: 1 });
-departmentStatisticsSchema.index({ periodType: 1, periodStart: 1 });
+// Note: Compound unique index covers individual field queries (MongoDB uses leftmost prefix)
 departmentStatisticsSchema.index({ department: 1, office: 1, periodType: 1, periodStart: 1 }, { unique: true });
+departmentStatisticsSchema.index({ periodType: 1, periodStart: 1 }); // For time-based queries without department filter
 
 // Methods
 departmentStatisticsSchema.methods.calculateResolutionRate = function () {

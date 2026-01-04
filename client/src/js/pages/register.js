@@ -1,6 +1,6 @@
 import { authService } from '../api/auth.service.js';
 import FormValidator from '../utils/form-validator.js';
-import Loading from '../components/loading.js';
+import { Loading } from '../components/loading.js';
 
 export function renderRegisterPage() {
     const app = document.getElementById('app');
