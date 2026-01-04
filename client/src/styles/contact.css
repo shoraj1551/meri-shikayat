@@ -1,0 +1,515 @@
+/**
+ * Contact Page Styles
+ * Professional contact information display
+ */
+
+/* ============================================
+   CONTACT PAGE HEADER
+   ============================================ */
+
+.contact-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 0 2rem;
+    text-align: center;
+}
+
+.back-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: white;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: white;
+}
+
+.page-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   CONTACT CONTENT
+   ============================================ */
+
+.contact-content {
+    padding: 3rem 0;
+    background: #f5f7fa;
+}
+
+/* Contact Cards Grid */
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.contact-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(26, 35, 126, 0.15);
+    border-color: #1a237e;
+}
+
+.contact-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.contact-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 1.5rem;
+}
+
+.contact-details {
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.contact-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #546e7a;
+    margin-bottom: 0.25rem;
+}
+
+.contact-link {
+    font-size: 1rem;
+    color: #1a237e;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    word-break: break-all;
+}
+
+.contact-link:hover {
+    color: #0d47a1;
+    text-decoration: underline;
+}
+
+.contact-note {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+.address-line {
+    margin: 0.25rem 0;
+    color: #1a237e;
+    font-weight: 500;
+}
+
+/* ============================================
+   OFFICE HOURS SECTION
+   ============================================ */
+
+.hours-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.hours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.hours-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: #f5f7fa;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.hours-item:hover {
+    border-color: #1a237e;
+    background: white;
+}
+
+.hours-day {
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.hours-time {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.hours-time.closed {
+    color: #ef4444;
+}
+
+/* ============================================
+   SOCIAL MEDIA SECTION
+   ============================================ */
+
+.social-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 3rem;
+}
+
+.social-links-large {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+}
+
+.social-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: #f5f7fa;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.social-card:hover {
+    transform: translateY(-5px);
+    border-color: #1a237e;
+    background: white;
+    box-shadow: 0 8px 16px rgba(26, 35, 126, 0.1);
+}
+
+.social-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.social-card span {
+    font-weight: 700;
+    color: #1a237e;
+    font-size: 1rem;
+}
+
+/* ============================================
+   RESOURCES SECTION
+   ============================================ */
+
+.resources-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.resource-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: #f5f7fa;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+    border-color: #1a237e;
+    background: white;
+    box-shadow: 0 8px 16px rgba(26, 35, 126, 0.1);
+}
+
+.resource-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.resource-card h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.resource-card p {
+    font-size: 0.875rem;
+    color: #546e7a;
+    margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hours-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .social-links-large {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .resources-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .escalation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .guidelines-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   ESCALATION MATRIX SECTION
+   ============================================ */
+
+.escalation-section {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 3rem;
+}
+
+.escalation-icon {
+    font-size: 2rem;
+    margin-right: 0.75rem;
+}
+
+.section-description {
+    text-align: center;
+    color: #546e7a;
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.escalation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.escalation-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.escalation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(26, 35, 126, 0.15);
+    border-color: #1a237e;
+    background: white;
+}
+
+.escalation-level {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.level-badge {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.response-time,
+.availability-badge {
+    background: rgba(26, 35, 126, 0.1);
+    color: #1a237e;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.escalation-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.escalation-role {
+    font-size: 1rem;
+    color: #546e7a;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.escalation-contact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1a237e;
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    border: 2px solid rgba(26, 35, 126, 0.2);
+    transition: all 0.3s ease;
+}
+
+.escalation-contact:hover {
+    background: #1a237e;
+    color: white;
+    transform: translateX(5px);
+}
+
+.contact-icon-small {
+    font-size: 1.5rem;
+}
+
+.escalation-description {
+    color: #546e7a;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ============================================
+   ESCALATION GUIDELINES
+   ============================================ */
+
+.guidelines-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    margin-bottom: 3rem;
+}
+
+.guidelines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.guideline-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.guideline-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(26, 35, 126, 0.1);
+    border-color: #1a237e;
+}
+
+.guideline-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.guideline-card h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.75rem;
+}
+
+.guideline-card p {
+    color: #546e7a;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}

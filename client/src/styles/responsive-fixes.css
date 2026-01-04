@@ -1,0 +1,500 @@
+/**
+ * Mobile Responsive Fixes
+ * Critical fixes for mobile navigation and layout issues
+ */
+
+/* ===== GLOBAL RESPONSIVE FIXES ===== */
+* {
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    overflow-x: hidden;
+}
+
+/* ===== MOBILE NAVIGATION (< 768px) ===== */
+@media (max-width: 767px) {
+
+    /* Hide desktop navigation */
+    .nav-actions {
+        display: none !important;
+    }
+
+    /* Mobile menu toggle button */
+    .mobile-menu-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 1001;
+    }
+
+    .mobile-menu-toggle span {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background: white;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-menu-toggle.active span:nth-child(1) {
+        transform: translateY(10.5px) rotate(45deg);
+    }
+
+    .mobile-menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-menu-toggle.active span:nth-child(3) {
+        transform: translateY(-10.5px) rotate(-45deg);
+    }
+
+    /* Mobile navigation drawer */
+    .mobile-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: white;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+        transition: right 0.3s ease;
+        z-index: 1000;
+        padding: 5rem 2rem 2rem;
+        overflow-y: auto;
+    }
+
+    .mobile-nav.active {
+        right: 0;
+    }
+
+    .mobile-nav-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 999;
+    }
+
+    .mobile-nav-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .mobile-nav-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .mobile-nav-items .language-toggle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 1rem;
+    }
+
+    .mobile-nav-items .lang-btn {
+        color: #1a237e;
+        font-size: 1rem;
+        padding: 0.5rem 0;
+        width: 100%;
+        text-align: left;
+    }
+
+    .mobile-nav-items .lang-btn.active {
+        color: #0d47a1;
+        font-weight: 700;
+    }
+
+    .mobile-nav-items .btn {
+        width: 100%;
+        text-align: center;
+        padding: 1rem;
+        min-height: 48px;
+    }
+
+    .mobile-nav-items .btn-outline-light {
+        border-color: #1a237e;
+        color: #1a237e;
+    }
+
+    /* Header adjustments */
+    .home-navbar {
+        padding: 0.75rem 0;
+    }
+
+    .logo h1.logo-gradient {
+        font-size: 1.25rem;
+    }
+
+    .tagline {
+        font-size: 0.75rem;
+    }
+
+    /* Hero section mobile */
+    .enhanced-hero {
+        padding: 2rem 0;
+    }
+
+    .hero-main-title {
+        font-size: clamp(1.5rem, 6vw, 2rem) !important;
+        margin-bottom: 1rem;
+    }
+
+    .hero-description {
+        font-size: 0.95rem !important;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-cta-group {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .hero-cta-group .btn {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    /* Stats grid mobile */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
+    }
+
+    .stat-number {
+        font-size: 2rem !important;
+    }
+
+    /* Steps container mobile */
+    .steps-container {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+
+    .step-card::after {
+        display: none !important;
+    }
+
+    /* Features grid mobile */
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    /* Section titles */
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    /* Authorities logos */
+    .authorities-logos {
+        gap: 1.5rem;
+    }
+
+    .logo-placeholder {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    /* Impact feed */
+    .impact-feed-container {
+        height: 300px;
+    }
+
+    /* Feedback text */
+    .feedback-text {
+        font-size: 1.125rem;
+    }
+
+    /* Footer adjustments */
+    .enhanced-footer .footer-content {
+        grid-template-columns: 1fr !important;
+        gap: 2rem;
+    }
+}
+
+/* ===== SMALL MOBILE (< 480px) ===== */
+@media (max-width: 479px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .hero-main-title {
+        font-size: 1.5rem !important;
+    }
+
+    .stat-number {
+        font-size: 1.75rem !important;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .mobile-nav {
+        width: 85%;
+    }
+}
+
+/* ===== TABLET (768px - 1023px) ===== */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    /* Show desktop nav, hide mobile toggle */
+    .mobile-menu-toggle {
+        display: none;
+    }
+
+    .mobile-nav,
+    .mobile-nav-overlay {
+        display: none;
+    }
+
+    /* 2-column layout for stats */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 2-column layout for features */
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 3-column layout for steps */
+    .steps-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Hero buttons side by side */
+    .hero-cta-group {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .hero-cta-group .btn {
+        width: auto;
+        min-width: 180px;
+    }
+
+    /* Header spacing */
+    .home-navbar {
+        padding: 1rem 0;
+    }
+
+    .nav-actions {
+        gap: 0.75rem;
+    }
+}
+
+/* ===== DESKTOP (1024px+) ===== */
+@media (min-width: 1024px) {
+
+    /* Hide mobile elements */
+    .mobile-menu-toggle {
+        display: none;
+    }
+
+    .mobile-nav,
+    .mobile-nav-overlay {
+        display: none;
+    }
+
+    /* 3-column layout for stats */
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* 3-column layout for features */
+    .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ===== LARGE DESKTOP (1280px+) ===== */
+@media (min-width: 1280px) {
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .home-navbar {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* ===== EXTRA LARGE DESKTOP (1920px+) ===== */
+@media (min-width: 1920px) {
+    .home-header .container {
+        max-width: 1600px;
+    }
+
+    .home-navbar {
+        max-width: 1600px;
+    }
+}
+
+/* ===== TOUCH TARGET IMPROVEMENTS ===== */
+@media (max-width: 767px) {
+
+    a,
+    button {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .lang-btn {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* ===== PREVENT HORIZONTAL SCROLL ===== */
+html,
+body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.home-page {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.home-page section {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+/* ===== LOGIN PAGE RESPONSIVE FIXES ===== */
+
+/* Desktop: Constrain login card width */
+@media (min-width: 1024px) {
+    .role-selector-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .login-form-container,
+    .register-form-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+/* Mobile: Reduce header size and improve button spacing */
+@media (max-width: 767px) {
+
+    .role-selector-container h2,
+    .login-form-container h2,
+    .register-form-container h2 {
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .role-selector-btn,
+    .back-btn {
+        margin: 1rem;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* ===== REGISTER PAGE RESPONSIVE FIXES ===== */
+
+/* Desktop: Constrain form width for ultra-wide screens */
+@media (min-width: 1920px) {
+    .register-form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+}
+
+/* ===== STATIC PAGES HEADER STYLING ===== */
+
+/* Page header section for static pages with navbar */
+.page-header-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 0 2rem;
+    margin-top: 0;
+    text-align: center;
+    color: white;
+}
+
+.page-header-section .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.page-header-section .page-subtitle {
+    font-size: 1.125rem;
+    opacity: 0.95;
+    color: white;
+}
+
+@media (max-width: 767px) {
+    .page-header-section {
+        padding: 2rem 0 1.5rem;
+    }
+
+    .page-header-section .page-title {
+        font-size: 1.75rem;
+    }
+
+    .page-header-section .page-subtitle {
+        font-size: 1rem;
+    }
+}
+
+/* Ensure mobile nav links have proper styling */
+.mobile-nav-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #1a237e !important;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.mobile-nav-link:hover {
+    background-color: rgba(26, 35, 126, 0.08);
+    color: #0d47a1 !important;
+}
+
+.mobile-nav-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+}

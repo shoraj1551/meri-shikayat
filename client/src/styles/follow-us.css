@@ -1,0 +1,434 @@
+/**
+ * Follow Us Page Styles
+ * Professional social media feed design
+ */
+
+/* ============================================
+   FOLLOW US PAGE HEADER
+   ============================================ */
+
+.follow-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 0 2rem;
+    text-align: center;
+}
+
+.follow-us-page .back-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.follow-us-page .back-link:hover {
+    color: white;
+}
+
+/* ============================================
+   LOADING & ERROR STATES
+   ============================================ */
+
+.loading-state,
+.error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(26, 35, 126, 0.1);
+    border-top-color: #1a237e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   PLATFORM SECTIONS
+   ============================================ */
+
+.follow-content {
+    padding: 3rem 0;
+    background: #f5f7fa;
+}
+
+.platform-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.platform-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.platform-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.platform-icon {
+    font-size: 3rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.facebook-icon {
+    background: linear-gradient(135deg, #1877F2 0%, #4267B2 100%);
+}
+
+.instagram-icon {
+    background: linear-gradient(135deg, #E4405F 0%, #C13584 50%, #833AB4 100%);
+}
+
+.twitter-icon {
+    background: #000000;
+    color: white;
+}
+
+.reddit-icon {
+    background: linear-gradient(135deg, #FF4500 0%, #FF5700 100%);
+}
+
+.youtube-icon {
+    background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+}
+
+.platform-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin: 0;
+}
+
+.platform-handle {
+    color: #546e7a;
+    font-size: 1rem;
+    margin: 0.25rem 0 0;
+}
+
+.btn-follow {
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 700;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+}
+
+.facebook-btn {
+    background: linear-gradient(135deg, #1877F2 0%, #4267B2 100%);
+}
+
+.instagram-btn {
+    background: linear-gradient(135deg, #E4405F 0%, #C13584 50%, #833AB4 100%);
+}
+
+.twitter-btn {
+    background: #000000;
+}
+
+.reddit-btn {
+    background: linear-gradient(135deg, #FF4500 0%, #FF5700 100%);
+}
+
+.youtube-btn {
+    background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+}
+
+.btn-follow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   POST CARDS
+   ============================================ */
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.instagram-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.youtube-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.post-card {
+    background: #f5f7fa;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+}
+
+.post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.facebook-card:hover {
+    border-color: #1877F2;
+}
+
+.instagram-card:hover {
+    border-color: #E4405F;
+}
+
+.twitter-card:hover {
+    border-color: #000000;
+}
+
+.reddit-card:hover {
+    border-color: #FF4500;
+}
+
+.youtube-card:hover {
+    border-color: #FF0000;
+}
+
+.post-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.instagram-card .post-image {
+    height: 280px;
+}
+
+.post-overlay {
+    position: relative;
+}
+
+.instagram-card .post-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.instagram-card:hover .post-overlay {
+    opacity: 1;
+}
+
+.post-content {
+    padding: 1.5rem;
+}
+
+.post-text {
+    color: #1a237e;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.post-subreddit {
+    color: #FF4500;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #546e7a;
+}
+
+.post-time {
+    font-weight: 600;
+}
+
+.post-engagement {
+    display: flex;
+    gap: 1rem;
+    color: white;
+}
+
+.post-meta .post-engagement {
+    color: #546e7a;
+}
+
+.post-link {
+    display: inline-block;
+    color: #1a237e;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.post-link:hover {
+    transform: translateX(5px);
+}
+
+/* ============================================
+   YOUTUBE SPECIFIC
+   ============================================ */
+
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.video-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+/* ============================================
+   CALL TO ACTION SECTION
+   ============================================ */
+
+.cta-section {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 4rem 2rem;
+    border-radius: 16px;
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.cta-section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.cta-section p {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.social-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.social-btn {
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 700;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.125rem;
+}
+
+.social-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .platform-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .platform-info {
+        flex-direction: column;
+    }
+
+    .posts-grid,
+    .instagram-grid,
+    .youtube-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .social-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .social-btn {
+        width: 100%;
+    }
+}

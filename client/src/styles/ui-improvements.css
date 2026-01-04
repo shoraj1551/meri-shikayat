@@ -1,0 +1,397 @@
+/**
+ * UI Improvements Styles
+ * Enhanced user experience styles
+ */
+
+/* Success Messages */
+.success-message {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.success-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: scaleIn 0.5s ease-out;
+}
+
+.success-message h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.success-message p {
+    margin: 0 0 1rem;
+    opacity: 0.95;
+}
+
+/* Progress Steps */
+.progress-steps {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #999;
+    transition: all 0.3s ease;
+}
+
+.progress-step.active {
+    background: linear-gradient(135deg, #663399 0%, #9966CC 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 51, 153, 0.3);
+}
+
+.progress-step.completed {
+    background: #4CAF50;
+    color: white;
+}
+
+.progress-step-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+/* Enhanced Input Fields */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 1.25rem;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.input-wrapper .form-input {
+    padding-left: 44px;
+}
+
+.input-wrapper .validation-icon {
+    position: absolute;
+    right: 12px;
+    font-size: 1.125rem;
+}
+
+/* Enhanced Error Messages */
+.error-message-enhanced {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+    border-left: 4px solid #F44336;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.error-message-enhanced strong {
+    display: block;
+    color: #F44336;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.error-message-enhanced p {
+    margin: 0;
+    color: #666;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.error-message-enhanced ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.5rem;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+/* Enhanced Tooltips (additional styles) */
+.tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #663399;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: help;
+    margin-left: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.tooltip-trigger:hover {
+    background: #9966CC;
+    transform: scale(1.1);
+}
+
+/* Enhanced Buttons */
+.btn-cta-main {
+    position: relative;
+    overflow: hidden;
+    font-size: 1.125rem;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(102, 51, 153, 0.3);
+}
+
+.btn-cta-main::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-cta-main:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 2px solid #663399;
+    color: #663399;
+}
+
+.btn-outline-primary:hover {
+    background: #663399;
+    color: white;
+}
+
+/* Loading State Enhancements */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.loading-hint {
+    font-size: 0.75rem;
+    color: #999;
+    font-style: italic;
+}
+
+/* Form Field Hints Enhanced */
+.form-hint-enhanced {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(102, 51, 153, 0.05);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.form-hint-enhanced strong {
+    color: #663399;
+}
+
+.hint-icon {
+    font-size: 1rem;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+/* Skip Link for Accessibility */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #663399;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 0 0 4px 0;
+    z-index: 100;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Better Focus Indicators */
+*:focus-visible {
+    outline: 3px solid #663399;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+button:focus-visible,
+.btn:focus-visible {
+    outline: 3px solid #9966CC;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .progress-steps {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .progress-step {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-cta-main {
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .success-icon {
+        font-size: 2.5rem;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+    }
+
+    /* Larger tap targets on mobile */
+    button,
+    .btn,
+    a.btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .tooltip-trigger {
+        width: 24px;
+        height: 24px;
+        font-size: 0.875rem;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .btn-primary {
+        border: 2px solid currentColor;
+    }
+
+    .success-message {
+        border: 2px solid #2e7d32;
+    }
+
+    .error-message-enhanced {
+        border: 2px solid #c62828;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    .skip-link,
+    .tooltip,
+    .loading-state {
+        display: none;
+    }
+}

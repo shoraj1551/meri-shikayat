@@ -1,0 +1,192 @@
+/**
+ * FAQ Page Styles
+ * Professional accordion design
+ */
+
+/* Header Styling */
+.faq-page .legal-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 0 2.5rem;
+    text-align: center;
+}
+
+.faq-page .back-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.faq-page .back-link:hover {
+    color: white;
+}
+
+.faq-page .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.faq-page .page-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+}
+
+/* Content Area */
+.faq-page .legal-content {
+    padding: 3rem 0;
+    background: #f5f7fa;
+}
+
+/* FAQ Search */
+.faq-search {
+    max-width: 600px;
+    margin: 2rem auto 0;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* FAQ Categories */
+.faq-category {
+    margin-bottom: 3rem;
+}
+
+.category-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #1a237e;
+}
+
+.category-icon {
+    font-size: 2rem;
+}
+
+/* FAQ Accordion - Reuse from help-center.css */
+.faq-page .faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.faq-page .faq-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.faq-page .faq-item:hover {
+    box-shadow: 0 8px 20px rgba(26, 35, 126, 0.15);
+}
+
+.faq-page .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    cursor: pointer;
+    background: white;
+    transition: background 0.3s ease;
+}
+
+.faq-page .faq-question:hover {
+    background: rgba(26, 35, 126, 0.05);
+}
+
+.faq-page .faq-question h4 {
+    margin: 0;
+    color: #1a237e;
+    font-size: 1.125rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.faq-page .faq-toggle {
+    width: 32px;
+    height: 32px;
+    background: #1a237e;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.faq-page .faq-item.active .faq-toggle {
+    transform: rotate(45deg);
+    background: #0d47a1;
+}
+
+.faq-page .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    background: #f5f7fa;
+}
+
+.faq-page .faq-item.active .faq-answer {
+    max-height: 1000px;
+    padding: 1.5rem 2rem;
+}
+
+.faq-page .faq-answer p {
+    color: #546e7a;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.faq-page .faq-answer p:last-child {
+    margin-bottom: 0;
+}
+
+.faq-page .faq-answer ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.faq-page .faq-answer li {
+    color: #546e7a;
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.faq-page .faq-answer a {
+    color: #1a237e;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.faq-page .faq-answer a:hover {
+    color: #0d47a1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .faq-page .faq-question {
+        padding: 1rem 1.5rem;
+    }
+
+    .faq-page .faq-answer {
+        padding: 1rem 1.5rem;
+    }
+
+    .category-title {
+        font-size: 1.5rem;
+    }
+}

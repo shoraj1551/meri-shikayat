@@ -1,0 +1,103 @@
+{
+    "contact": {
+        "email": {
+            "primary": "support@merishikayat.in",
+            "support": "help@merishikayat.in",
+            "admin": "admin@merishikayat.in"
+        },
+        "phone": {
+            "primary": "+91 123 456 7890",
+            "helpline": "+91 987 654 3210",
+            "tollfree": "1800-123-4567"
+        },
+        "address": {
+            "line1": "Meri Shikayat Office",
+            "line2": "123 Civic Center",
+            "city": "New Delhi",
+            "state": "Delhi",
+            "pincode": "110001",
+            "country": "India"
+        },
+        "social": {
+            "facebook": "https://facebook.com/merishikayat",
+            "twitter": "https://twitter.com/merishikayat",
+            "instagram": "https://instagram.com/merishikayat",
+            "linkedin": "https://linkedin.com/company/merishikayat"
+        },
+        "hours": {
+            "weekdays": "9:00 AM - 6:00 PM",
+            "saturday": "10:00 AM - 4:00 PM",
+            "sunday": "Closed"
+        },
+        "escalation": {
+            "email": [
+                {
+                    "level": 1,
+                    "title": "First Point of Contact",
+                    "role": "Customer Support Team",
+                    "email": "support@merishikayat.in",
+                    "responseTime": "24 hours",
+                    "description": "For general inquiries, complaint status, and basic assistance"
+                },
+                {
+                    "level": 2,
+                    "title": "Technical Support",
+                    "role": "Technical Team Lead",
+                    "email": "tech@merishikayat.in",
+                    "responseTime": "48 hours",
+                    "description": "For technical issues, bugs, and platform problems"
+                },
+                {
+                    "level": 3,
+                    "title": "Complaint Escalation",
+                    "role": "Complaint Resolution Manager",
+                    "email": "escalation@merishikayat.in",
+                    "responseTime": "72 hours",
+                    "description": "For unresolved complaints and escalation requests"
+                },
+                {
+                    "level": 4,
+                    "title": "Senior Management",
+                    "role": "Head of Operations",
+                    "email": "operations@merishikayat.in",
+                    "responseTime": "5 business days",
+                    "description": "For critical issues and final escalation"
+                }
+            ],
+            "phone": [
+                {
+                    "level": 1,
+                    "title": "General Helpline",
+                    "role": "Customer Support",
+                    "phone": "+91 123 456 7890",
+                    "availability": "Mon-Sat, 9 AM - 6 PM",
+                    "description": "For immediate assistance and general queries"
+                },
+                {
+                    "level": 2,
+                    "title": "Complaint Helpline",
+                    "role": "Complaint Support Team",
+                    "phone": "+91 987 654 3210",
+                    "availability": "Mon-Fri, 10 AM - 5 PM",
+                    "description": "For complaint-specific queries and updates"
+                },
+                {
+                    "level": 3,
+                    "title": "Toll-Free Escalation",
+                    "role": "Escalation Desk",
+                    "phone": "1800-123-4567",
+                    "availability": "24/7",
+                    "description": "For urgent escalations and critical issues"
+                },
+                {
+                    "level": 4,
+                    "title": "Management Contact",
+                    "role": "Senior Manager",
+                    "phone": "+91 111 222 3333",
+                    "availability": "Mon-Fri, 11 AM - 4 PM",
+                    "description": "For final escalation and executive intervention"
+                }
+            ]
+        }
+    }
+}

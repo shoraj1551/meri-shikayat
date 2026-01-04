@@ -244,7 +244,10 @@ export function renderLocationSetupPage() {
 
     // Save location
     document.getElementById('saveLocation').addEventListener('click', async () => {
+        const saveButton = document.getElementById('saveLocation');
         const errorDiv = document.getElementById('saveError');
+
+        console.log('Save button clicked'); // Debug log
 
         const locationData = {
             pincode: document.getElementById('previewPincode').value.trim(),
@@ -256,17 +259,43 @@ export function renderLocationSetupPage() {
             coordinates: currentLocationData?.coordinates
         };
 
+        console.log('Location data:', locationData); // Debug log
+
+        // Validate required fields
+        if (!locationData.pincode || !locationData.city || !locationData.state) {
+            errorDiv.textContent = 'Please fill in all required fields (Pincode, City, State)';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
         try {
             errorDiv.style.display = 'none';
+
+            // Show loading state
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving...';
+
+            console.log('Calling updateUserLocation API...'); // Debug log
             const response = await locationService.updateUserLocation(locationData);
+            console.log('API Response:', response); // Debug log
 
             if (response.success) {
+                saveButton.textContent = 'Saved! Redirecting...';
                 // Redirect to dashboard
-                window.router.navigate('/dashboard');
+                setTimeout(() => {
+                    window.router.navigate('/dashboard');
+                }, 500);
+            } else {
+                throw new Error(response.message || 'Failed to save location');
             }
         } catch (error) {
-            errorDiv.textContent = error.response?.data?.message || 'Failed to save location. Please try again.';
+            console.error('Save location error:', error); // Debug log
+            errorDiv.textContent = error.response?.data?.message || error.message || 'Failed to save location. Please try again.';
             errorDiv.style.display = 'block';
+
+            // Reset button
+            saveButton.disabled = false;
+            saveButton.textContent = 'Save & Continue';
         }
     });
 

@@ -1,0 +1,326 @@
+/**
+ * Shared Legal Pages Styles
+ * Used by Privacy, Terms, Disclaimer, FAQ
+ */
+
+/* This file extends disclaimer.css with additional components */
+
+/* Data Types Grid */
+.data-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.data-type-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.data-type-card:hover {
+    border-color: #1a237e;
+    transform: translateY(-5px);
+}
+
+.data-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.data-type-card h4 {
+    color: #1a237e;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.data-type-card p {
+    color: #546e7a;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Usage Grid */
+.usage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.usage-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+}
+
+.usage-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.usage-item h4 {
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.usage-item p {
+    color: #546e7a;
+    margin: 0;
+}
+
+/* Security Card */
+.security-card {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(56, 142, 60, 0.05) 100%);
+    border-left: 4px solid #4caf50;
+}
+
+.security-badge {
+    display: inline-block;
+    background: #4caf50;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.security-features {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.security-feature {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.feature-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.security-feature h4 {
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.security-feature p {
+    color: #546e7a;
+    margin: 0;
+}
+
+/* Sharing Grid */
+.sharing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.sharing-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+}
+
+.sharing-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.sharing-card h4 {
+    color: #1a237e;
+    margin-bottom: 0.75rem;
+}
+
+.sharing-card p {
+    color: #546e7a;
+    margin-bottom: 1rem;
+}
+
+.sharing-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.sharing-badge.necessary {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.sharing-badge.controlled {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.sharing-badge.mandatory {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+.important-note {
+    background: rgba(26, 35, 126, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    color: #1a237e;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Rights Grid */
+.rights-card {
+    background: linear-gradient(135deg, rgba(26, 35, 126, 0.05) 0%, rgba(13, 71, 161, 0.05) 100%);
+}
+
+.rights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.right-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+}
+
+.right-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.right-item h4 {
+    color: #1a237e;
+    margin-bottom: 0.5rem;
+}
+
+.right-item p {
+    color: #546e7a;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.exercise-rights {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-weight: 600;
+}
+
+.exercise-rights a {
+    color: #1a237e;
+    text-decoration: underline;
+}
+
+/* Cookie Types */
+.cookie-types {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.cookie-type {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+}
+
+.cookie-type h4 {
+    margin: 0 0 0.25rem 0;
+    color: #1a237e;
+}
+
+.cookie-type p {
+    margin: 0;
+    color: #546e7a;
+    font-size: 0.95rem;
+}
+
+.cookie-status {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.cookie-status.required {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.cookie-status.optional {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+/* Retention Timeline */
+.retention-timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.timeline-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+}
+
+.timeline-duration {
+    background: #1a237e;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.timeline-item p {
+    color: #546e7a;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .data-types-grid,
+    .usage-grid,
+    .sharing-grid,
+    .rights-grid,
+    .retention-timeline {
+        grid-template-columns: 1fr;
+    }
+
+    .cookie-type {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+}

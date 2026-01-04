@@ -1,10 +1,35 @@
 import mongoose from 'mongoose';
 
 const complaintSchema = new mongoose.Schema({
+    // Unique Complaint ID (MSK-YYYY-NNNNNN)
+    complaintId: {
+        type: String,
+        unique: true,
+        required: true,
+        index: true
+    },
+
+    // User reference (optional for guest complaints)
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
+    },
+
+    // Guest complaint support
+    isGuest: {
+        type: Boolean,
+        default: false
+    },
+    guestContact: {
+        name: String,
+        email: String,
+        phone: String,
+        preferredContact: {
+            type: String,
+            enum: ['email', 'sms', 'both'],
+            default: 'email'
+        }
     },
     type: {
         type: String,
@@ -25,7 +50,12 @@ const complaintSchema = new mongoose.Schema({
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
-        required: [true, 'Category is required']
+        required: false  // Optional when custom category is provided
+    },
+    customCategory: {
+        type: String,
+        trim: true,
+        maxlength: [50, 'Custom category cannot exceed 50 characters']
     },
     department: {
         type: mongoose.Schema.Types.ObjectId,
@@ -57,6 +87,31 @@ const complaintSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin'
     },
+    // --- Social Engagement (Hype Engine) ---
+    hypes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    comments: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        text: String,
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    shares: {
+        type: Number,
+        default: 0
+    },
+    isStory: {
+        type: Boolean,
+        default: true
+    },
+    // --- Internal Admin Fields ---
     adminComments: [{
         admin: {
             type: mongoose.Schema.Types.ObjectId,
@@ -101,6 +156,10 @@ complaintSchema.index({ 'location.pincode': 1 });
 complaintSchema.index({ category: 1 });
 complaintSchema.index({ department: 1 });
 complaintSchema.index({ media: 1 });
+// Social indexes
+complaintSchema.index({ isStory: 1, createdAt: -1 });
+complaintSchema.index({ complaintId: 1 });  // For quick ID lookup
+complaintSchema.index({ isGuest: 1 });  // For filtering guest complaints
 
 // Auto-assign department based on category
 complaintSchema.pre('save', async function (next) {

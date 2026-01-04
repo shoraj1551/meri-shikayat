@@ -1,5 +1,6 @@
 import Complaint from '../models/Complaint.js';
 import Media from '../models/Media.js';
+import { generateComplaintId, isValidComplaintId } from '../services/complaintId.service.js';
 
 // @desc    Create a new complaint
 // @route   POST /api/complaints
@@ -44,7 +45,11 @@ export const createComplaint = async (req, res) => {
             mediaIds.push(media._id);
         }
 
+        // Generate unique complaint ID
+        const complaintId = await generateComplaintId();
+
         const complaint = await Complaint.create({
+            complaintId,
             user: req.user.id,
             type,
             title,
@@ -62,6 +67,14 @@ export const createComplaint = async (req, res) => {
             );
         }
 
+        // Update user stats - increment totalComplaints and impactScore
+        await req.user.constructor.findByIdAndUpdate(req.user.id, {
+            $inc: {
+                'stats.totalComplaints': 1,
+                'stats.impactScore': 5  // 5 points for filing a complaint
+            }
+        });
+
         res.status(201).json({
             success: true,
             data: complaint
@@ -77,22 +90,31 @@ export const createComplaint = async (req, res) => {
         }
         res.status(500).json({
             success: false,
-            message: 'Server error while creating complaint',
-            error: error.message
+            message: 'Server error while creating complaint'
         });
     }
 };
 
-// @desc    Get all complaints for logged in user
-// @route   GET /api/complaints/my-complaints
-// @access  Private (User)
 export const getMyComplaints = async (req, res) => {
     try {
         const complaints = await Complaint.find({ user: req.user.id })
-            .populate('category')
-            .populate('department')
-            .populate('media')
-            .sort({ createdAt: -1 });
+            .populate({
+                path: 'category',
+                select: 'name icon color',
+                options: { strictPopulate: false }
+            })
+            .populate({
+                path: 'department',
+                select: 'name',
+                options: { strictPopulate: false }
+            })
+            .populate({
+                path: 'media',
+                select: 'url type filename',
+                options: { strictPopulate: false }
+            })
+            .sort({ createdAt: -1 })
+            .lean(); // Use lean for better performance
 
         res.json({
             success: true,
@@ -101,9 +123,11 @@ export const getMyComplaints = async (req, res) => {
         });
     } catch (error) {
         console.error('Get My Complaints Error:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching complaints'
+            message: 'Server error while fetching complaints',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };

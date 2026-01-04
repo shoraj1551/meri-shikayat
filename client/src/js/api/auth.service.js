@@ -19,7 +19,11 @@ export const authService = {
     /**
      * Login user
      */
-    async login(credentials) {
+    async login(identifier, password, userType = null) {
+        const credentials = { identifier, password };
+        if (userType) {
+            credentials.userType = userType;
+        }
         const response = await apiClient.post('/auth/login', credentials);
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);

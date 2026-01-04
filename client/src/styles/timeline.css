@@ -1,0 +1,293 @@
+/**
+ * Timeline Component Styles
+ * Visual timeline for complaint status progression
+ */
+
+/* Timeline Container */
+.timeline {
+    position: relative;
+    padding: 2rem 0;
+    margin: 2rem 0;
+}
+
+/* Timeline vertical line */
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom,
+            #10b981 0%,
+            #10b981 var(--progress, 50%),
+            #e5e7eb var(--progress, 50%),
+            #e5e7eb 100%);
+}
+
+/* Timeline Item */
+.timeline-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Timeline Marker */
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--marker-color, #e5e7eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.timeline-icon {
+    font-size: 1.25rem;
+}
+
+/* Completed State */
+.timeline-item.completed .timeline-marker {
+    background: var(--marker-color, #10b981);
+    border-color: var(--marker-color, #10b981);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.timeline-item.completed .timeline-icon {
+    filter: brightness(0) invert(1);
+}
+
+/* Active State */
+.timeline-item.active .timeline-marker {
+    background: var(--marker-color, #3b82f6);
+    border-color: var(--marker-color, #3b82f6);
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+
+    50% {
+        box-shadow: 0 0 0 12px rgba(59, 130, 246, 0);
+    }
+}
+
+/* Future State */
+.timeline-item.future .timeline-marker {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+.timeline-item.future .timeline-icon {
+    opacity: 0.4;
+}
+
+.timeline-item.future .timeline-content {
+    opacity: 0.6;
+}
+
+/* Timeline Content */
+.timeline-content {
+    background: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-left: 3px solid var(--marker-color, #e5e7eb);
+    transition: all 0.3s ease;
+}
+
+.timeline-item.completed .timeline-content {
+    border-left-color: var(--marker-color, #10b981);
+}
+
+.timeline-item.active .timeline-content {
+    border-left-color: var(--marker-color, #3b82f6);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.timeline-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1a237e;
+    margin: 0 0 0.5rem 0;
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem 0;
+}
+
+.timeline-note {
+    font-size: 0.9375rem;
+    color: #374151;
+    margin: 0.5rem 0 0 0;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border-radius: 4px;
+}
+
+.timeline-user {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    margin: 0.5rem 0 0 0;
+    font-style: italic;
+}
+
+.timeline-pending {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* Compact Timeline (for cards) */
+.compact-timeline {
+    margin: 1rem 0;
+}
+
+.timeline-progress-bar {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-progress-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 3px;
+}
+
+.timeline-status-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+    .timeline {
+        padding: 1.5rem 0;
+    }
+
+    .timeline::before {
+        left: 16px;
+    }
+
+    .timeline-item {
+        padding-left: 50px;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-marker {
+        width: 32px;
+        height: 32px;
+    }
+
+    .timeline-icon {
+        font-size: 1rem;
+    }
+
+    .timeline-content {
+        padding: 1rem;
+    }
+
+    .timeline-title {
+        font-size: 1rem;
+    }
+
+    .timeline-date {
+        font-size: 0.8125rem;
+    }
+
+    .timeline-note {
+        font-size: 0.875rem;
+        padding: 0.625rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .timeline::before {
+        background: linear-gradient(to bottom,
+                #10b981 0%,
+                #10b981 var(--progress, 50%),
+                #374151 var(--progress, 50%),
+                #374151 100%);
+    }
+
+    .timeline-marker {
+        background: #1a1a1a;
+    }
+
+    .timeline-item.future .timeline-marker {
+        background: #2d2d2d;
+        border-color: #374151;
+    }
+
+    .timeline-content {
+        background: #1a1a1a;
+        border-color: #374151;
+    }
+
+    .timeline-title {
+        color: #e5e7eb;
+    }
+
+    .timeline-note {
+        background: #2d2d2d;
+        color: #d1d5db;
+    }
+
+    .timeline-progress-bar {
+        background: #374151;
+    }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .timeline-item,
+    .timeline-marker,
+    .timeline-content,
+    .timeline-progress-fill {
+        transition: none;
+    }
+
+    .timeline-item.active .timeline-marker {
+        animation: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .timeline::before {
+        background: #e5e7eb;
+    }
+
+    .timeline-marker {
+        border-color: #000;
+    }
+
+    .timeline-item.active .timeline-marker {
+        animation: none;
+        box-shadow: none;
+    }
+}

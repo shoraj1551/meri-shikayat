@@ -1,0 +1,231 @@
+/* Verify Account Page Styles */
+
+.verify-account-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
+}
+
+.verify-account-page .container {
+    max-width: 900px;
+}
+
+.verify-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 3rem;
+}
+
+.verify-header .back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: all 0.2s;
+}
+
+.verify-header .back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.verify-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.verify-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.verification-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.verification-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
+}
+
+.verification-card:hover {
+    transform: translateY(-5px);
+}
+
+.verification-card.verified {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 2px solid #10b981;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.verification-card.verified .card-header {
+    border-bottom-color: #10b981;
+}
+
+.icon-badge {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.verification-card.verified .icon-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1f2937;
+}
+
+.masked-value {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.verified-badge {
+    margin-left: auto;
+    background: #10b981;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.card-body {
+    margin-top: 1rem;
+}
+
+.otp-section {
+    margin-top: 1.5rem;
+}
+
+.otp-section.hidden {
+    display: none;
+}
+
+.instruction {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.otp-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.otp-actions .btn {
+    flex: 1;
+}
+
+.error-text {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.error-text.hidden {
+    display: none;
+}
+
+.success-card {
+    background: white;
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.success-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.success-card h2 {
+    color: #10b981;
+    margin-bottom: 1rem;
+}
+
+.success-card p {
+    color: #6b7280;
+    margin-bottom: 2rem;
+}
+
+.info-box {
+    background: rgba(255, 255, 255, 0.95);
+    border-left: 4px solid #3b82f6;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    color: #1f2937;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .verification-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .verify-header h1 {
+        font-size: 2rem;
+    }
+    
+    .otp-actions {
+        flex-direction: column;
+    }
+}
+
+/* Toast animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}

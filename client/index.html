@@ -5,16 +5,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Meri Shikayat - Register your complaints through multiple channels">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Meri Shikayat">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
     <title>Meri Shikayat - Complaint Registration System</title>
+
+    <!-- Resource Hints for External Resources -->
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Leaflet CSS with preload -->
+    <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    </noscript>
+
+    <!-- Global Configuration -->
+    <script>
+        window.API_BASE_URL = 'http://localhost:5000/api';
+    </script>
+
+    <!-- Critical CSS - Above the fold content -->
     <link rel="stylesheet" href="/src/styles/main.css">
     <link rel="stylesheet" href="/src/styles/home.css">
-    <link rel="stylesheet" href="/src/styles/complaint-form.css">
-    <link rel="stylesheet" href="/src/styles/complaint-quick.css">
-    <link rel="stylesheet" href="/src/styles/registration-gateway.css">
+    <link rel="stylesheet" href="/src/styles/home-enhancements.css">
+
+    <!-- Deferred CSS - Below the fold content -->
+    <link rel="preload" href="/src/styles/contact.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/follow-us.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/footer-social.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/help-center.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/disclaimer.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/legal-pages.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/privacy.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/terms.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/faq.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/about.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/how-it-works.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/authorities.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/authority-detail.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/contractors.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/role-selector.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/multi-role-register.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/registration-enhanced.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/dashboard-premium.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/dashboard-enhanced.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/community-feed.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/dashboard-layout-improvements.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/dashboard-footer.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/profile.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/admin-portal.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/profile-premium.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/social-features.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/stories-feed.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/complaint-form.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/complaint-quick.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/registration-gateway.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/success-stories.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/verify-account.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/verification-banner.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/complaint-wizard.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/ui-improvements.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/responsive-fixes.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/form-validation.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/skeleton.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/src/styles/timeline.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+    <!-- Fallback for browsers without JS -->
+    <noscript>
+        <link rel="stylesheet" href="/src/styles/contact.css">
+        <link rel="stylesheet" href="/src/styles/follow-us.css">
+        <link rel="stylesheet" href="/src/styles/footer-social.css">
+        <!-- Add other stylesheets as needed -->
+    </noscript>
 </head>
 
 <body>
+    <a href="#app" class="skip-link">Skip to main content</a>
     <div id="app"></div>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="/src/main.js"></script>
 </body>
 

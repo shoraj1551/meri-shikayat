@@ -1,0 +1,58 @@
+/**
+ * Privacy Policy Page Styles
+ * Consistent header and footer styling
+ */
+
+/* Header Styling */
+.privacy-page .legal-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: white;
+    padding: 3rem 0 2.5rem;
+    text-align: center;
+}
+
+.privacy-page .back-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.privacy-page .back-link:hover {
+    color: white;
+}
+
+.privacy-page .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.privacy-page .page-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+}
+
+.privacy-page .last-updated {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* Content Area */
+.privacy-page .legal-content {
+    padding: 3rem 0;
+    background: #f5f7fa;
+}
+
+.privacy-page .legal-section {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}

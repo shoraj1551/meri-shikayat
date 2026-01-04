@@ -4,6 +4,7 @@
 
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
+import { logAuth } from '../services/audit.service.js';
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -62,6 +63,13 @@ export const register = async (req, res) => {
         // Generate token
         const token = generateToken(user._id);
 
+        // Log registration
+        await logAuth('register', user._id, req, {
+            email: user.email,
+            phone: user.phone,
+            role: user.role
+        });
+
         res.status(201).json({
             success: true,
             message: 'User registered successfully',
@@ -81,7 +89,7 @@ export const register = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during registration'
         });
     }
 };
@@ -123,6 +131,28 @@ export const login = async (req, res) => {
             });
         }
 
+        // Check account status
+        if (user.status === 'pending') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account is pending approval. You will receive an email once your account is activated.'
+            });
+        }
+
+        if (user.status === 'rejected') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account registration was rejected. Please contact support for more information.'
+            });
+        }
+
+        if (user.status === 'suspended') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account has been suspended. Please contact support.'
+            });
+        }
+
         // Check if account is locked
         if (user.accountLockedUntil && user.accountLockedUntil > new Date()) {
             const minutesLeft = Math.ceil((user.accountLockedUntil - new Date()) / 60000);
@@ -139,14 +169,14 @@ export const login = async (req, res) => {
             // Increment failed login attempts
             user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
 
-            // Lock account after 5 failed attempts
+            // Lock account after 5 failed attempts for 1 hour
             if (user.failedLoginAttempts >= 5) {
-                user.accountLockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+                user.accountLockedUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
                 await user.save();
 
                 return res.status(403).json({
                     success: false,
-                    message: 'Account locked due to too many failed login attempts. Please try again in 30 minutes.'
+                    message: 'Account locked due to too many failed login attempts. Please try again in 1 hour.'
                 });
             }
 
@@ -154,7 +184,7 @@ export const login = async (req, res) => {
 
             return res.status(401).json({
                 success: false,
-                message: `Invalid credentials. ${5 - user.failedLoginAttempts} attempts remaining.`
+                message: 'Invalid credentials'
             });
         }
 
@@ -187,6 +217,14 @@ export const login = async (req, res) => {
 
         await user.save();
 
+        // Log successful login
+        await logAuth('login', user._id, req, {
+            email: user.email,
+            phone: user.phone,
+            userType: user.userType,
+            rememberMe
+        });
+
         const response = {
             success: true,
             message: 'User logged in successfully',
@@ -198,9 +236,26 @@ export const login = async (req, res) => {
                 fullName: user.fullName,
                 email: user.email,
                 phone: user.phone,
+                userType: user.userType,
+                status: user.status,
                 isLocationSet: user.isLocationSet,
                 location: user.location,
-                role: user.role
+                // Include role-specific data
+                ...(user.userType === 'admin' || user.userType === 'super_admin' ? {
+                    adminProfile: {
+                        department: user.adminProfile?.department,
+                        designation: user.adminProfile?.designation,
+                        role: user.adminProfile?.role,
+                        permissions: user.adminProfile?.permissions
+                    }
+                } : {}),
+                ...(user.userType === 'contractor' ? {
+                    contractorProfile: {
+                        companyName: user.contractorProfile?.companyName,
+                        specialization: user.contractorProfile?.specialization,
+                        rating: user.contractorProfile?.rating
+                    }
+                } : {})
             }
         };
 
@@ -213,7 +268,7 @@ export const login = async (req, res) => {
         console.error('Login error:', error);
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during login'
         });
     }
 };
@@ -231,7 +286,7 @@ export const getMe = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error'
         });
     }
 };
@@ -271,6 +326,12 @@ export const logout = async (req, res) => {
 
         await user.save();
 
+        // Log logout
+        await logAuth('logout', userId, req, {
+            logoutAll,
+            deviceInfo: req.headers['user-agent']
+        });
+
         res.status(200).json({
             success: true,
             message: logoutAll ? 'Logged out from all devices' : 'User logged out successfully'
@@ -278,7 +339,7 @@ export const logout = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during logout'
         });
     }
 };
@@ -355,7 +416,7 @@ export const refreshAccessToken = async (req, res) => {
         console.error('Refresh token error:', error);
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Server error during token refresh'
         });
     }
 };
