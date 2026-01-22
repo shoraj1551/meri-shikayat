@@ -139,14 +139,14 @@ export async function renderAdminDashboard() {
     `;
 
     // Fetch and Update Stats with animation
-    try {
-        const response = await adminService.getDashboardStats();
-        if (response.success) {
-            const stats = response.data;
-            const statsGrid = document.getElementById('statsGrid');
+    const updateStats = async () => {
+        try {
+            const response = await adminService.getDashboardStats();
+            if (response.success) {
+                const stats = response.data;
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
 
-            // Animate stats update
-            setTimeout(() => {
                 statsGrid.innerHTML = `
                     <div class="stat-card glass-card stat-animate">
                         <div class="stat-icon">📊</div>
@@ -169,10 +169,50 @@ export async function renderAdminDashboard() {
                         <div class="stat-label">Active Users</div>
                     </div>
                 `;
-            }, 300);
+            }
+        } catch (error) {
+            console.error('Failed to load stats:', error);
         }
-    } catch (error) {
-        console.error('Failed to load stats:', error);
+    };
+
+    // Initial Load
+    await updateStats();
+
+    // Initialize Real-time Updates
+    try {
+        const { socketService } = await import('../utils/socket-service.js');
+        // Join the admin room to receive notifications
+        socketService.joinAdminRoom();
+
+        // Listen for new complaints and refresh stats
+        socketService.onNewComplaint((data) => {
+            console.log('New complaint received, updating dashboard...', data);
+
+            // Show toast notification
+            const toast = document.createElement('div');
+            toast.className = 'dashboard-toast';
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <span class="toast-icon">🔔</span>
+                    <div>
+                        <div class="toast-title">New Complaint</div>
+                        <div class="toast-body">${data.title || 'A new complaint has been filed'}</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            // Remove toast after 3s
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+
+            // Refresh stats
+            updateStats();
+        });
+    } catch (err) {
+        console.warn('Real-time updates unavailable:', err);
     }
 
     // Handle logout

@@ -43,7 +43,12 @@ try {
     console.warn('⚠️  Continuing without Redis - rate limiting will use memory store');
 }
 
+// Import HTTP and Socket.io
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -65,6 +70,31 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
+
+// Socket.io Setup
+const io = new Server(httpServer, {
+    cors: {
+        origin: corsOptions.origin,
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
+// Make io accessible globally via app locals
+app.set('io', io);
+
+io.on('connection', (socket) => {
+    console.log(`Socket connected: ${socket.id}`);
+
+    socket.on('join_admin_room', () => {
+        socket.join('admin_notifications');
+        console.log(`Socket ${socket.id} joined admin_notifications`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`Socket disconnected: ${socket.id}`);
+    });
+});
 
 // Security middleware
 app.use(securityHeaders);
@@ -118,6 +148,7 @@ app.use(`${API_VERSION}/contractors`, contractorsRoutes);
 app.use(`${API_VERSION}/profile`, profileRoutes);
 app.use(`${API_VERSION}/verification`, verificationRoutes);
 app.use(`${API_VERSION}/categories`, categoryRoutes);
+app.use(`${API_VERSION}/notifications`, notificationRoutes);
 
 // Import error handlers
 import { errorHandler, notFoundHandler, handleUnhandledRejection, handleUncaughtException } from './middleware/errorHandler.js';
@@ -132,7 +163,7 @@ app.use(notFoundHandler);
 // Centralized error handling middleware - must be last
 app.use(errorHandler);
 
-// Export app for Vercel
+// Export app for Vercel (Note: Vercel handler might need adaptation if relying on app.listen logic inside handlers)
 export default app;
 
 // Start server locally
@@ -140,8 +171,10 @@ if (process.env.NODE_ENV !== 'production') {
     const startServer = async () => {
         try {
             await connectDatabase();
-            app.listen(PORT, () => {
+            // Use httpServer.listen instead of app.listen
+            httpServer.listen(PORT, () => {
                 console.log(`Server running on port ${PORT}`);
+                console.log(`Socket.io initialized`);
                 console.log(`Environment: ${process.env.NODE_ENV}`);
             });
         } catch (error) {

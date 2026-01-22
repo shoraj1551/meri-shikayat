@@ -192,6 +192,9 @@ class PWAManager {
     /**
      * Subscribe to push notifications
      */
+    /**
+     * Subscribe to push notifications
+     */
     async subscribeToPush() {
         if (!this.registration) {
             console.error('[PWA] Service Worker not registered');
@@ -199,17 +202,53 @@ class PWAManager {
         }
 
         try {
+            // Check for VAPID key
+            const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY; // Using Vite env var
+            if (!vapidKey || vapidKey === 'PLACEHOLDER_VAPID_PUBLIC_KEY') {
+                console.warn('[PWA] VAPID Public Key not found. Push subscription skipped.');
+                return null;
+            }
+
             const subscription = await this.registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: this.urlBase64ToUint8Array(process.env.VAPID_PUBLIC_KEY)
+                applicationServerKey: this.urlBase64ToUint8Array(vapidKey)
             });
 
             console.log('[PWA] Push subscription successful');
+
+            // Send subscription to server
+            await this.saveSubscriptionToServer(subscription);
+
             return subscription;
 
         } catch (error) {
             console.error('[PWA] Push subscription failed:', error);
             return null;
+        }
+    }
+
+    /**
+     * Save subscription to server
+     */
+    async saveSubscriptionToServer(subscription) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return; // User not logged in
+
+            const response = await fetch('/api/v1/notifications/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(subscription)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save subscription on server');
+            }
+        } catch (error) {
+            console.error('[PWA] Error saving subscription:', error);
         }
     }
 
@@ -232,11 +271,87 @@ class PWAManager {
     }
 
     /**
+     * Register background sync
+     */
+    async registerSync() {
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            try {
+                const sw = await navigator.serviceWorker.ready;
+                await sw.sync.register('sync-complaints');
+                console.log('[PWA] Background sync registered');
+            } catch (error) {
+                console.error('[PWA] Background sync registration failed:', error);
+            }
+        }
+    }
+
+    /**
+     * Save complaint offline
+     */
+    async saveOfflineComplaint(complaintData) {
+        if (!('indexedDB' in window)) return false;
+
+        try {
+            const db = await this.openDB();
+            await this.addComplaintToDB(db, complaintData);
+            await this.registerSync();
+            return true;
+        } catch (error) {
+            console.error('[PWA] Failed to save offline complaint:', error);
+            return false;
+        }
+    }
+
+    // IndexedDB Helpers for Main Thread
+    openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('meri-shikayat-offline', 1);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('complaints')) {
+                    db.createObjectStore('complaints', { keyPath: 'id' });
+                }
+            };
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    addComplaintToDB(db, data) {
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction('complaints', 'readwrite');
+            const store = transaction.objectStore('complaints');
+            const item = {
+                id: Date.now().toString(),
+                body: data,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Ensure auth is preserved
+                },
+                timestamp: Date.now()
+            };
+            const request = store.add(item);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    /**
      * Track analytics event
      */
     trackEvent(eventName, data = {}) {
-        // Integrate with your analytics service
-        console.log('[PWA] Event:', eventName, data);
+        // Log to console for dev
+        console.log('[PWA] Analytics Event:', eventName, data);
+
+        // Google Analytics (GA4)
+        if (window.gtag) {
+            window.gtag('event', eventName, data);
+        }
+
+        // Mixpanel (if integrated)
+        if (window.mixpanel) {
+            window.mixpanel.track(eventName, data);
+        }
     }
 }
 

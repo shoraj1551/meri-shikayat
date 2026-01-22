@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: meri-shikayat-ml
+    env: docker
+    region: singapore
+    plan: free
+    dockerContext: ./ml-services
+    dockerfilePath: ./ml-services/Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
