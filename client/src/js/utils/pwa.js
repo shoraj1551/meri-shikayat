@@ -18,6 +18,7 @@ class PWAManager {
             this.setupInstallPrompt();
             this.setupUpdateNotification();
         }
+        this.setupConnectivityListeners();
     }
 
     /**
@@ -300,6 +301,37 @@ class PWAManager {
             console.error('[PWA] Failed to save offline complaint:', error);
             return false;
         }
+    }
+
+    /**
+     * Setup connectivity listeners
+     */
+    setupConnectivityListeners() {
+        window.addEventListener('online', () => this.updateOnlineStatus());
+        window.addEventListener('offline', () => this.updateOnlineStatus());
+        this.updateOnlineStatus(); // Initial check
+    }
+
+    updateOnlineStatus() {
+        const isOnline = navigator.onLine;
+        const banner = document.getElementById('offline-banner') || this.createOfflineBanner();
+
+        if (isOnline) {
+            banner.classList.add('hidden');
+            banner.textContent = 'You are back online. Syncing data...';
+            setTimeout(() => banner.classList.add('hidden'), 3000);
+        } else {
+            banner.classList.remove('hidden');
+            banner.textContent = 'You are offline. Changes will be saved locally.';
+        }
+    }
+
+    createOfflineBanner() {
+        const banner = document.createElement('div');
+        banner.id = 'offline-banner';
+        banner.className = 'offline-banner hidden';
+        document.body.appendChild(banner);
+        return banner;
     }
 
     // IndexedDB Helpers for Main Thread

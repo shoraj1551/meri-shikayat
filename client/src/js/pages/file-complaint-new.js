@@ -719,6 +719,31 @@ async function submitComplaint() {
             throw new Error(result.message || 'Submission failed');
         }
     } catch (error) {
+        // Offline Handling
+        if (!navigator.onLine) {
+            console.log('Network failed, attempting offline save...');
+            const offlineData = {
+                description: formData.description,
+                category: formData.category,
+                customCategory: formData.customCategory,
+                location: formData.location,
+                mediaFile: formData.mediaFile ? {
+                    name: formData.mediaFile.name,
+                    type: formData.mediaFile.type,
+                    size: formData.mediaFile.size
+                    // Note: Binary file storage handling in IndexedDB needs care, simple object here
+                } : null,
+                timestamp: Date.now()
+            };
+
+            const saved = await window.pwaManager.saveOfflineComplaint(offlineData);
+
+            if (saved) {
+                showSuccess('OFFLINE-PENDING');
+                return;
+            }
+        }
+
         console.error('Submit error:', error);
         alert(`Failed to submit complaint: ${error.message}`);
         submitBtn.disabled = false;
@@ -734,9 +759,12 @@ function showSuccess(complaintId) {
         <div class="success-page">
             <div class="success-card">
                 <div class="success-icon">✅</div>
-                <h1>Complaint Submitted Successfully!</h1>
-                <p>Your complaint has been registered and will be reviewed soon.</p>
+                <h1>${complaintId === 'OFFLINE-PENDING' ? 'Saved Offline' : 'Complaint Submitted Successfully!'}</h1>
+                <p>${complaintId === 'OFFLINE-PENDING'
+            ? 'You are offline. Your complaint has been saved and will be submitted automatically when you are back online.'
+            : 'Your complaint has been registered and will be reviewed soon.'}</p>
                 
+                ${complaintId !== 'OFFLINE-PENDING' ? `
                 <div class="complaint-id-card">
                     <label>Your Complaint ID</label>
                     <div class="id-box">
@@ -745,6 +773,7 @@ function showSuccess(complaintId) {
                     </div>
                     <small>Save this ID to track your complaint</small>
                 </div>
+                ` : ''}
                 
                 <div class="success-actions">
                     ${isAuth ? `

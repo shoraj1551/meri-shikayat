@@ -1,146 +1,81 @@
-/**
- * Service Worker for Meri Shikayat PWA
- * Provides offline support and caching
- */
 
-const CACHE_NAME = 'meri-shikayat-v1.0.0';
-const RUNTIME_CACHE = 'meri-shikayat-runtime';
-
-// Assets to cache on install
+const CACHE_NAME = 'meri-shikayat-v1';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/offline.html',
+    '/src/main.js',
     '/src/styles/main.css',
-    '/src/styles/responsive-fixes.css',
-    '/src/styles/form-validation.css',
-    '/src/styles/skeleton.css',
-    '/src/js/main.js'
+    '/src/styles/home.css',
+    '/src/js/utils/pwa.js',
+    '/src/js/app.js',
+    '/favicon.ico',
+    '/manifest.json'
 ];
 
-// Install event - cache static assets
-self.addEventListener('install', event => {
-    console.log('[SW] Installing service worker...');
-
+// Install Event - Cache Static Assets
+self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[SW] Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .then(() => self.skipWaiting())
+        caches.open(CACHE_NAME).then((cache) => {
+            console.log('[Service Worker] Caching static assets');
+            return cache.addAll(STATIC_ASSETS);
+        })
     );
+    self.skipWaiting();
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', event => {
-    console.log('[SW] Activating service worker...');
-
+// Activate Event - Cleanup Old Caches
+self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys()
-            .then(cacheNames => {
-                return Promise.all(
-                    cacheNames
-                        .filter(name => name !== CACHE_NAME && name !== RUNTIME_CACHE)
-                        .map(name => {
-                            console.log('[SW] Deleting old cache:', name);
-                            return caches.delete(name);
-                        })
-                );
-            })
-            .then(() => self.clients.claim())
-    );
-});
-
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', event => {
-    const { request } = event;
-    const url = new URL(request.url);
-
-    // Skip cross-origin requests
-    if (url.origin !== location.origin) {
-        return;
-    }
-
-    // Skip API requests (let them go to network)
-    if (url.pathname.startsWith('/api/')) {
-        event.respondWith(
-            fetch(request)
-                .catch(() => {
-                    return new Response(
-                        JSON.stringify({ error: 'Offline - API not available' }),
-                        { headers: { 'Content-Type': 'application/json' } }
-                    );
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cache) => {
+                    if (cache !== CACHE_NAME) {
+                        console.log('[Service Worker] Clearing old cache');
+                        return caches.delete(cache);
+                    }
                 })
+            );
+        })
+    );
+    self.clients.claim();
+});
+
+// Fetch Event - Network First for API, Cache First for Static
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    // API Requests - Network First, no cache
+    if (url.pathname.startsWith('/api')) {
+        event.respondWith(
+            fetch(event.request).catch(() => {
+                // If offline and it's a POST request (complaint), we might return a custom offline response
+                // But generally we rely on Background Sync for writes
+                return new Response(JSON.stringify({ error: 'offline' }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            })
         );
         return;
     }
 
-    // For navigation requests, use network-first strategy
-    if (request.mode === 'navigate') {
-        event.respondWith(
-            fetch(request)
-                .then(response => {
-                    // Cache the new version
-                    const responseClone = response.clone();
-                    caches.open(RUNTIME_CACHE)
-                        .then(cache => cache.put(request, responseClone));
-                    return response;
-                })
-                .catch(() => {
-                    // Fallback to cache
-                    return caches.match(request)
-                        .then(cachedResponse => {
-                            if (cachedResponse) {
-                                return cachedResponse;
-                            }
-                            // Show offline page
-                            return caches.match('/offline.html');
-                        });
-                })
-        );
-        return;
-    }
-
-    // For other requests, use cache-first strategy
+    // Static Assets - Stale-While-Revalidate
     event.respondWith(
-        caches.match(request)
-            .then(cachedResponse => {
-                if (cachedResponse) {
-                    // Return cached version and update in background
-                    fetch(request)
-                        .then(response => {
-                            caches.open(RUNTIME_CACHE)
-                                .then(cache => cache.put(request, response));
-                        })
-                        .catch(() => { }); // Ignore network errors
-
-                    return cachedResponse;
-                }
-
-                // Not in cache, fetch from network
-                return fetch(request)
-                    .then(response => {
-                        // Cache the response
-                        const responseClone = response.clone();
-                        caches.open(RUNTIME_CACHE)
-                            .then(cache => cache.put(request, responseClone));
-                        return response;
-                    })
-                    .catch(() => {
-                        // Network failed, show offline page for HTML requests
-                        if (request.headers.get('accept').includes('text/html')) {
-                            return caches.match('/offline.html');
-                        }
-                    });
-            })
+        caches.match(event.request).then((cachedResponse) => {
+            const fetchPromise = fetch(event.request).then((networkResponse) => {
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, networkResponse.clone());
+                });
+                return networkResponse;
+            });
+            return cachedResponse || fetchPromise;
+        })
     );
 });
 
-// Background sync for complaint submissions
-self.addEventListener('sync', event => {
+// Background Sync - Handle Offline Complaints
+self.addEventListener('sync', (event) => {
     if (event.tag === 'sync-complaints') {
-        console.log('[SW] Background sync triggered: sync-complaints');
+        console.log('[Service Worker] Syncing complaints...');
         event.waitUntil(syncComplaints());
     }
 });
@@ -148,52 +83,44 @@ self.addEventListener('sync', event => {
 async function syncComplaints() {
     try {
         const db = await openDB();
-        const complaints = await getPendingComplaints(db);
-
-        console.log(`[SW] Found ${complaints.length} pending complaints to sync`);
+        const complaints = await getAllComplaints(db);
 
         for (const complaint of complaints) {
             try {
-                console.log('[SW] Attempting to sync complaint:', complaint.id);
+                console.log(`[Service Worker] Syncing complaint ${complaint.id}`);
 
-                // Construct form data if it was stored as such, or JSON
                 const response = await fetch('/api/v1/complaints', {
                     method: 'POST',
                     headers: complaint.headers,
-                    body: JSON.stringify(complaint.body) // Assuming body is stored as JSON compatible object
+                    body: JSON.stringify(complaint.body)
                 });
 
                 if (response.ok) {
-                    console.log('[SW] Complaint synced successfully:', complaint.id);
                     await deleteComplaint(db, complaint.id);
-                } else {
-                    console.error('[SW] Failed to sync complaint:', complaint.id, await response.text());
+                    console.log(`[Service Worker] Complaint ${complaint.id} synced successfully`);
+
+                    // Optional: Notify client
+                    notifyClients('Complaint synced successfully');
                 }
-            } catch (err) {
-                console.error('[SW] Network error during sync for:', complaint.id, err);
+            } catch (error) {
+                console.error(`[Service Worker] Failed to sync complaint ${complaint.id}`, error);
             }
         }
     } catch (error) {
-        console.error('[SW] Error during background sync:', error);
+        console.error('[Service Worker] Sync failed:', error);
     }
 }
 
-// Simple IndexedDB Helpers
+// IndexedDB Helpers (Duplicated from pwa.js because SW doesn't support imports easily without bundler)
 function openDB() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('meri-shikayat-offline', 1);
-        request.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('complaints')) {
-                db.createObjectStore('complaints', { keyPath: 'id' });
-            }
-        };
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
 }
 
-function getPendingComplaints(db) {
+function getAllComplaints(db) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction('complaints', 'readonly');
         const store = transaction.objectStore('complaints');
@@ -213,37 +140,12 @@ function deleteComplaint(db, id) {
     });
 }
 
-// Push notifications
-self.addEventListener('push', event => {
-    const data = event.data ? event.data.json() : {};
-
-    const options = {
-        body: data.body || 'You have a new notification',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/badge-72.png',
-        vibrate: [200, 100, 200],
-        data: {
-            url: data.url || '/'
-        }
-    };
-
-    event.waitUntil(
-        self.registration.showNotification(data.title || 'Meri Shikayat', options)
-    );
-});
-
-// Notification click
-self.addEventListener('notificationclick', event => {
-    event.notification.close();
-
-    event.waitUntil(
-        clients.openWindow(event.notification.data.url)
-    );
-});
-
-// Message event - for communication with main thread
-self.addEventListener('message', event => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
-});
+async function notifyClients(message) {
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+        client.postMessage({
+            type: 'SYNC_COMPLETE',
+            message: message
+        });
+    });
+}

@@ -27,6 +27,7 @@ import registrationRoutes from './routes/registration.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import verificationRoutes from './routes/verification.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
 
 // Validate environment variables
 validateEnvironment();

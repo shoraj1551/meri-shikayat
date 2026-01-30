@@ -1,5 +1,5 @@
 import webpush from 'web-push';
-import User from '../models/user.model.js';
+import User from '../models/User.js';
 
 // Configure Web Push (using placeholders if env vars missing)
 const publicVapidKey = process.env.VAPID_PUBLIC_KEY || 'PLACEHOLDER_VAPID_PUBLIC_KEY';
