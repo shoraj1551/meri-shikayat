@@ -1,6 +1,6 @@
 # B02 — Reproducible installation and build foundation
 
-Status: implemented; Windows validation passed; Linux/container CI validation pending.
+Status: implemented and committed locally; Windows validation passed; Linux/container validation blocked by environment/integration access.
 Working branch: codex/beta-foundation. Baseline source: 65d80f6.
 This story does not certify beta readiness or repair B03/B04 application behavior.
 
@@ -81,7 +81,7 @@ dependency loading and eventual B03 startup checks are distinct forms of validat
 | Selected existing pagination suite | 10 pass, 3 fail (ESM jest import; B04) |
 | Full application integration/E2E/load tests | Not run by B02 |
 | Docker build locally | Blocked by task access to Windows Docker named pipes |
-| Linux clean install and image builds | Pending GitHub Actions verification |
+| Linux clean install and image builds | Pending; GitHub branch creation returned HTTP 403, so CI could not be started |
 
 Lockfile SHA-256 at validation:
 `94bd9f35d68db7df16991c87c3f91cfbe55e4bd6bd4b7949de70cb59dbef84d5`.
@@ -108,6 +108,14 @@ B02 can close when its clean Linux install and both image builds pass in additio
 evidence. B03 extracts testable app creation and fixes production startup; B04 repairs/isolate-tests
 the legacy suite. Both need separate regression evidence.
 
+Local implementation commit: e23db2e (followed by this evidence update).
+Docker Desktop is running, but this task cannot access docker_engine or dockerDesktopLinuxEngine.
+The permission request tool cannot represent the named-pipe path; granting Docker configuration
+read access did not resolve the engine connection.
+Git push also lacked a usable credential, and the connected GitHub app rejected branch creation
+with HTTP 403 (Resource not accessible by integration). No remote branch or draft PR was created.
+Run the container commands above from a normal terminal with Docker access, or provide a GitHub
+connection with write access to this repository so the configured Linux CI checks can run.
+
 Existing dependency warnings (including Multer 1.x, archived csurf and ESLint 8) remain explicit
 upgrade/security backlog items. Pinning a dependency does not make it secure.
-
