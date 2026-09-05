@@ -18,7 +18,7 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = registerSchema.validate(validData);
-            expect(error).toBeUndefined();
+            assert.equal(error, undefined);
         });
 
         it('should reject password without special characters', () => {
@@ -31,8 +31,8 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = registerSchema.validate(invalidData);
-            expect(error).toBeDefined();
-            expect(error.details[0].message).toContain('special character');
+            assert.notEqual(error, undefined);
+            assert.ok(error.details[0].message.includes('special character'));
         });
 
         it('should reject users under 13 years old', () => {
@@ -45,7 +45,7 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = registerSchema.validate(invalidData);
-            expect(error).toBeDefined();
+            assert.notEqual(error, undefined);
         });
 
         it('should require either email or phone', () => {
@@ -57,8 +57,8 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = registerSchema.validate(invalidData);
-            expect(error).toBeDefined();
-            expect(error.message).toContain('email or phone');
+            assert.notEqual(error, undefined);
+            assert.ok(error.message.includes('email or phone'));
         });
 
         it('should sanitize HTML in input', () => {
@@ -71,8 +71,8 @@ describe('Validation Middleware', () => {
             };
 
             const { error, value } = registerSchema.validate(dataWithHTML);
-            expect(error).toBeUndefined();
-            expect(value.firstName).not.toContain('<script>');
+            assert.equal(error, undefined);
+            assert.equal(value.firstName.includes('<script>'), false);
         });
     });
 
@@ -84,7 +84,7 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = loginSchema.validate(validData);
-            expect(error).toBeUndefined();
+            assert.equal(error, undefined);
         });
 
         it('should validate phone login', () => {
@@ -94,7 +94,7 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = loginSchema.validate(validData);
-            expect(error).toBeUndefined();
+            assert.equal(error, undefined);
         });
 
         it('should reject invalid identifier', () => {
@@ -104,7 +104,7 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = loginSchema.validate(invalidData);
-            expect(error).toBeDefined();
+            assert.notEqual(error, undefined);
         });
     });
 
@@ -117,7 +117,7 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = complaintSchema.validate(validData);
-            expect(error).toBeUndefined();
+            assert.equal(error, undefined);
         });
 
         it('should reject short title', () => {
@@ -128,7 +128,7 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = complaintSchema.validate(invalidData);
-            expect(error).toBeDefined();
+            assert.notEqual(error, undefined);
         });
 
         it('should reject invalid category', () => {
@@ -139,7 +139,9 @@ describe('Validation Middleware', () => {
             };
 
             const { error } = complaintSchema.validate(invalidData);
-            expect(error).toBeDefined();
+            assert.notEqual(error, undefined);
         });
     });
 });
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';

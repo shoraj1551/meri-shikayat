@@ -17,7 +17,10 @@
         "vercel-build": "npm run build-client",
         "test:tooling": "node --test scripts/tests/*.test.cjs",
         "test:bootstrap": "node --test server/test/bootstrap/*.test.mjs",
-        "test:container": "node scripts/test-api-container.mjs"
+        "test:container": "node scripts/test-api-container.mjs",
+        "test:api": "npm test --workspace server",
+        "test:api:integration": "npm run test:integration --workspace server",
+        "test:api:isolated": "node scripts/test-api-isolated.mjs"
     },
     "workspaces": [
         "client",

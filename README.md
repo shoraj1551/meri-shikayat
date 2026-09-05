@@ -62,6 +62,9 @@ repository root; `package-lock.json` is the single committed workspace lock.
 See [reproducible build instructions](docs/beta/B02_BUILD_FOUNDATION.md).
 See [API startup, health checks and lifecycle tests](docs/beta/B03_API_BOOTSTRAP.md)
 for the app factory, production entrypoint and separate serverless adapter.
+See [isolated API tests and database-cleanup safeguards](docs/beta/B04_TEST_HARNESS.md).
+`npm run test:api` is database-free; `npm run test:api:isolated` uses disposable
+Docker services and is a separate, required integration gate.
 
 1.  **Clone the repository**
     ```bash

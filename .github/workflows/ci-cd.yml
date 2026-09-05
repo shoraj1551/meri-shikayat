@@ -27,6 +27,7 @@ jobs:
             - run: npm ci
             - run: npm run test:tooling
             - run: npm run test:bootstrap
+            - run: npm run test:api
             - run: npm run build-client
             - run: git diff --exit-code -- package-lock.json
 
@@ -68,8 +69,9 @@ jobs:
               continue-on-error: true
 
     test:
-        name: Run Tests
+        name: Isolated API integration and worker isolation
         runs-on: ubuntu-latest
+        timeout-minutes: 10
         services:
             mongodb:
                 image: mongo:8.0
@@ -105,22 +107,20 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Generate isolated test secrets
-              run: node scripts/prepare-ci-env.cjs
+            - name: Unit coverage (without database access)
+              run: npm run test:coverage --workspace server
 
-            - name: Run unit tests
-              run: cd server && npm test
+            - name: Real API and parallel worker isolation
+              run: npm run test:api:integration
               env:
-                  NODE_ENV: test
-                  MONGODB_URI: mongodb://localhost:27017/meri-shikayat-test
-                  REDIS_HOST: localhost
-                  REDIS_PORT: 6379
+                  TEST_MONGODB_BASE_URI: mongodb://127.0.0.1:27017/
+                  TEST_REDIS_BASE_URI: redis://127.0.0.1:6379/0
 
             - name: Upload coverage
               uses: codecov/codecov-action@v3
               if: always()
               with:
-                  files: ./server/coverage/lcov.info
+                  files: ./server/coverage/unit/lcov.info
                   fail_ci_if_error: false
 
     security-scan:

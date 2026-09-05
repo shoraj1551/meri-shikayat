@@ -68,12 +68,17 @@ class CircuitBreaker {
     }
 
     async executeWithTimeout(fn) {
-        return Promise.race([
-            fn(),
-            new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Request timeout')), this.timeout)
-            )
-        ]);
+        let timer;
+        try {
+            return await Promise.race([
+                Promise.resolve().then(fn),
+                new Promise((_, reject) => {
+                    timer = setTimeout(() => reject(new Error('Request timeout')), this.timeout);
+                })
+            ]);
+        } finally {
+            clearTimeout(timer);
+        }
     }
 
     onSuccess() {

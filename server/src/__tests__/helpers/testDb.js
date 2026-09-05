@@ -4,6 +4,7 @@
  */
 
 import mongoose from 'mongoose';
+import { clearDatabase as clearOwnedDatabase } from '../../../test/harness/identity.mjs';
 import User from '../../models/User.js';
 import Complaint from '../../models/Complaint.js';
 import Admin from '../../models/Admin.js';
@@ -17,8 +18,8 @@ export async function createTestUser(overrides = {}) {
     const defaultUser = {
         firstName: 'Test',
         lastName: 'User',
-        email: `test${Date.now()}@example.com`,
-        phone: `98765${Math.floor(Math.random() * 100000)}`,
+        email: generateRandomEmail(),
+        phone: generateRandomPhone(),
         password: 'Test@123456',
         userType: 'general_user',
         status: 'active',
@@ -47,25 +48,22 @@ export async function createTestAdmin(overrides = {}) {
     const defaultAdmin = {
         firstName: 'Admin',
         lastName: 'User',
-        email: `admin${Date.now()}@example.com`,
-        phone: `98765${Math.floor(Math.random() * 100000)}`,
+        email: generateRandomEmail(),
+        phone: generateRandomPhone(),
         password: 'Admin@123456',
-        userType: 'admin',
+        adminId: `TEST-${Date.now()}`,
         status: 'active',
-        adminProfile: {
-            designation: 'Test Admin',
-            role: 'manager',
-            permissions: {
-                viewComplaints: true,
-                editComplaints: true,
-                assignComplaints: true,
-                viewUsers: true
-            }
+        designation: 'Test Admin',
+        role: 'manager',
+        permissions: {
+            viewComplaints: true,
+            editComplaints: true,
+            viewUsers: true
         }
     };
 
     const adminData = { ...defaultAdmin, ...overrides };
-    const admin = await User.create(adminData);
+    const admin = await Admin.create(adminData);
     return admin;
 }
 
@@ -135,11 +133,8 @@ export async function createTestCategory(departmentId, overrides = {}) {
 /**
  * Clear all collections
  */
-export async function clearDatabase() {
-    const collections = mongoose.connection.collections;
-    for (const key in collections) {
-        await collections[key].deleteMany({});
-    }
+export async function clearDatabase(identity) {
+    await clearOwnedDatabase(mongoose.connection, identity);
 }
 
 /**

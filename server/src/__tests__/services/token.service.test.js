@@ -11,8 +11,7 @@ import {
     generateResetToken,
     verifyResetToken,
     getTokenExpiryDate
-} from '../services/token.service.js';
-import '../__tests__/setup.js';
+} from '../../services/token.service.js';
 
 describe('Token Service Tests', () => {
     const mockUser = {
@@ -50,8 +49,10 @@ describe('Token Service Tests', () => {
         });
 
         it('should reject an expired access token', () => {
-            // This would require mocking time or using a very short expiry
-            // For now, we'll skip this test
+            jest.useFakeTimers();
+            const token = generateAccessToken(mockUser);
+            jest.advanceTimersByTime(16 * 60 * 1000);
+            expect(() => verifyAccessToken(token)).toThrow('Invalid or expired token');
         });
     });
 
@@ -160,8 +161,10 @@ describe('Token Service Tests', () => {
     });
 
     describe('Token Security', () => {
-        it('should generate different tokens for same user', () => {
+        it('should change access tokens when the issued-at second changes', () => {
+            jest.useFakeTimers();
             const token1 = generateAccessToken(mockUser);
+            jest.advanceTimersByTime(1000);
             const token2 = generateAccessToken(mockUser);
 
             // Tokens should be different due to different iat (issued at) timestamps
@@ -186,3 +189,4 @@ describe('Token Service Tests', () => {
         });
     });
 });
+import { jest } from '@jest/globals';

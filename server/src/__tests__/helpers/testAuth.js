@@ -4,13 +4,15 @@
  */
 
 import jwt from 'jsonwebtoken';
-import { generateAccessToken, generateRefreshToken } from '../../services/token.service.js';
+import { generateRefreshToken } from '../../services/token.service.js';
 
 /**
  * Generate test JWT token for a user
  */
 export function generateTestToken(user) {
-    return generateAccessToken(user);
+    // Current API protect middleware consumes id; service-level tokens use userId.
+    // Keep this distinction visible until B06 unifies the token contract.
+    return jwt.sign({ id: String(user._id) }, process.env.JWT_SECRET, { expiresIn: '5m' });
 }
 
 /**
@@ -32,7 +34,7 @@ export function createAuthHeader(token) {
  */
 export function extractUserIdFromToken(token) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    return decoded.userId;
+    return decoded.id;
 }
 
 /**
@@ -54,7 +56,7 @@ export function createTestRegistrationData(overrides = {}) {
         firstName: 'Test',
         lastName: 'User',
         email: `test${Date.now()}@example.com`,
-        phone: `98765${Math.floor(Math.random() * 100000)}`,
+        phone: `98765${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`,
         password: 'Test@123456',
         location: {
             address: 'Test Address, Mumbai',

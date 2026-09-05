@@ -7,9 +7,11 @@
     "scripts": {
         "dev": "nodemon src/index.js",
         "start": "node src/index.js",
-        "test": "node ../scripts/run-jest.cjs",
+        "test": "node ../scripts/run-api-tests.cjs unit",
+        "test:integration": "node ../scripts/run-api-tests.cjs integration",
+        "test:harness": "node ../scripts/run-api-tests.cjs harness",
         "test:watch": "node ../scripts/run-jest.cjs --watch",
-        "test:coverage": "node ../scripts/run-jest.cjs --coverage",
+        "test:coverage": "node ../scripts/run-api-tests.cjs unit --coverage",
         "test:production": "node test-production-readiness.js",
         "lint": "eslint src --ext .js",
         "seed": "node src/seeds/seed.js",

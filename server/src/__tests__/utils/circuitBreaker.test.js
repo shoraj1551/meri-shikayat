@@ -90,7 +90,6 @@ describe('Circuit Breaker', () => {
             // Wait for reset timeout
             jest.useFakeTimers();
             jest.advanceTimersByTime(6000);
-            jest.useRealTimers();
         });
 
         it('should close after successful requests', async () => {
@@ -115,11 +114,20 @@ describe('Circuit Breaker', () => {
 
     describe('timeout', () => {
         it('should timeout long-running requests', async () => {
-            const fn = jest.fn().mockImplementation(() =>
-                new Promise(resolve => setTimeout(() => resolve('success'), 2000))
-            );
+            jest.useFakeTimers();
+            const pending = circuitBreaker.execute(() => new Promise(() => {}));
+            const assertion = expect(pending).rejects.toThrow('Request timeout');
+            await jest.advanceTimersByTimeAsync(1000);
+            await assertion;
+            expect(jest.getTimerCount()).toBe(0);
+        });
 
-            await expect(circuitBreaker.execute(fn)).rejects.toThrow('Request timeout');
+        it('clears its deadline after successful or failed work', async () => {
+            jest.useFakeTimers();
+            await circuitBreaker.execute(async () => 'success');
+            expect(jest.getTimerCount()).toBe(0);
+            await expect(circuitBreaker.execute(async () => { throw new Error('failed'); })).rejects.toThrow('failed');
+            expect(jest.getTimerCount()).toBe(0);
         });
     });
 
@@ -137,3 +145,4 @@ describe('Circuit Breaker', () => {
         });
     });
 });
+import { jest } from '@jest/globals';
