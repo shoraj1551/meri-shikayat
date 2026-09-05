@@ -10,14 +10,14 @@
             }
         },
         {
-            "src": "server/src/index.js",
+            "src": "server/src/serverless.js",
             "use": "@vercel/node"
         }
     ],
     "routes": [
         {
             "src": "/api/(.*)",
-            "dest": "/server/src/index.js"
+            "dest": "/server/src/serverless.js"
         },
         {
             "src": "/(.*)",

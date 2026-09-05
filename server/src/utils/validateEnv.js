@@ -52,7 +52,7 @@ export const validateEnvironment = () => {
     if (errors.length > 0) {
         logger.error('ENVIRONMENT VALIDATION ERRORS');
         errors.forEach(err => logger.error(`  ${err}`));
-        process.exit(1);
+        throw new Error('Invalid environment configuration');
     }
 
     if (warnings.length > 0) {

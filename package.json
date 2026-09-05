@@ -15,7 +15,9 @@
         "install-all": "npm ci",
         "build-client": "npm run build --workspace client && node scripts/verify-client-build.cjs",
         "vercel-build": "npm run build-client",
-        "test:tooling": "node --test scripts/tests/*.test.cjs"
+        "test:tooling": "node --test scripts/tests/*.test.cjs",
+        "test:bootstrap": "node --test server/test/bootstrap/*.test.mjs",
+        "test:container": "node scripts/test-api-container.mjs"
     },
     "workspaces": [
         "client",

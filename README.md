@@ -60,6 +60,8 @@ Use **Node 24.19.0 and npm 11.11.0** (see `.node-version` and
 `npm install --global npm@11.11.0`. Run all installation commands from the
 repository root; `package-lock.json` is the single committed workspace lock.
 See [reproducible build instructions](docs/beta/B02_BUILD_FOUNDATION.md).
+See [API startup, health checks and lifecycle tests](docs/beta/B03_API_BOOTSTRAP.md)
+for the app factory, production entrypoint and separate serverless adapter.
 
 1.  **Clone the repository**
     ```bash

@@ -176,26 +176,7 @@ mongoose.connection.on('reconnected', () => {
     logger.info('MongoDB reconnected');
 });
 
-// Graceful shutdown handlers
-process.on('SIGINT', async () => {
-    await closeDatabase();
-    logger.info('MongoDB connection closed through SIGINT');
-    process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-    await closeDatabase();
-    logger.info('MongoDB connection closed through SIGTERM');
-    process.exit(0);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled Rejection at Promise', {
-        reason,
-        promise
-    });
-});
+// The executable runtime owns signal handling and dependency shutdown.
 
 export default {
     connectDatabase,

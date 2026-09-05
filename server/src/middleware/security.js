@@ -8,7 +8,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 
 // Global API rate limiter
-export const globalRateLimiter = rateLimit({
+export const createGlobalRateLimiter = () => rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Limit each IP to 100 requests per windowMs
     message: {
@@ -18,6 +18,8 @@ export const globalRateLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
+
+export const globalRateLimiter = createGlobalRateLimiter();
 
 // Security headers middleware - TASK-012: Strengthened
 export const securityHeaders = helmet({

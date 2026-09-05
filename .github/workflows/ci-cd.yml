@@ -11,7 +11,7 @@ on:
 
 jobs:
     installation:
-        name: Clean install and web build (${{ matrix.os }})
+        name: Clean install, bootstrap tests and web build (${{ matrix.os }})
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
@@ -26,17 +26,24 @@ jobs:
             - run: npm install --global npm@11.11.0
             - run: npm ci
             - run: npm run test:tooling
+            - run: npm run test:bootstrap
             - run: npm run build-client
             - run: git diff --exit-code -- package-lock.json
 
     container-build:
         name: Verify API images
         runs-on: ubuntu-latest
+        timeout-minutes: 15
         needs: installation
         steps:
             - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .node-version
             - run: docker build -f server/Dockerfile -t meri-shikayat-api:verify .
             - run: docker build -f server/Dockerfile.dev -t meri-shikayat-api:dev-verify .
+            - name: Production startup, readiness outages and SIGTERM
+              run: node scripts/test-api-container.mjs
 
     lint:
         name: Lint Code

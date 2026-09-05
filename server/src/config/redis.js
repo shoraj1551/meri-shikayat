@@ -148,6 +148,27 @@ export const getRedisClient = () => {
     return redisClient;
 };
 
+// Bound startup so optional Redis cannot indefinitely delay HTTP availability.
+export const initializeRedis = async ({ timeoutMs = 2000, client = getRedisClient() } = {}) => {
+    if (client.status === 'ready') return true;
+    if (client.status === 'end') void client.connect().catch(() => {});
+    return new Promise(resolve => {
+        let timer;
+        const finish = ready => {
+            clearTimeout(timer);
+            client.off('ready', onReady);
+            client.off('end', onEnd);
+            if (!ready) client.disconnect();
+            resolve(ready);
+        };
+        const onReady = () => finish(true);
+        const onEnd = () => finish(false);
+        client.once('ready', onReady);
+        client.once('end', onEnd);
+        timer = setTimeout(onEnd, timeoutMs);
+    });
+};
+
 // Check if Redis is available
 export const isRedisAvailable = async () => {
     try {
@@ -209,7 +230,8 @@ export const getRedisHealth = () => {
 export const closeRedisConnection = async () => {
     if (redisClient) {
         try {
-            await redisClient.quit();
+            if (redisClient.status === 'ready') await redisClient.quit();
+            else redisClient.disconnect();
             logger.info('✅ Redis connection closed gracefully');
             redisClient = null;
             isConnected = false;

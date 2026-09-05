@@ -14,10 +14,10 @@ const __dirname = dirname(__filename);
 // Load .env file from server root
 const result = dotenv.config({ path: join(__dirname, '../../.env') });
 
-if (result.error) {
+if (result.error && result.error.code !== 'ENOENT') {
     console.error('❌ Error loading .env file:', result.error.message);
     console.error('   Make sure .env file exists in the server directory');
-} else {
+} else if (!result.error) {
     console.log('✅ Environment variables loaded successfully');
 }
 

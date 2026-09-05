@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import http from 'node:http';
+import net from 'node:net';
+const listenerCounts = () => ['SIGINT', 'SIGTERM', 'uncaughtException', 'unhandledRejection'].map(name => process.listenerCount(name));
+const before = listenerCounts();
+const forbidden = () => { throw new Error('Import opened a network connection/listener'); };
+http.Server.prototype.listen = forbidden;
+net.Socket.prototype.connect = forbidden;
+delete process.env.JWT_SECRET;
+await import('../../src/app.js');
+await import('../../src/index.js');
+await import('../../src/serverless.js');
+await import('../../src/config/database.js');
+await import('../../src/config/redis.js');
+assert.deepEqual(listenerCounts(), before);
+console.log('IMPORT_SAFE');
