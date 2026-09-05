@@ -1,0 +1,11 @@
+.git
+**/node_modules
+**/.env
+**/.env.*
+**/dist
+**/coverage
+**/uploads
+**/*.log
+**/test_output*.txt
+**/stdout.txt
+**/stderr.txt

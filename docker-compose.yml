@@ -35,8 +35,8 @@ services:
   # API Server
   api:
     build:
-      context: ./server
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: server/Dockerfile.dev
     container_name: meri-shikayat-api
     restart: unless-stopped
     ports:
@@ -47,12 +47,11 @@ services:
       MONGODB_URI: mongodb://mongodb:27017/meri-shikayat-dev
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: dev-secret-key-change-in-production
+      JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET of at least 64 characters}
       LOG_LEVEL: debug
     volumes:
-      - ./server:/app
-      - /app/node_modules
-      - ./uploads:/app/uploads
+      - ./server/src:/app/server/src
+      - ./uploads:/app/server/uploads
     depends_on:
       - mongodb
       - redis

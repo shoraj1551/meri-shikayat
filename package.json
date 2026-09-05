@@ -2,12 +2,20 @@
     "name": "meri-shikayat-root",
     "version": "1.1.0",
     "private": true,
+    "packageManager": "npm@11.11.0",
+    "engines": {
+        "node": "24.19.0",
+        "npm": "11.11.0"
+    },
     "scripts": {
-        "install-client": "cd client && npm install",
-        "install-server": "cd server && npm install",
-        "install-all": "npm run install-client && npm run install-server",
-        "build-client": "cd client && npm run build",
-        "vercel-build": "npm run install-client && npm run build-client"
+        "preinstall": "node scripts/check-toolchain.cjs",
+        "check:toolchain": "node scripts/check-toolchain.cjs",
+        "install-client": "npm ci --workspace client --include-workspace-root",
+        "install-server": "npm ci --workspace server --include-workspace-root",
+        "install-all": "npm ci",
+        "build-client": "npm run build --workspace client && node scripts/verify-client-build.cjs",
+        "vercel-build": "npm run build-client",
+        "test:tooling": "node --test scripts/tests/*.test.cjs"
     },
     "workspaces": [
         "client",

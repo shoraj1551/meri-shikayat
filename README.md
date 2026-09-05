@@ -55,6 +55,12 @@ Meri Shikayat is an enterprise-grade citizen grievance redressal platform design
 
 ## Getting Started
 
+Use **Node 24.19.0 and npm 11.11.0** (see `.node-version` and
+`packageManager`). With the pinned Node active, install the matching npm using
+`npm install --global npm@11.11.0`. Run all installation commands from the
+repository root; `package-lock.json` is the single committed workspace lock.
+See [reproducible build instructions](docs/beta/B02_BUILD_FOUNDATION.md).
+
 1.  **Clone the repository**
     ```bash
     git clone https://github.com/shoraj1551/meri-shikayat.git
@@ -66,7 +72,9 @@ Meri Shikayat is an enterprise-grade citizen grievance redressal platform design
     ```
 
 3.  **Environment Setup**
-    - Create `.env` in `server/` and `client/` based on `.env.example`.
+    - Create `server/.env` from `server/.env.example`; use a randomly generated
+      JWT secret of at least 64 characters. The web app uses the same-origin
+      `/api/v1` proxy and does not need server secrets or a client env file.
 
 4.  **Run the Application**
     - **Server**:

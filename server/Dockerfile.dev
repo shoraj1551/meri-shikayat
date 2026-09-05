@@ -1,19 +1,13 @@
-# Development Dockerfile
-# Optimized for hot reload
-
-FROM node:20-alpine
-
+# Build from the repository root.
+FROM node:24.19.0-bookworm-slim
 WORKDIR /app
-
-# Install dependencies
-COPY package*.json ./
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Expose port
+RUN npm install --global npm@11.11.0
+COPY package.json package-lock.json .npmrc ./
+COPY client/package.json ./client/package.json
+COPY server/package.json ./server/package.json
+COPY scripts ./scripts
+RUN npm ci --workspace server --include-workspace-root --no-audit --no-fund
+COPY server ./server
+WORKDIR /app/server
 EXPOSE 5000
-
-# Start with nodemon for hot reload
 CMD ["npm", "run", "dev"]
