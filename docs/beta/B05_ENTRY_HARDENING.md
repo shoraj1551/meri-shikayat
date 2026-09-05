@@ -89,4 +89,3 @@ Public complaint lookup still exposes legacy complaint details; B09 owns its aut
 ## Next story
 
 B06: canonical identity, consistent token claims and session revocation, with migration safeguards and contract tests. Start with an identity/consumer map and an explicit migration design; do not silently merge User and Admin records.
-
