@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { resolve } from 'node:path';
+import { disabledBetaPaths, betaFeatureUnavailable, rejectPrivilegedRegistrationFields } from './middleware/betaRestrictions.js';
 
 export function createCorsOptions(originList = process.env.CORS_ORIGIN) {
     const allowed = originList
@@ -66,10 +67,13 @@ export async function createApp({
         if (isDraining()) return res.status(503).set('Connection', 'close').json({ success: false, message: 'Service is shutting down' });
         next();
     });
+    // Deny before parsing uploads, authenticating tokens or consulting databases.
+    app.all(disabledBetaPaths, betaFeatureUnavailable);
     app.use(createGlobalRateLimiter());
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(mongoSanitization);
+    app.use(['/api/v1/auth/register', '/api/v1/admin/auth/register'], rejectPrivilegedRegistrationFields);
     app.use('/uploads', express.static(uploadsPath));
     app.use('/api/v1', (req, res, next) => {
         if (!database.isReady()) return res.status(503).json({ success: false, message: 'Service temporarily unavailable' });

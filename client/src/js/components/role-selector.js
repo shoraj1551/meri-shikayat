@@ -55,18 +55,7 @@ export default class RoleSelector {
                         <div class="role-card-badge verification">Requires Verification</div>
                     </div>
 
-                    <!-- Super Admin Card -->
-                    <div class="role-card super-admin-card" data-role="super_admin">
-                        <div class="role-card-icon">⭐</div>
-                        <h3 class="role-card-title">Super Admin</h3>
-                        <p class="role-card-description">Oversee departments and manage the entire system</p>
-                        <ul class="role-card-features">
-                            <li>✓ Full system access</li>
-                            <li>✓ Manage admins</li>
-                            <li>✓ View analytics</li>
-                        </ul>
-                        <div class="role-card-badge invitation">Invitation Only</div>
-                    </div>
+                    <!-- Privileged accounts are provisioned by an operator, not public signup. -->
                 </div>
 
                 <div class="role-selector-note">

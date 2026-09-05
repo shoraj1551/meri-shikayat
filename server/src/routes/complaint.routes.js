@@ -9,7 +9,8 @@ import { uploadRateLimiter, readRateLimiter } from '../middleware/rateLimiting.j
 const router = express.Router();
 
 // Public routes (no authentication) with rate limiting and file validation
-router.post('/guest', uploadRateLimiter, upload.single('media'), validateUploadedFile, createGuestComplaint);
+router.all('/guest', createGuestComplaint);
+router.all('/:complaintId/claim', claimGuestComplaint);
 router.get('/search/:complaintId', readRateLimiter, searchComplaintById);
 
 // Protected routes
@@ -18,6 +19,5 @@ router.use(protect);
 router.post('/', uploadRateLimiter, upload.single('media'), validateUploadedFile, createComplaint);
 router.get('/my-complaints', readRateLimiter, getMyComplaints);
 router.get('/nearby', readRateLimiter, getNearbyComplaints);
-router.post('/:complaintId/claim', claimGuestComplaint);
 
 export default router;

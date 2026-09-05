@@ -659,6 +659,11 @@ function setupAudioRecording() {
 }
 
 async function submitComplaint() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please sign in to submit a complaint during beta. Your draft has not been submitted.');
+        return;
+    }
     const submitBtn = document.getElementById('submitBtn');
 
     // Validation
@@ -701,8 +706,7 @@ async function submitComplaint() {
             submitData.append('media', formData.mediaFile);
         }
 
-        const token = localStorage.getItem('token');
-        const endpoint = token ? '/complaints' : '/complaints/guest';
+        const endpoint = '/complaints';
         const url = `${window.API_BASE_URL || 'http://localhost:5000/api'}${endpoint}`;
 
         const response = await fetch(url, {

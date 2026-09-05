@@ -21,7 +21,7 @@ router.post('/register/admin', registerAdmin);
 // Contractor Registration (Public, Requires Verification)
 router.post('/register/contractor', registerContractor);
 
-// Super Admin Registration (Invitation Only)
-router.post('/register/super-admin', registerSuperAdmin);
+// Permanently denied for beta, including old invitation codes.
+router.all('/register/super-admin', registerSuperAdmin);
 
 export default router;
