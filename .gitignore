@@ -23,6 +23,8 @@ build/
 *.swp
 *.swo
 *~
+*.bak
+*.backup
 
 # OS
 .DS_Store

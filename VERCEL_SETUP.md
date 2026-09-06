@@ -76,7 +76,7 @@ After deployment, go to Project Settings → Environment Variables:
 ```
 # Production Environment Variables
 NODE_ENV=production
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/meri-shikayat-prod
+MONGODB_URI=REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
 JWT_SECRET=your-production-secret-min-32-characters-long
 JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=30d
@@ -114,7 +114,7 @@ PORT=5000
 ```
 # UAT Environment Variables
 NODE_ENV=staging
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/meri-shikayat-uat
+MONGODB_URI=REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
 JWT_SECRET=your-uat-secret-different-from-prod
 JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=30d
@@ -150,7 +150,7 @@ PORT=5000
 ```
 # Development Environment Variables
 NODE_ENV=development
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/meri-shikayat-dev
+MONGODB_URI=REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
 JWT_SECRET=your-dev-secret-can-be-simple
 JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=30d
@@ -185,9 +185,9 @@ PORT=5000
 
 **Example:**
 ```
-mongodb+srv://username:password@cluster.mongodb.net/meri-shikayat-dev
-mongodb+srv://username:password@cluster.mongodb.net/meri-shikayat-uat
-mongodb+srv://username:password@cluster.mongodb.net/meri-shikayat-prod
+REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
+REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
+REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
 ```
 
 ### Whitelist Vercel IPs

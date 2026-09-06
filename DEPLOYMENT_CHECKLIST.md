@@ -50,7 +50,7 @@ Project Name: meri-shikayat
 
 **Connection String:**
 ```
-mongodb+srv://meri-shikayat-admin:PASSWORD@cluster.mongodb.net/meri-shikayat-prod?retryWrites=true&w=majority
+REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
 ```
 
 ### Redis Cloud (Caching)

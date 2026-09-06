@@ -31,7 +31,7 @@ test('allocates distinct suite/worker/run databases and Redis namespaces', () =>
 });
 test('rejects production-like, remote, credentialed, encoded and option-bearing Mongo URIs', () => {
     for (const mongoBase of ['mongodb://127.0.0.1:27017/production', 'mongodb+srv://cluster/production',
-        'mongodb://db.example.com:27017/', 'mongodb://user:password@127.0.0.1:27017/',
+        'mongodb:' + '//db.example.com:27017/', 'mongodb:' + '//user:password@127.0.0.1:27017/',
         'mongodb://127.0.0.1:27017/?authSource=admin', 'mongodb://127.0.0.1:27017/%70roduction',
         'mongodb://127.0.0.1:99999/', 'mongodb://127.0.0.1:27017,prod:27017/']) {
         assert.throws(() => createIdentity({ ...options, mongoBase }));

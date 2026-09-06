@@ -24,7 +24,7 @@ cp .env.example .env
 # 2. Create free cluster
 # 3. Get connection string
 # 4. Update .env:
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/meri-shikayat-prod
+MONGODB_URI=REPLACE_WITH_MONGODB_URI_FROM_SECRET_MANAGER
 ```
 
 #### B. JWT Secret (1 minute)

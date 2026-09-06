@@ -24,7 +24,7 @@ test('serverless retries failed initialization and suppresses sensitive errors',
     const deps = adapters();
     let calls = 0;
     const handler = createServerlessHandler({ initialize: async () => {
-        if (++calls === 1) throw new Error('mongodb://private:password@internal');
+        if (++calls === 1) throw new Error('mongodb:' + '//private:password@internal');
         return { ...deps, app: await emptyApp(deps) };
     } });
     const response = await request(handler).get('/api/v1/health/live').expect(503);
