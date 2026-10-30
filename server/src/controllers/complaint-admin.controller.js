@@ -5,6 +5,7 @@
 
 import Complaint from '../models/Complaint.js';
 import Admin from '../models/Admin.js';
+import { emitComplaintStatusUpdate } from '../services/complaint-events.service.js';
 
 // @desc    Get all complaints for admin with filters and pagination
 // @route   GET /api/admin/complaints
@@ -144,6 +145,7 @@ export const updateComplaintStatus = async (req, res) => {
         complaint.status = status;
 
         await complaint.save();
+        emitComplaintStatusUpdate(req, complaint);
 
         // Update user stats if complaint is resolved
         if (status === 'resolved' && complaint.user) {

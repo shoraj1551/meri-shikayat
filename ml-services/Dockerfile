@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install system dependencies required for OpenCV and other libs
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -15,9 +15,6 @@ COPY requirements.txt ./
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Download NLTK data required by TextBlob
-RUN python -m textblob.download_corpora
 
 # Copy the current directory contents into the container at /app
 COPY . .

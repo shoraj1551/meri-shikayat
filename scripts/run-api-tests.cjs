@@ -1,6 +1,7 @@
 // Three explicit modes. Unit is the safe default; integrations require disposable services.
 const { spawnSync } = require('node:child_process');
 const { randomBytes } = require('node:crypto');
+const { readdirSync } = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const mode = process.argv[2] || 'unit';
@@ -27,6 +28,13 @@ function run(args) {
     if (result.error) console.error(result.error.message);
     return result.status ?? 1;
 }
+function testFiles(directory, extension) {
+    const absolute = path.join(root, directory);
+    return readdirSync(absolute)
+        .filter(name => name.endsWith(extension))
+        .sort()
+        .map(name => path.join(directory, name).replaceAll('\\', '/'));
+}
 if (mode === 'unit') {
     const status = run(['scripts/run-jest.cjs', ...process.argv.slice(3)]);
     if (status) process.exit(status);
@@ -34,10 +42,10 @@ if (mode === 'unit') {
 if (mode === 'integration') {
     const status = run(['--import', './server/test/harness/environment.cjs', '--test', '--test-concurrency=2', '--test-timeout=30000',
         'server/src/__tests__/auth.test.js', 'server/src/__tests__/complaints.test.js', 'server/src/__tests__/admin.test.js',
-        'server/src/__tests__/integration/*.test.js']);
+        ...testFiles('server/src/__tests__/integration', '.test.js')]);
     process.exitCode = status;
 } else {
     process.exitCode = run(['--import', './server/test/harness/native-unit-setup.mjs', '--test',
-        '--test-timeout=15000', 'server/test/harness/*.test.mjs',
+        '--test-timeout=15000', ...testFiles('server/test/harness', '.test.mjs'),
         ...(mode === 'unit' ? ['server/src/__tests__/middleware/validation.test.js'] : [])]);
 }

@@ -1,6 +1,20 @@
 import Complaint from '../models/Complaint.js';
 import Media from '../models/Media.js';
+import Category from '../models/Category.js';
 import { generateComplaintId, isValidComplaintId } from '../services/complaintId.service.js';
+import { enrichComplaintWithML } from '../services/complaint-enrichment.service.js';
+import { emitNewComplaint } from '../services/complaint-events.service.js';
+
+const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+async function resolveMLCategory(name) {
+    if (!name) return null;
+    const normalized = name.replaceAll('_', ' ').trim();
+    return Category.findOne({
+        name: { $regex: `^${escapeRegex(normalized)}$`, $options: 'i' },
+        isActive: { $ne: false }
+    });
+}
 
 // @desc    Create a new complaint
 // @route   POST /api/complaints
@@ -17,6 +31,18 @@ export const createComplaint = async (req, res) => {
             } catch (e) {
                 console.error('Error parsing location:', e);
             }
+        }
+
+        // ML is optional and failure-safe; submission continues if the service is unavailable.
+        const enrichment = await enrichComplaintWithML({
+            description,
+            imagePath: req.file?.path,
+            imageMimeType: req.file?.mimetype
+        });
+        let resolvedCategory = category;
+        if (!resolvedCategory && enrichment?.suggestedCategory) {
+            const matchedCategory = await resolveMLCategory(enrichment.suggestedCategory);
+            resolvedCategory = matchedCategory?._id;
         }
 
         // Create Media document if file uploaded
@@ -54,9 +80,11 @@ export const createComplaint = async (req, res) => {
             type,
             title,
             description,
-            category,
+            category: resolvedCategory,
             media: mediaIds,
-            location: parsedLocation
+            location: parsedLocation,
+            priority: enrichment?.suggestedPriority || undefined,
+            mlAnalysis: enrichment?.analysis
         });
 
         // Update Media documents with complaint reference
@@ -66,6 +94,8 @@ export const createComplaint = async (req, res) => {
                 { complaint: complaint._id }
             );
         }
+
+        emitNewComplaint(req, complaint);
 
         // Update user stats - increment totalComplaints and impactScore
         await req.user.constructor.findByIdAndUpdate(req.user.id, {

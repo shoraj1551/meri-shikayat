@@ -26,6 +26,8 @@ export function installProcessHandlers(runtime, {
 export async function startServer({
     database, redis, createApplication,
     attachSockets,
+    authorizeSocketAdmin,
+    socketAuthRevalidateMs,
     port = Number(process.env.PORT || 5000),
     host = process.env.HOST || '0.0.0.0',
     redisRequired = process.env.REDIS_REQUIRED === 'true',
@@ -100,7 +102,10 @@ export async function startServer({
             sockets.add(socket);
             socket.once('close', () => sockets.delete(socket));
         });
-        io = attachSockets(httpServer, app, corsOptions);
+        io = attachSockets(httpServer, app, corsOptions, {
+            authorizeAdmin: authorizeSocketAdmin,
+            revalidateMs: socketAuthRevalidateMs
+        });
         await new Promise((resolve, reject) => {
             const failed = error => { httpServer.off('listening', ready); reject(error); };
             const ready = () => { httpServer.off('error', failed); resolve(); };

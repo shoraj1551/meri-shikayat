@@ -1,5 +1,14 @@
 import { io } from 'socket.io-client';
 
+export function resolveSocketOrigin(configuredApiUrl, pageOrigin) {
+    if (!configuredApiUrl) return pageOrigin;
+    try {
+        return new URL(configuredApiUrl, pageOrigin).origin;
+    } catch {
+        return pageOrigin;
+    }
+}
+
 class SocketService {
     constructor() {
         this.socket = null;
@@ -12,12 +21,19 @@ class SocketService {
     connect() {
         if (this.socket) return;
 
-        // Use the API_BASE_URL window variable or default
-        const baseUrl = window.API_BASE_URL ? window.API_BASE_URL.replace('/api', '') : 'http://localhost:5000';
+        const adminToken = localStorage.getItem('adminToken');
+        if (!adminToken) {
+            console.warn('[Socket] Admin authentication is required');
+            return;
+        }
+
+        const configuredApiUrl = import.meta.env?.VITE_API_URL || window.API_BASE_URL;
+        const baseUrl = resolveSocketOrigin(configuredApiUrl, window.location.origin);
 
         this.socket = io(baseUrl, {
             withCredentials: true,
-            transports: ['websocket', 'polling']
+            transports: ['websocket', 'polling'],
+            auth: { token: adminToken }
         });
 
         this.socket.on('connect', () => {
@@ -40,14 +56,7 @@ class SocketService {
      */
     joinAdminRoom() {
         if (!this.socket) this.connect();
-
-        if (this.socket.connected) {
-            this.socket.emit('join_admin_room');
-        } else {
-            this.socket.on('connect', () => {
-                this.socket.emit('join_admin_room');
-            });
-        }
+        // The server joins authenticated admins to the room automatically.
     }
 
     /**
@@ -56,10 +65,13 @@ class SocketService {
      */
     onNewComplaint(callback) {
         if (!this.socket) this.connect();
-        this.socket.on('new_complaint', (data) => {
+        if (!this.socket) return;
+        const listener = (data) => {
             console.log('[Socket] New Complaint Received:', data);
             callback(data);
-        });
+        };
+        this.socket.on('new_complaint', listener);
+        return () => this.socket?.off('new_complaint', listener);
     }
 
     /**
@@ -68,10 +80,13 @@ class SocketService {
      */
     onStatusUpdate(callback) {
         if (!this.socket) this.connect();
-        this.socket.on('complaint_status_update', (data) => {
+        if (!this.socket) return;
+        const listener = (data) => {
             console.log('[Socket] Status Updated:', data);
             callback(data);
-        });
+        };
+        this.socket.on('complaint_status_update', listener);
+        return () => this.socket?.off('complaint_status_update', listener);
     }
 
     disconnect() {

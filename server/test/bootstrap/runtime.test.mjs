@@ -6,9 +6,143 @@ import express from 'express';
 import request from 'supertest';
 import { io as connectSocket } from 'socket.io-client';
 import { startServer, installProcessHandlers } from '../../src/runtime/server.js';
+import { createAdminSocketAuthorizer, extractSocketToken } from '../../src/runtime/socket.js';
+import { emitNewComplaint, emitComplaintStatusUpdate } from '../../src/services/complaint-events.service.js';
+import jwt from 'jsonwebtoken';
 import { adapters, emptyApp, listenerCounts } from './helpers.mjs';
 
-const start = options => startServer({ ...adapters(), createApplication: emptyApp, port: 0, host: '127.0.0.1', shutdownTimeoutMs: 1000, ...options });
+const testAdmin = { _id: 'admin-test-id', role: 'viewer', status: 'active' };
+const start = options => startServer({
+    ...adapters(),
+    createApplication: emptyApp,
+    authorizeSocketAdmin: async () => testAdmin,
+    port: 0,
+    host: '127.0.0.1',
+    shutdownTimeoutMs: 1000,
+    ...options
+});
+
+test('admin socket authorization accepts only valid tokens for active admin roles', async () => {
+    const secret = 'socket-test-secret';
+    const activeAdmin = { _id: '507f1f77bcf86cd799439011', role: 'manager', status: 'active' };
+    const authorize = createAdminSocketAuthorizer({
+        secret,
+        findAdminById: async id => id === activeAdmin._id ? activeAdmin : null
+    });
+    const token = jwt.sign({ id: activeAdmin._id }, secret, { expiresIn: '5m' });
+    const socket = { handshake: { auth: { token }, headers: {} } };
+
+    assert.equal(extractSocketToken(socket), token);
+    assert.equal((await authorize(socket)).admin, activeAdmin);
+    await assert.rejects(authorize({ handshake: { auth: {}, headers: {} } }), /Unauthorized/);
+    await assert.rejects(authorize({ handshake: { auth: { token: jwt.sign({ id: 'missing' }, secret) }, headers: {} } }), /Unauthorized/);
+
+    const bearerSocket = { handshake: { auth: {}, headers: { authorization: `Bearer ${token}` } } };
+    assert.equal(extractSocketToken(bearerSocket), token);
+    assert.equal((await authorize(bearerSocket)).admin, activeAdmin);
+
+    for (const rejectedToken of [
+        'not-a-jwt',
+        jwt.sign({ id: activeAdmin._id }, 'wrong-secret'),
+        jwt.sign({ id: activeAdmin._id }, secret, { expiresIn: -1 }),
+        jwt.sign({ role: 'manager' }, secret)
+    ]) {
+        await assert.rejects(
+            authorize({ handshake: { auth: { token: rejectedToken }, headers: {} } })
+        );
+    }
+
+    const suspended = createAdminSocketAuthorizer({ secret, findAdminById: async () => ({ ...activeAdmin, status: 'suspended' }) });
+    await assert.rejects(suspended(socket), /Unauthorized/);
+    const invalidRole = createAdminSocketAuthorizer({ secret, findAdminById: async () => ({ ...activeAdmin, role: 'citizen' }) });
+    await assert.rejects(invalidRole(socket), /Unauthorized/);
+});
+
+test('Socket.IO rejects unauthenticated clients and automatically joins authorized admins', { timeout: 10000 }, async t => {
+    const runtime = await start({
+        authorizeSocketAdmin: async socket => {
+            if (socket.handshake.auth?.token !== 'valid-admin-token') throw new Error('Unauthorized');
+            return testAdmin;
+        }
+    });
+    t.after(() => runtime.stop());
+    const origin = 'http://127.0.0.1:' + runtime.server.address().port;
+
+    const denied = connectSocket(origin, { transports: ['websocket'], reconnection: false });
+    t.after(() => denied.close());
+    const [deniedError] = await once(denied, 'connect_error');
+    assert.equal(deniedError.message, 'Unauthorized');
+
+    const allowed = connectSocket(origin, {
+        transports: ['websocket'],
+        reconnection: false,
+        auth: { token: 'valid-admin-token' }
+    });
+    t.after(() => allowed.close());
+    await once(allowed, 'connect');
+    const serverSocket = [...runtime.io.sockets.sockets.values()][0];
+    assert.equal(serverSocket.data.admin.id, testAdmin._id);
+    assert.equal(serverSocket.rooms.has('admin_notifications'), true);
+});
+
+test('complaint lifecycle events reach authorized admin sockets through the protected room', { timeout: 10000 }, async t => {
+    const runtime = await start();
+    t.after(() => runtime.stop());
+    const origin = 'http://127.0.0.1:' + runtime.server.address().port;
+    const socket = connectSocket(origin, { transports: ['websocket'], reconnection: false });
+    t.after(() => socket.close());
+    await once(socket, 'connect');
+
+    const newComplaint = once(socket, 'new_complaint');
+    emitNewComplaint({ app: runtime.app }, {
+        _id: 'complaint-id', complaintId: 'CMP-2026-0001', title: 'Road damage', status: 'submitted'
+    });
+    const [createdPayload] = await newComplaint;
+    assert.equal(createdPayload.id, 'complaint-id');
+    assert.equal(createdPayload.title, 'Road damage');
+
+    const statusUpdate = once(socket, 'complaint_status_update');
+    emitComplaintStatusUpdate({ app: runtime.app }, {
+        _id: 'complaint-id', complaintId: 'CMP-2026-0001', status: 'resolved'
+    });
+    const [updatedPayload] = await statusUpdate;
+    assert.equal(updatedPayload.id, 'complaint-id');
+    assert.equal(updatedPayload.status, 'resolved');
+});
+
+test('Socket.IO evicts an admin when the handshake token authorization expires', { timeout: 10000 }, async t => {
+    const runtime = await start({
+        authorizeSocketAdmin: async () => ({ admin: testAdmin, expiresAt: Date.now() + 75 })
+    });
+    t.after(() => runtime.stop());
+    const origin = 'http://127.0.0.1:' + runtime.server.address().port;
+    const socket = connectSocket(origin, { transports: ['websocket'], reconnection: false });
+    t.after(() => socket.close());
+    await once(socket, 'connect');
+    const [reason] = await once(socket, 'disconnect');
+    assert.equal(reason, 'io server disconnect');
+    assert.equal(runtime.io.sockets.sockets.size, 0);
+});
+
+test('Socket.IO evicts an admin whose database authorization is revoked after connection', { timeout: 10000 }, async t => {
+    let authorized = true;
+    const runtime = await start({
+        socketAuthRevalidateMs: 20,
+        authorizeSocketAdmin: async () => {
+            if (!authorized) throw new Error('Unauthorized');
+            return testAdmin;
+        }
+    });
+    t.after(() => runtime.stop());
+    const origin = 'http://127.0.0.1:' + runtime.server.address().port;
+    const socket = connectSocket(origin, { transports: ['websocket'], reconnection: false });
+    t.after(() => socket.close());
+    await once(socket, 'connect');
+    authorized = false;
+    const [reason] = await once(socket, 'disconnect');
+    assert.equal(reason, 'io server disconnect');
+    assert.equal(runtime.io.sockets.sockets.size, 0);
+});
 test('production runtime listens and closes HTTP, Socket.IO and dependencies once', { timeout: 10000 }, async t => {
     const oldEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';

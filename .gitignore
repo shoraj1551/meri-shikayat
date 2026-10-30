@@ -16,6 +16,12 @@ yarn.lock
 dist/
 build/
 *.log
+lighthouse-report*.json
+
+# Local runtime and test captures
+server/*_output*.txt
+server/stdout.txt
+server/stderr.txt
 
 # IDE
 .vscode/

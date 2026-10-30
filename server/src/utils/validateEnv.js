@@ -48,6 +48,19 @@ export const validateEnvironment = () => {
         warnings.push('CORS_ORIGIN not set in production. Using default localhost origins.');
     }
 
+    if (process.env.ML_SERVICE_ENABLED === 'true') {
+        if (!process.env.ML_SERVICE_URL) {
+            errors.push('ML_SERVICE_URL is required when ML_SERVICE_ENABLED=true');
+        } else {
+            try {
+                const url = new URL(process.env.ML_SERVICE_URL);
+                if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Unsupported protocol');
+            } catch {
+                errors.push('ML_SERVICE_URL must be a valid HTTP(S) URL');
+            }
+        }
+    }
+
     // Display errors and warnings
     if (errors.length > 0) {
         logger.error('ENVIRONMENT VALIDATION ERRORS');

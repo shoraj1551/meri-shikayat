@@ -59,15 +59,13 @@ export async function analyzeImage(imageBuffer) {
     }
 
     try {
-        const FormData = (await import('form-data')).default;
         const formData = new FormData();
-        formData.append('file', imageBuffer, { filename: 'image.jpg' });
+        formData.append('file', new Blob([imageBuffer], { type: 'image/jpeg' }), 'image.jpg');
 
         const response = await axios.post(
             `${ML_SERVICE_URL}/api/ml/analyze-image`,
             formData,
             {
-                headers: formData.getHeaders(),
                 timeout: 10000
             }
         );

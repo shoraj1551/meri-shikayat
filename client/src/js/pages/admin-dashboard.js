@@ -178,6 +178,16 @@ export async function renderAdminDashboard() {
     // Initial Load
     await updateStats();
 
+    // Keep dashboards current when the deployment does not support persistent sockets
+    // (for example, a serverless API). Socket events still provide immediate updates.
+    const pollingInterval = setInterval(() => {
+        if (window.router?.currentRoute !== '/admin/dashboard') {
+            clearInterval(pollingInterval);
+            return;
+        }
+        void updateStats();
+    }, 30000);
+
     // Initialize Real-time Updates
     try {
         const { socketService } = await import('../utils/socket-service.js');
@@ -185,7 +195,7 @@ export async function renderAdminDashboard() {
         socketService.joinAdminRoom();
 
         // Listen for new complaints and refresh stats
-        socketService.onNewComplaint((data) => {
+        const unsubscribeNewComplaint = socketService.onNewComplaint((data) => {
             console.log('New complaint received, updating dashboard...', data);
 
             // Show toast notification
@@ -196,10 +206,11 @@ export async function renderAdminDashboard() {
                     <span class="toast-icon">🔔</span>
                     <div>
                         <div class="toast-title">New Complaint</div>
-                        <div class="toast-body">${data.title || 'A new complaint has been filed'}</div>
+                        <div class="toast-body"></div>
                     </div>
                 </div>
             `;
+            toast.querySelector('.toast-body').textContent = data.title || 'A new complaint has been filed';
             document.body.appendChild(toast);
 
             // Remove toast after 3s
@@ -211,6 +222,18 @@ export async function renderAdminDashboard() {
             // Refresh stats
             updateStats();
         });
+
+        const unsubscribeStatusUpdate = socketService.onStatusUpdate(() => {
+            void updateStats();
+        });
+
+        const unsubscribeWhenLeaving = setInterval(() => {
+            if (window.router?.currentRoute !== '/admin/dashboard') {
+                unsubscribeNewComplaint?.();
+                unsubscribeStatusUpdate?.();
+                clearInterval(unsubscribeWhenLeaving);
+            }
+        }, 1000);
     } catch (err) {
         console.warn('Real-time updates unavailable:', err);
     }

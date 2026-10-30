@@ -32,6 +32,8 @@ export const adminService = {
     },
 
     async logout() {
+        const { socketService } = await import('../utils/socket-service.js');
+        socketService.disconnect();
         localStorage.removeItem('adminToken');
         localStorage.removeItem('admin');
         return { success: true };

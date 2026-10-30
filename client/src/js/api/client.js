@@ -37,6 +37,7 @@ apiClient.interceptors.response.use(
             const isAdmin = localStorage.getItem('adminToken') || window.location.pathname.startsWith('/admin');
 
             if (isAdmin) {
+                void import('../utils/socket-service.js').then(({ socketService }) => socketService.disconnect());
                 // Clear admin auth data
                 localStorage.removeItem('adminToken');
                 localStorage.removeItem('admin');

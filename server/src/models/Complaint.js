@@ -83,6 +83,29 @@ const complaintSchema = new mongoose.Schema({
         enum: ['low', 'medium', 'high'],
         default: 'medium'
     },
+    mlAnalysis: {
+        analyzedAt: Date,
+        category: {
+            name: String,
+            confidence: Number,
+            suggestions: [String]
+        },
+        sentiment: {
+            label: String,
+            polarity: Number,
+            subjectivity: Number,
+            urgency: String,
+            urgencyScore: Number,
+            emotion: String,
+            confidence: Number
+        },
+        imageQuality: {
+            valid: Boolean,
+            score: Number,
+            level: String,
+            issues: [String]
+        }
+    },
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin'

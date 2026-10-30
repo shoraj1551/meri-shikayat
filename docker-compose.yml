@@ -1,8 +1,6 @@
 # Docker Compose for Local Development
 # TASK-PR-022: One-command local development setup
 
-version: "3.8"
-
 services:
   # MongoDB Database
   mongodb:
@@ -49,15 +47,29 @@ services:
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET of at least 64 characters}
       LOG_LEVEL: debug
+      ML_SERVICE_ENABLED: "true"
+      ML_SERVICE_URL: http://ml:8000
     volumes:
       - ./server/src:/app/server/src
       - ./uploads:/app/server/uploads
     depends_on:
       - mongodb
       - redis
+      - ml
     networks:
       - meri-shikayat-network
     command: npm run dev
+
+  ml:
+    build:
+      context: ./ml-services
+      dockerfile: Dockerfile
+    container_name: meri-shikayat-ml
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - meri-shikayat-network
 
   # Client (Optional - if needed)
   # client:
