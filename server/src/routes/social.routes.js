@@ -5,10 +5,12 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
 import * as socialController from '../controllers/social.controller.js';
+import { sanitizePlainTextBody } from '../middleware/plainText.js';
 
 const router = express.Router();
 
 router.use(protect); // All routes require login
+router.use(sanitizePlainTextBody);
 
 // Discovery
 router.get('/users/search', socialController.searchUsers);

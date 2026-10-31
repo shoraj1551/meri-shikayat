@@ -9,11 +9,14 @@ export async function searchComplaintById(req, res) {
     try {
         const { complaintId } = req.params;
 
-        const complaint = await Complaint.findOne({ complaintId })
-            .populate('category')
-            .populate('department')
-            .populate('media')
-            .populate('user', 'firstName lastName');
+        const complaint = await Complaint.findOne({
+            complaintId,
+            user: req.user._id,
+            isGuest: { $ne: true }
+        })
+            .select('complaintId status priority category customCategory')
+            .populate('category', 'name')
+            .lean();
 
         if (!complaint) {
             return res.status(404).json({
@@ -22,23 +25,14 @@ export async function searchComplaintById(req, res) {
             });
         }
 
-        // Return limited info for guest complaints
+        // Status lookup is intentionally minimal. Full complaint details are
+        // available only through the authenticated owner's complaint listing.
         const responseData = {
             complaintId: complaint.complaintId,
             status: complaint.status,
             priority: complaint.priority,
-            description: complaint.description,
-            category: complaint.category?.name || complaint.customCategory,
-            location: complaint.location,
-            createdAt: complaint.createdAt,
-            isGuest: complaint.isGuest,
-            canClaim: false
+            category: complaint.category?.name || complaint.customCategory || null
         };
-
-        // Add user info if authenticated complaint
-        if (!complaint.isGuest && complaint.user) {
-            responseData.submittedBy = `${complaint.user.firstName} ${complaint.user.lastName}`;
-        }
 
         res.json({
             success: true,

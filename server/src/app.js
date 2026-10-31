@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { resolve } from 'node:path';
+import { mkdir } from 'node:fs/promises';
 import { disabledBetaPaths, betaFeatureUnavailable, rejectPrivilegedRegistrationFields } from './middleware/betaRestrictions.js';
 
 export function createCorsOptions(originList = process.env.CORS_ORIGIN) {
@@ -32,6 +33,7 @@ export async function createApp({
     redis ??= (await import('./runtime/dependencies.js')).redisAdapter;
     const { securityHeaders, mongoSanitization, createGlobalRateLimiter } = await import('./middleware/security.js');
     const { errorHandler, notFoundHandler } = await import('./middleware/errorHandler.js');
+    await mkdir(resolve(uploadsPath, 'profiles'), { recursive: true });
     const app = express();
     app.disable('x-powered-by');
     app.use(cors(corsOptions));

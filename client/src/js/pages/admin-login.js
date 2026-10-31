@@ -157,10 +157,10 @@ export function renderAdminLoginPage() {
                                     required
                                 />
                                 <div class="otp-info">
-                                    <p class="form-hint">Check your server console for the OTP (Simulation)</p>
+                                    <p class="form-hint">Check your registered administrator email for the OTP.</p>
                                     <div class="otp-timer" id="otpTimer">
                                         <span class="timer-icon">⏱️</span>
-                                        <span class="timer-text">OTP expires in <strong id="timerCount">5:00</strong></span>
+                                        <span class="timer-text">OTP expires in <strong id="timerCount">10:00</strong></span>
                                     </div>
                                     <button type="button" class="btn-resend-otp" id="resendOtpBtn" disabled>
                                         <span class="resend-icon">🔄</span> Resend OTP
@@ -178,8 +178,8 @@ export function renderAdminLoginPage() {
                             }, 50);
                         }
 
-                        // Start OTP timer (5 minutes)
-                        let timeLeft = 300; // 5 minutes in seconds
+                        // Match the server's administrator OTP lifetime.
+                        let timeLeft = 600;
                         const timerElement = document.getElementById('timerCount');
                         const resendBtn = document.getElementById('resendOtpBtn');
 
@@ -214,13 +214,13 @@ export function renderAdminLoginPage() {
 
                                 if (response.success) {
                                     // Reset timer
-                                    timeLeft = 300;
+                                    timeLeft = 600;
                                     timerElement.style.color = '';
                                     resendBtn.innerHTML = '<span class="resend-icon">🔄</span> Resend OTP';
                                     resendBtn.disabled = true;
                                     resendBtn.style.opacity = '0.5';
 
-                                    showError('errorMessage', '✅ New OTP sent! Check your console.');
+                                    showError('errorMessage', '✅ New OTP sent to your registered email.');
                                     setTimeout(() => hideError('errorMessage'), 3000);
                                 }
                             } catch (error) {

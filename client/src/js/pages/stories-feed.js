@@ -6,6 +6,7 @@
 import { authService } from '../api/auth.service.js';
 import { storiesService } from '../api/stories.service.js';
 import { Loading } from '../components/loading.js';
+import { escapeHtml, escapeHtmlDeep, escapeJsString } from '../utils/html.js';
 
 export async function renderStoriesPage() {
     const app = document.getElementById('app');
@@ -15,6 +16,8 @@ export async function renderStoriesPage() {
         window.router.navigate('/login');
         return;
     }
+
+    const safeUser = escapeHtmlDeep(user);
 
     app.innerHTML = `
         <div class="dashboard-layout">
@@ -26,7 +29,7 @@ export async function renderStoriesPage() {
                 <div class="header-right">
                     <button class="btn btn-outline" onclick="window.router.navigate('/dashboard')">Back</button>
                     <div class="user-profile">
-                        <div class="avatar">${user.firstName[0]}</div>
+                        <div class="avatar">${safeUser.firstName[0]}</div>
                     </div>
                 </div>
             </header>
@@ -61,12 +64,13 @@ async function loadStories() {
         setupStoryInteractions();
 
     } catch (e) {
-        container.innerHTML = `<p class="error-text">Failed to load stories: ${e.message}</p>`;
+        container.innerHTML = `<p class="error-text">Failed to load stories: ${escapeHtml(e.message)}</p>`;
     }
 }
 
-function renderStoryCard(story, currentUser) {
-    const isHyped = story.hypes.includes(currentUser._id);
+export function renderStoryCard(rawStory, currentUser) {
+    const story = escapeHtmlDeep(rawStory);
+    const isHyped = rawStory.hypes.includes(currentUser._id);
     const date = new Date(story.createdAt).toLocaleDateString();
 
     return `
@@ -90,13 +94,13 @@ function renderStoryCard(story, currentUser) {
             </div>
 
             <div class="story-actions">
-                <button class="action-btn hype-btn ${isHyped ? 'active' : ''}" onclick="toggleHype('${story._id}', this)">
+                <button class="action-btn hype-btn ${isHyped ? 'active' : ''}" onclick="toggleHype('${escapeJsString(rawStory._id)}', this)">
                     <span class="icon">🔥</span> <span class="count">${story.hypes.length}</span> Hype
                 </button>
-                <button class="action-btn comment-btn" onclick="toggleComments('${story._id}')">
+                <button class="action-btn comment-btn" onclick="toggleComments('${escapeJsString(rawStory._id)}')">
                     <span class="icon">💬</span> <span class="count">${story.comments.length}</span> Comment
                 </button>
-                <button class="action-btn share-btn" onclick="shareStory('${story._id}', '${story.title}')">
+                <button class="action-btn share-btn" onclick="shareStory('${escapeJsString(rawStory._id)}', '${escapeJsString(rawStory.title)}')">
                     <span class="icon">📤</span> <span class="count">${story.shares}</span> Share
                 </button>
             </div>
@@ -110,7 +114,7 @@ function renderStoryCard(story, currentUser) {
                     `).join('')}
                 </div>
                 <div class="add-comment-box">
-                    <input type="text" placeholder="Add a comment..." onkeypress="handleComment(event, '${story._id}')">
+                    <input type="text" placeholder="Add a comment..." onkeypress="handleComment(event, '${escapeJsString(rawStory._id)}')">
                 </div>
             </div>
         </div>

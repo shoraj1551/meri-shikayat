@@ -8,6 +8,7 @@ COPY server/package.json ./server/package.json
 COPY scripts ./scripts
 RUN npm ci --workspace server --include-workspace-root --no-audit --no-fund
 COPY server ./server
+COPY shared ./shared
 WORKDIR /app/server
 EXPOSE 5000
 CMD ["npm", "run", "dev"]

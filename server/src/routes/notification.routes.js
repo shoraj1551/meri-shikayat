@@ -1,13 +1,16 @@
 import express from 'express';
-import { subscribe, sendTestNotification } from '../controllers/notification.controller.js';
-import { protect, authorize } from '../middleware/auth.js';
+import { getPublicKey, subscribe, unsubscribe, sendTestNotification } from '../controllers/notification.controller.js';
+import { protect, protectAdmin, requirePermission } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public routes (authenticated)
-router.post('/subscribe', protect, subscribe);
+router.get('/public-key', getPublicKey);
 
-// Admin routes
-router.post('/send-test', protect, authorize('admin', 'super_admin'), sendTestNotification);
+// User subscription routes
+router.post('/subscribe', protect, subscribe);
+router.delete('/subscribe', protect, unsubscribe);
+
+// Administrator routes use the canonical Admin identity and permission system.
+router.post('/send-test', protectAdmin, requirePermission('systemSettings'), sendTestNotification);
 
 export default router;

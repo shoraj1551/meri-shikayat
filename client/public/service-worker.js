@@ -1,13 +1,10 @@
 
-const CACHE_NAME = 'meri-shikayat-v1';
-const STATIC_ASSETS = [
+const CACHE_NAME = 'meri-shikayat-v2';
+const API_BASE_URL = new URL(self.location.href).searchParams.get('apiBase') || '/api/v1';
+const PRECACHE_ASSETS = self.__PRECACHE_MANIFEST || [
     '/',
     '/index.html',
-    '/src/main.js',
-    '/src/styles/main.css',
-    '/src/styles/home.css',
-    '/src/js/utils/pwa.js',
-    '/src/js/app.js',
+    '/offline.html',
     '/favicon.ico',
     '/manifest.json'
 ];
@@ -17,7 +14,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('[Service Worker] Caching static assets');
-            return cache.addAll(STATIC_ASSETS);
+            return cache.addAll(PRECACHE_ASSETS);
         })
     );
     self.skipWaiting();
@@ -44,13 +41,16 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // API Requests - Network First, no cache
-    if (url.pathname.startsWith('/api')) {
+    const apiUrl = new URL(API_BASE_URL, self.location.origin);
+    const isApiRequest = url.origin === apiUrl.origin &&
+        url.pathname.startsWith(`${apiUrl.pathname.replace(/\/$/, '')}/`);
+
+    // API requests are never cached or converted into successful responses.
+    if (isApiRequest) {
         event.respondWith(
             fetch(event.request).catch(() => {
-                // If offline and it's a POST request (complaint), we might return a custom offline response
-                // But generally we rely on Background Sync for writes
                 return new Response(JSON.stringify({ error: 'offline' }), {
+                    status: 503,
                     headers: { 'Content-Type': 'application/json' }
                 });
             })
@@ -58,14 +58,22 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Static Assets - Stale-While-Revalidate
+    if (event.request.method !== 'GET') return;
+
+    // Static assets use stale-while-revalidate. Navigations fall back to the
+    // cached app shell and then the dedicated offline page.
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             const fetchPromise = fetch(event.request).then((networkResponse) => {
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, networkResponse.clone());
-                });
+                if (networkResponse.ok) {
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
+                }
                 return networkResponse;
+            }).catch(async () => {
+                if (event.request.mode === 'navigate') {
+                    return (await caches.match('/index.html')) || caches.match('/offline.html');
+                }
+                return cachedResponse;
             });
             return cachedResponse || fetchPromise;
         })
@@ -75,77 +83,55 @@ self.addEventListener('fetch', (event) => {
 // Background Sync - Handle Offline Complaints
 self.addEventListener('sync', (event) => {
     if (event.tag === 'sync-complaints') {
-        console.log('[Service Worker] Syncing complaints...');
-        event.waitUntil(syncComplaints());
+        // Authentication credentials are deliberately not persisted in
+        // IndexedDB. Ask an authenticated window to flush the queue instead.
+        event.waitUntil(notifyClients('SYNC_REQUESTED'));
     }
 });
 
-async function syncComplaints() {
+// Web Push - display server payloads while the app is closed or backgrounded.
+self.addEventListener('push', (event) => {
+    let data = {};
     try {
-        const db = await openDB();
-        const complaints = await getAllComplaints(db);
-
-        for (const complaint of complaints) {
-            try {
-                console.log(`[Service Worker] Syncing complaint ${complaint.id}`);
-
-                const response = await fetch('/api/v1/complaints', {
-                    method: 'POST',
-                    headers: complaint.headers,
-                    body: JSON.stringify(complaint.body)
-                });
-
-                if (response.ok) {
-                    await deleteComplaint(db, complaint.id);
-                    console.log(`[Service Worker] Complaint ${complaint.id} synced successfully`);
-
-                    // Optional: Notify client
-                    notifyClients('Complaint synced successfully');
-                }
-            } catch (error) {
-                console.error(`[Service Worker] Failed to sync complaint ${complaint.id}`, error);
-            }
-        }
-    } catch (error) {
-        console.error('[Service Worker] Sync failed:', error);
+        data = event.data ? event.data.json() : {};
+    } catch {
+        data = { body: event.data?.text() || 'You have a new notification' };
     }
-}
+    const title = typeof data.title === 'string' ? data.title.slice(0, 200) : 'Meri Shikayat';
+    const options = {
+        body: typeof data.body === 'string' ? data.body.slice(0, 1000) : 'You have a new notification',
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        data: { url: typeof data.url === 'string' ? data.url : '/' }
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+});
 
-// IndexedDB Helpers (Duplicated from pwa.js because SW doesn't support imports easily without bundler)
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('meri-shikayat-offline', 1);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    let destination = new URL('/', self.location.origin);
+    try {
+        const requested = new URL(event.notification.data?.url || '/', self.location.origin);
+        if (requested.origin === self.location.origin) destination = requested;
+    } catch {}
 
-function getAllComplaints(db) {
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction('complaints', 'readonly');
-        const store = transaction.objectStore('complaints');
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
+    event.waitUntil((async () => {
+        const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const existing = windows.find(client => new URL(client.url).origin === self.location.origin);
+        if (existing) {
+            await existing.navigate(destination.href);
+            return existing.focus();
+        }
+        return self.clients.openWindow(destination.href);
+    })());
+});
 
-function deleteComplaint(db, id) {
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction('complaints', 'readwrite');
-        const store = transaction.objectStore('complaints');
-        const request = store.delete(id);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
-}
-
-async function notifyClients(message) {
-    const clients = await self.clients.matchAll();
+async function notifyClients(type, message) {
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     clients.forEach(client => {
         client.postMessage({
-            type: 'SYNC_COMPLETE',
-            message: message
+            type,
+            message
         });
     });
 }

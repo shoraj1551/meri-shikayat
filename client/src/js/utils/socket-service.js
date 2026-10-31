@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { SOCKET_URL } from '../config/api.js';
 
 export function resolveSocketOrigin(configuredApiUrl, pageOrigin) {
     if (!configuredApiUrl) return pageOrigin;
@@ -27,8 +28,7 @@ class SocketService {
             return;
         }
 
-        const configuredApiUrl = import.meta.env?.VITE_API_URL || window.API_BASE_URL;
-        const baseUrl = resolveSocketOrigin(configuredApiUrl, window.location.origin);
+        const baseUrl = resolveSocketOrigin(SOCKET_URL, window.location.origin);
 
         this.socket = io(baseUrl, {
             withCredentials: true,

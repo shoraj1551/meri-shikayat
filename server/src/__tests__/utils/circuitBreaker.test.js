@@ -110,6 +110,21 @@ describe('Circuit Breaker', () => {
 
             expect(circuitBreaker.getState().state).toBe(STATES.OPEN);
         });
+
+        it('allows only one recovery probe at a time', async () => {
+            let finishProbe;
+            const probe = circuitBreaker.execute(() => new Promise(resolve => {
+                finishProbe = resolve;
+            }));
+            await Promise.resolve();
+
+            const second = jest.fn().mockResolvedValue('second');
+            await expect(circuitBreaker.execute(second)).rejects.toThrow('recovery probe is already running');
+            expect(second).not.toHaveBeenCalled();
+
+            finishProbe('recovered');
+            await expect(probe).resolves.toBe('recovered');
+        });
     });
 
     describe('timeout', () => {

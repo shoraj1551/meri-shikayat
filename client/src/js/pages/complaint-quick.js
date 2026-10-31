@@ -3,6 +3,8 @@
  * Simplified complaint submission for non-logged-in users
  */
 
+import { escapeHtmlDeep } from '../utils/html.js';
+
 const CATEGORIES = [
     { id: 'pothole', icon: '🚧', label: 'Pothole' },
     { id: 'trash', icon: '🗑️', label: 'Trash/Waste' },
@@ -277,11 +279,14 @@ function setupEventListeners() {
 
                 const suggestionsDiv = document.getElementById('addressSuggestions');
                 if (results.length > 0) {
-                    suggestionsDiv.innerHTML = results.map(result => `
+                    suggestionsDiv.innerHTML = results.map(rawResult => {
+                        const result = escapeHtmlDeep(rawResult);
+                        return `
                         <div class="suggestion-item" data-lat="${result.lat}" data-lon="${result.lon}" data-address="${result.display_name}">
                             ${result.display_name}
                         </div>
-                    `).join('');
+                    `;
+                    }).join('');
                     suggestionsDiv.style.display = 'block';
 
                     // Add click listeners to suggestions

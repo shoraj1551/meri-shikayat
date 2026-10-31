@@ -1,12 +1,37 @@
-/**
- * PWA Registration and Management
- * Handles service worker registration and PWA features
- */
+const REQUIRED_COMPLAINT_FIELDS = ['title', 'type', 'description', 'location'];
+
+export function serializeComplaintFormData(formData) {
+    if (!(formData instanceof FormData)) throw new TypeError('Offline complaints must use FormData');
+    const entries = [];
+    for (const [name, value] of formData.entries()) {
+        if (value instanceof Blob) {
+            entries.push({ name, kind: 'blob', value, filename: value.name || 'evidence' });
+        } else {
+            entries.push({ name, kind: 'text', value: String(value) });
+        }
+    }
+
+    const names = new Set(entries.map(entry => entry.name));
+    const missing = REQUIRED_COMPLAINT_FIELDS.filter(field => !names.has(field));
+    if (!names.has('category') && !names.has('customCategory')) missing.push('category');
+    if (missing.length) throw new Error(`Offline complaint is incomplete: ${missing.join(', ')}`);
+    return entries;
+}
+
+export function restoreComplaintFormData(entries, FormDataCtor = FormData) {
+    const formData = new FormDataCtor();
+    for (const entry of entries) {
+        if (entry.kind === 'blob') formData.append(entry.name, entry.value, entry.filename);
+        else formData.append(entry.name, entry.value);
+    }
+    return formData;
+}
 
 class PWAManager {
     constructor() {
         this.registration = null;
         this.deferredPrompt = null;
+        this.flushPromise = null;
     }
 
     /**
@@ -17,8 +42,12 @@ class PWAManager {
             await this.registerServiceWorker();
             this.setupInstallPrompt();
             this.setupUpdateNotification();
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data?.type === 'SYNC_REQUESTED') this.flushOfflineComplaints();
+            });
         }
         this.setupConnectivityListeners();
+        if (navigator.onLine) await this.flushOfflineComplaints();
     }
 
     /**
@@ -26,7 +55,9 @@ class PWAManager {
      */
     async registerServiceWorker() {
         try {
-            this.registration = await navigator.serviceWorker.register('/service-worker.js');
+            const { API_BASE_URL } = await import('../config/api.js');
+            const workerUrl = `/service-worker.js?apiBase=${encodeURIComponent(API_BASE_URL)}`;
+            this.registration = await navigator.serviceWorker.register(workerUrl);
             console.log('[PWA] Service Worker registered successfully');
 
             // Check for updates every hour
@@ -203,11 +234,23 @@ class PWAManager {
         }
 
         try {
-            // Check for VAPID key
-            const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY; // Using Vite env var
+            const existing = await this.registration.pushManager.getSubscription();
+            if (existing) {
+                await this.saveSubscriptionToServer(existing);
+                return existing;
+            }
+
+            // Read the public key from the API so it always matches the server's
+            // private key; a build-time key may still be used as a fallback.
+            const { apiUrl } = await import('../config/api.js');
+            let vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+            const keyResponse = await fetch(apiUrl('/notifications/public-key'));
+            if (keyResponse.ok) {
+                const keyBody = await keyResponse.json();
+                vapidKey = keyBody.data?.publicKey;
+            }
             if (!vapidKey || vapidKey === 'PLACEHOLDER_VAPID_PUBLIC_KEY') {
-                console.warn('[PWA] VAPID Public Key not found. Push subscription skipped.');
-                return null;
+                throw new Error('Push notifications are not configured');
             }
 
             const subscription = await this.registration.pushManager.subscribe({
@@ -236,7 +279,8 @@ class PWAManager {
             const token = localStorage.getItem('token');
             if (!token) return; // User not logged in
 
-            const response = await fetch('/api/v1/notifications/subscribe', {
+            const { apiUrl } = await import('../config/api.js');
+            const response = await fetch(apiUrl('/notifications/subscribe'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -251,6 +295,23 @@ class PWAManager {
         } catch (error) {
             console.error('[PWA] Error saving subscription:', error);
         }
+    }
+
+    async unsubscribeFromPush() {
+        if (!this.registration) return false;
+        const subscription = await this.registration.pushManager.getSubscription();
+        if (subscription) await subscription.unsubscribe();
+
+        const token = localStorage.getItem('token');
+        if (token) {
+            const { apiUrl } = await import('../config/api.js');
+            const response = await fetch(apiUrl('/notifications/subscribe'), {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok && response.status !== 404) throw new Error('Failed to remove push subscription');
+        }
+        return true;
     }
 
     /**
@@ -294,7 +355,8 @@ class PWAManager {
 
         try {
             const db = await this.openDB();
-            await this.addComplaintToDB(db, complaintData);
+            await this.addComplaintToDB(db, serializeComplaintFormData(complaintData));
+            db.close();
             await this.registerSync();
             return true;
         } catch (error) {
@@ -307,7 +369,10 @@ class PWAManager {
      * Setup connectivity listeners
      */
     setupConnectivityListeners() {
-        window.addEventListener('online', () => this.updateOnlineStatus());
+        window.addEventListener('online', () => {
+            this.updateOnlineStatus();
+            this.flushOfflineComplaints();
+        });
         window.addEventListener('offline', () => this.updateOnlineStatus());
         this.updateOnlineStatus(); // Initial check
     }
@@ -337,9 +402,14 @@ class PWAManager {
     // IndexedDB Helpers for Main Thread
     openDB() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('meri-shikayat-offline', 1);
+            const request = indexedDB.open('meri-shikayat-offline', 2);
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
+                // Version 1 stored bearer tokens and incomplete JSON payloads.
+                // Remove that incompatible, sensitive queue during migration.
+                if (e.oldVersion < 2 && db.objectStoreNames.contains('complaints')) {
+                    db.deleteObjectStore('complaints');
+                }
                 if (!db.objectStoreNames.contains('complaints')) {
                     db.createObjectStore('complaints', { keyPath: 'id' });
                 }
@@ -349,23 +419,82 @@ class PWAManager {
         });
     }
 
-    addComplaintToDB(db, data) {
+    addComplaintToDB(db, entries) {
         return new Promise((resolve, reject) => {
             const transaction = db.transaction('complaints', 'readwrite');
             const store = transaction.objectStore('complaints');
             const item = {
-                id: Date.now().toString(),
-                body: data,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Ensure auth is preserved
-                },
+                id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+                entries,
                 timestamp: Date.now()
             };
             const request = store.add(item);
             request.onsuccess = () => resolve();
             request.onerror = () => reject(request.error);
         });
+    }
+
+    getAllOfflineComplaints(db) {
+        return new Promise((resolve, reject) => {
+            const request = db.transaction('complaints', 'readonly').objectStore('complaints').getAll();
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    deleteOfflineComplaint(db, id) {
+        return new Promise((resolve, reject) => {
+            const request = db.transaction('complaints', 'readwrite').objectStore('complaints').delete(id);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async flushOfflineComplaints(fetchImpl = fetch) {
+        if (this.flushPromise) return this.flushPromise;
+        const flush = () => this.performOfflineComplaintFlush(fetchImpl);
+        this.flushPromise = navigator.locks?.request
+            ? navigator.locks.request('meri-shikayat-complaint-sync', { ifAvailable: true }, lock => (
+                lock ? flush() : { synced: 0, pending: true }
+            ))
+            : flush();
+        try {
+            return await this.flushPromise;
+        } finally {
+            this.flushPromise = null;
+        }
+    }
+
+    async performOfflineComplaintFlush(fetchImpl = fetch) {
+        if (!navigator.onLine || !('indexedDB' in window)) return { synced: 0, pending: true };
+        const token = localStorage.getItem('token');
+        if (!token) return { synced: 0, pending: true };
+
+        const db = await this.openDB();
+        let synced = 0;
+        try {
+            const complaints = await this.getAllOfflineComplaints(db);
+            if (!complaints.length) return { synced: 0, pending: false };
+            const { apiUrl } = await import('../config/api.js');
+
+            for (const complaint of complaints) {
+                const response = await fetchImpl(apiUrl('/complaints'), {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: restoreComplaintFormData(complaint.entries)
+                });
+                if (response.status === 401 || response.status === 403) break;
+                if (!response.ok) continue;
+                await this.deleteOfflineComplaint(db, complaint.id);
+                synced += 1;
+            }
+            return { synced, pending: synced < complaints.length };
+        } catch (error) {
+            console.error('[PWA] Offline complaint sync failed:', error);
+            return { synced, pending: true };
+        } finally {
+            db.close();
+        }
     }
 
     /**
@@ -387,16 +516,15 @@ class PWAManager {
     }
 }
 
-// Create global instance
-window.pwaManager = new PWAManager();
-
-// Initialize on load
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    window.pwaManager = new PWAManager();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.pwaManager.init();
+        });
+    } else {
         window.pwaManager.init();
-    });
-} else {
-    window.pwaManager.init();
+    }
 }
 
 export default PWAManager;

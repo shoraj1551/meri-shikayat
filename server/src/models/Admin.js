@@ -42,6 +42,18 @@ const adminSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
+    employeeId: {
+        type: String,
+        trim: true,
+        sparse: true,
+        unique: true
+    },
+    legacyUserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        sparse: true,
+        unique: true,
+        select: false
+    },
     role: {
         type: String,
         enum: ['viewer', 'moderator', 'manager', 'super_admin'],
@@ -88,6 +100,12 @@ const adminSchema = new mongoose.Schema({
     },
     loginOtpExpires: {
         type: Date,
+        select: false
+    },
+    loginOtpAttempts: {
+        type: Number,
+        default: 0,
+        min: 0,
         select: false
     }
 }, {

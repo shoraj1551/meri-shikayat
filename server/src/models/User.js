@@ -1,10 +1,26 @@
 /**
  * Enhanced User Model - Unified Multi-Role System
- * Supports: General Users, Admins, Super Admins, Contractors
+ * Supports general users and contractors. Administrators use the Admin model.
  */
 
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+
+const pushSubscriptionSchema = new mongoose.Schema({
+    endpoint: {
+        type: String,
+        required: true,
+        maxlength: 2048
+    },
+    expirationTime: {
+        type: Number,
+        default: null
+    },
+    keys: {
+        p256dh: { type: String, required: true, maxlength: 512 },
+        auth: { type: String, required: true, maxlength: 512 }
+    }
+}, { _id: false });
 
 const userSchema = new mongoose.Schema({
     // ========================================
@@ -63,7 +79,7 @@ const userSchema = new mongoose.Schema({
     // ========================================
     userType: {
         type: String,
-        enum: ['general_user', 'admin', 'super_admin', 'contractor'],
+        enum: ['general_user', 'contractor'],
         required: true,
         default: 'general_user'
     },
@@ -75,6 +91,11 @@ const userSchema = new mongoose.Schema({
             return this.userType === 'general_user' ? 'active' : 'pending';
         }
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: Date,
 
     // ========================================
     // LOCATION (General Users)
@@ -99,6 +120,9 @@ const userSchema = new mongoose.Schema({
             default: 'India'
         },
         coordinates: {
+            lat: Number,
+            lng: Number,
+            // Kept readable while existing records are migrated on their next update.
             latitude: Number,
             longitude: Number
         }
@@ -106,60 +130,6 @@ const userSchema = new mongoose.Schema({
     isLocationSet: {
         type: Boolean,
         default: false
-    },
-
-    // ========================================
-    // ADMIN PROFILE (Admin & Super Admin)
-    // ========================================
-    adminProfile: {
-        department: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Department'
-        },
-        designation: {
-            type: String,
-            trim: true,
-            maxlength: [100, 'Designation cannot exceed 100 characters']
-        },
-        employeeId: {
-            type: String,
-            trim: true,
-            sparse: true,
-            unique: true
-        },
-        adminId: {
-            type: String,
-            sparse: true,
-            unique: true
-        },
-        role: {
-            type: String,
-            enum: ['viewer', 'moderator', 'manager', 'super_admin'],
-            default: 'viewer'
-        },
-        permissions: {
-            viewComplaints: { type: Boolean, default: false },
-            editComplaints: { type: Boolean, default: false },
-            deleteComplaints: { type: Boolean, default: false },
-            assignComplaints: { type: Boolean, default: false },
-            viewUsers: { type: Boolean, default: false },
-            editUsers: { type: Boolean, default: false },
-            deleteUsers: { type: Boolean, default: false },
-            viewReports: { type: Boolean, default: false },
-            manageAdmins: { type: Boolean, default: false },
-            systemSettings: { type: Boolean, default: false }
-        },
-        approvedBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        approvedAt: Date,
-        rejectedBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        rejectedAt: Date,
-        rejectionReason: String
     },
 
     // ========================================
@@ -467,6 +437,16 @@ const userSchema = new mongoose.Schema({
     // SECURITY
     // ========================================
     lastPasswordChange: Date,
+    tokenVersion: {
+        type: Number,
+        default: 0,
+        min: 0,
+        select: true
+    },
+    pushSubscription: {
+        type: pushSubscriptionSchema,
+        select: false
+    },
     failedLoginAttempts: {
         type: Number,
         default: 0
@@ -491,7 +471,6 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ userType: 1, status: 1 }); // For filtering users by type and status
 userSchema.index({ 'location.pincode': 1 }); // For location-based queries
 userSchema.index({ createdAt: -1 }); // For sorting by registration date
-userSchema.index({ 'adminProfile.department': 1 }); // For admin queries by department
 userSchema.index({ 'contractorProfile.specialization': 1 }); // For contractor queries
 
 // ========================================
@@ -533,26 +512,9 @@ userSchema.virtual('fullName').get(function () {
     return `${this.firstName} ${this.lastName}`;
 });
 
-// Check if user is admin or super admin
-userSchema.methods.isAdmin = function () {
-    return this.userType === 'admin' || this.userType === 'super_admin';
-};
-
-// Check if user is super admin
-userSchema.methods.isSuperAdmin = function () {
-    return this.userType === 'super_admin';
-};
-
 // Check if user is contractor
 userSchema.methods.isContractor = function () {
     return this.userType === 'contractor';
-};
-
-// Check if user has permission
-userSchema.methods.hasPermission = function (permission) {
-    if (this.userType === 'super_admin') return true;
-    if (!this.adminProfile) return false;
-    return this.adminProfile.permissions[permission] === true;
 };
 
 export default mongoose.model('User', userSchema);

@@ -4,10 +4,22 @@
 
 import Admin from '../models/Admin.js';
 import PermissionRequest from '../models/PermissionRequest.js';
-import { generateAdminId, getDefaultPermissions } from '../utils/adminUtils.js';
+import Complaint from '../models/Complaint.js';
+import User from '../models/User.js';
+import { createPendingAdmin, getDefaultPermissions } from '../utils/adminUtils.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import { sendAdminApprovalEmail, sendAdminRejectionEmail } from '../services/notification.service.js';
+import { sendAdminLoginOTP } from '../services/email.service.js';
+import {
+    generateOTP,
+    hashOTP,
+    verifyOTP,
+    getOTPExpiry,
+    isOTPExpired,
+    isMaxAttemptsExceeded,
+    getOTPConfig
+} from '../services/otp.service.js';
+import logger from '../utils/logger.js';
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -21,35 +33,7 @@ const generateToken = (id) => {
 // @access  Public
 export const registerAdmin = async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, password, department, designation } = req.body;
-
-        // Check if admin already exists
-        const adminExists = await Admin.findOne({ $or: [{ email }, { phone }] });
-
-        if (adminExists) {
-            return res.status(400).json({
-                success: false,
-                message: 'Admin with this email or phone already exists'
-            });
-        }
-
-        // Generate Admin ID
-        const adminId = await generateAdminId();
-
-        // Create admin with pending status and viewer role by default
-        const admin = await Admin.create({
-            firstName,
-            lastName,
-            email,
-            phone,
-            password,
-            adminId,
-            department,
-            designation,
-            role: 'viewer', // Default role
-            status: 'pending', // Default status
-            permissions: getDefaultPermissions('viewer') // Default permissions
-        });
+        const admin = await createPendingAdmin(req.body);
 
         if (admin) {
             res.status(201).json({
@@ -71,6 +55,12 @@ export const registerAdmin = async (req, res) => {
             });
         }
     } catch (error) {
+        if (error.code === 'ADMIN_IDENTITY_EXISTS' || error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'An account with this email, phone, or employee ID already exists'
+            });
+        }
         console.error(error);
         res.status(500).json({
             success: false,
@@ -115,19 +105,30 @@ export const loginAdmin = async (req, res) => {
                 });
             }
 
-            // Generate 6-digit OTP
-            const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-            // Hash OTP before saving (for security in production)
-            // For this demo, we'll save plain/hashed but log it for testing
-            const salt = await bcrypt.genSalt(10);
-            admin.loginOtp = await bcrypt.hash(otp, salt);
-            admin.loginOtpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+            const otp = generateOTP();
+            admin.loginOtp = await hashOTP(otp);
+            admin.loginOtpExpires = getOTPExpiry();
+            admin.loginOtpAttempts = 0;
 
             await admin.save();
 
-            // In a real app, send via SMS/Email
-            console.log(`[ADMIN LOGIN OTP] For ${admin.email}: ${otp}`);
+            const delivery = await sendAdminLoginOTP(admin.email, otp, admin.firstName);
+            if (!delivery.success) {
+                await Admin.updateOne(
+                    { _id: admin._id, loginOtp: admin.loginOtp },
+                    { $unset: { loginOtp: 1, loginOtpExpires: 1, loginOtpAttempts: 1 } }
+                );
+                return res.status(503).json({
+                    success: false,
+                    message: 'Unable to deliver the verification code. Please try again later.'
+                });
+            }
+
+            logger.security('Admin login OTP issued', {
+                adminId: admin.adminId,
+                emailDomain: admin.email.split('@')[1],
+                expiresAt: admin.loginOtpExpires
+            });
 
             res.json({
                 success: true,
@@ -158,7 +159,15 @@ export const verifyAdminOtp = async (req, res) => {
     try {
         const { adminId, otp } = req.body;
 
-        const admin = await Admin.findById(adminId).select('+loginOtp +loginOtpExpires');
+        if (!/^[0-9]{6}$/.test(otp || '')) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid OTP'
+            });
+        }
+
+        const admin = await Admin.findById(adminId)
+            .select('+loginOtp +loginOtpExpires +loginOtpAttempts');
 
         if (!admin) {
             return res.status(404).json({
@@ -174,38 +183,100 @@ export const verifyAdminOtp = async (req, res) => {
             });
         }
 
-        if (admin.loginOtpExpires < Date.now()) {
+        if (admin.status !== 'active') {
+            await Admin.updateOne(
+                { _id: admin._id, loginOtp: admin.loginOtp },
+                { $unset: { loginOtp: 1, loginOtpExpires: 1, loginOtpAttempts: 1 } }
+            );
+            return res.status(403).json({
+                success: false,
+                message: 'Administrator account is not active'
+            });
+        }
+
+        if (isOTPExpired(admin.loginOtpExpires)) {
+            await Admin.updateOne(
+                { _id: admin._id, loginOtp: admin.loginOtp },
+                { $unset: { loginOtp: 1, loginOtpExpires: 1, loginOtpAttempts: 1 } }
+            );
             return res.status(400).json({
                 success: false,
                 message: 'OTP has expired'
             });
         }
 
-        const isMatch = await bcrypt.compare(otp, admin.loginOtp) || otp === '123456';
-
-        if (!isMatch) {
+        const { maxAttempts } = getOTPConfig();
+        if (isMaxAttemptsExceeded(admin.loginOtpAttempts || 0)) {
+            await Admin.updateOne(
+                { _id: admin._id, loginOtp: admin.loginOtp },
+                { $unset: { loginOtp: 1, loginOtpExpires: 1, loginOtpAttempts: 1 } }
+            );
             return res.status(400).json({
                 success: false,
-                message: 'Invalid OTP'
+                message: 'Maximum OTP verification attempts exceeded. Please login again.'
             });
         }
 
-        // Clear OTP
-        admin.loginOtp = undefined;
-        admin.loginOtpExpires = undefined;
-        await admin.save();
+        const isMatch = await verifyOTP(otp, admin.loginOtp);
+
+        if (!isMatch) {
+            const attemptedAdmin = await Admin.findOneAndUpdate(
+                {
+                    _id: admin._id,
+                    loginOtp: admin.loginOtp,
+                    loginOtpExpires: { $gt: new Date() },
+                    status: 'active',
+                    loginOtpAttempts: { $lt: maxAttempts }
+                },
+                { $inc: { loginOtpAttempts: 1 } },
+                { new: true, select: '+loginOtpAttempts' }
+            );
+            const locked = !attemptedAdmin || isMaxAttemptsExceeded(attemptedAdmin.loginOtpAttempts);
+            if (locked) {
+                await Admin.updateOne(
+                    { _id: admin._id, loginOtp: admin.loginOtp },
+                    { $unset: { loginOtp: 1, loginOtpExpires: 1, loginOtpAttempts: 1 } }
+                );
+            }
+            return res.status(400).json({
+                success: false,
+                message: locked
+                    ? 'Maximum OTP verification attempts exceeded. Please login again.'
+                    : 'Invalid OTP'
+            });
+        }
+
+        // Atomically consume the OTP so concurrent/replayed requests cannot both issue tokens.
+        const verifiedAdmin = await Admin.findOneAndUpdate(
+            {
+                _id: admin._id,
+                loginOtp: admin.loginOtp,
+                loginOtpExpires: { $gt: new Date() },
+                status: 'active',
+                loginOtpAttempts: { $lt: maxAttempts }
+            },
+            { $unset: { loginOtp: 1, loginOtpExpires: 1, loginOtpAttempts: 1 } },
+            { new: true }
+        );
+
+        if (!verifiedAdmin) {
+            return res.status(400).json({
+                success: false,
+                message: 'OTP is invalid, expired, or has already been used'
+            });
+        }
 
         res.json({
             success: true,
-            token: generateToken(admin._id),
+            token: generateToken(verifiedAdmin._id),
             data: {
-                _id: admin._id,
-                firstName: admin.firstName,
-                lastName: admin.lastName,
-                email: admin.email,
-                role: admin.role,
-                permissions: admin.permissions,
-                adminId: admin.adminId
+                _id: verifiedAdmin._id,
+                firstName: verifiedAdmin.firstName,
+                lastName: verifiedAdmin.lastName,
+                email: verifiedAdmin.email,
+                role: verifiedAdmin.role,
+                permissions: verifiedAdmin.permissions,
+                adminId: verifiedAdmin.adminId
             }
         });
 
@@ -494,10 +565,12 @@ export const rejectPermissionRequest = async (req, res) => {
 // @access  Private (Admin)
 export const getDashboardStats = async (req, res) => {
     try {
-        const totalComplaints = await import('../models/Complaint.js').then(m => m.default.countDocuments());
-        const pendingComplaints = await import('../models/Complaint.js').then(m => m.default.countDocuments({ status: 'Pending' }));
-        const resolvedComplaints = await import('../models/Complaint.js').then(m => m.default.countDocuments({ status: 'Resolved' }));
-        const activeUsers = await import('../models/User.js').then(m => m.default.countDocuments());
+        const [totalComplaints, pendingComplaints, resolvedComplaints, activeUsers] = await Promise.all([
+            Complaint.countDocuments(),
+            Complaint.countDocuments({ status: 'pending' }),
+            Complaint.countDocuments({ status: 'resolved' }),
+            User.countDocuments({ status: 'active', isDeleted: { $ne: true } })
+        ]);
 
         res.json({
             success: true,

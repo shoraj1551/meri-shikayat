@@ -4,12 +4,13 @@
  */
 
 import User from '../models/User.js';
+import { createPendingAdmin } from '../utils/adminUtils.js';
 import jwt from 'jsonwebtoken';
 import { betaFeatureUnavailable } from '../middleware/betaRestrictions.js';
 
 // Generate JWT token
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (user) => {
+    return jwt.sign({ id: user._id, tokenVersion: user.tokenVersion || 0 }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE || '7d'
     });
 };
@@ -66,7 +67,7 @@ export const registerGeneralUser = async (req, res) => {
         });
 
         // Generate token
-        const token = generateToken(user._id);
+        const token = generateToken(user);
 
         res.status(201).json({
             success: true,
@@ -104,7 +105,6 @@ export const registerAdmin = async (req, res) => {
         const {
             firstName,
             lastName,
-            dateOfBirth,
             email,
             phone,
             password,
@@ -121,73 +121,43 @@ export const registerAdmin = async (req, res) => {
             });
         }
 
-        // Check if user already exists
-        const existingUser = await User.findOne({
-            $or: [
-                { email },
-                { phone },
-                { 'adminProfile.employeeId': employeeId }
-            ]
-        });
-
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'User with this email, phone, or employee ID already exists'
-            });
-        }
-
-        // Create admin user (pending approval)
-        const user = await User.create({
+        // Admin is the sole operational identity store for approval, OTP login,
+        // sockets, permissions and complaint assignments.
+        const admin = await createPendingAdmin({
             firstName,
             lastName,
-            dateOfBirth: dateOfBirth || new Date('1990-01-01'), // Default for admins
             email,
             phone,
             password,
-            userType: 'admin',
-            status: 'pending', // Requires approval
-            adminProfile: {
-                department,
-                designation,
-                employeeId,
-                role: 'viewer', // Default role
-                permissions: {
-                    viewComplaints: true,
-                    editComplaints: false,
-                    deleteComplaints: false,
-                    assignComplaints: false,
-                    viewUsers: false,
-                    editUsers: false,
-                    deleteUsers: false,
-                    viewReports: false,
-                    manageAdmins: false,
-                    systemSettings: false
-                }
-            },
-            registrationMetadata: {
-                ipAddress: req.ip,
-                userAgent: req.headers['user-agent'],
-                referralSource: req.headers.referer || 'direct'
-            }
+            department,
+            designation,
+            employeeId
         });
 
         res.status(201).json({
             success: true,
             message: 'Admin registration submitted successfully. Your account is pending approval.',
             data: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                phone: user.phone,
-                userType: user.userType,
-                status: user.status,
-                department: user.adminProfile.department,
-                designation: user.adminProfile.designation
+                id: admin._id,
+                firstName: admin.firstName,
+                lastName: admin.lastName,
+                email: admin.email,
+                phone: admin.phone,
+                userType: 'admin',
+                status: admin.status,
+                department: admin.department,
+                designation: admin.designation,
+                employeeId: admin.employeeId,
+                adminId: admin.adminId
             }
         });
     } catch (error) {
+        if (error.code === 'ADMIN_IDENTITY_EXISTS' || error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'An account with this email, phone, or employee ID already exists'
+            });
+        }
         console.error('Admin registration error:', error);
         res.status(500).json({
             success: false,

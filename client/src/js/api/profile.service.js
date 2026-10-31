@@ -2,7 +2,9 @@
  * Profile Service - API calls for user profile management
  */
 
-const API_URL = '/api/v1';
+import { API_BASE_URL } from '../config/api.js';
+
+const API_URL = API_BASE_URL;
 
 export const profileService = {
     /**

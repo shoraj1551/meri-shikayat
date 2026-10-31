@@ -1,5 +1,62 @@
+import mongoose from 'mongoose';
 import Contractor from '../models/Contractor.js';
 import ContractorAssignment from '../models/ContractorAssignment.js';
+
+const PUBLIC_CONTRACTOR_FIELDS = [
+    '_id', 'companyName', 'companyNameHindi', 'city', 'state',
+    'specialization', 'serviceAreas', 'establishedYear',
+    'totalJobsCompleted', 'avgRating', 'isVerified'
+].join(' ');
+
+const publicContractorQuery = Object.freeze({
+    isActive: true,
+    isVerified: true,
+    status: 'active'
+});
+
+const formatPublicContractor = contractor => ({
+    id: contractor._id,
+    companyName: contractor.companyName,
+    companyNameHindi: contractor.companyNameHindi,
+    city: contractor.city,
+    state: contractor.state,
+    specialization: contractor.specialization,
+    serviceAreas: contractor.serviceAreas,
+    establishedYear: contractor.establishedYear,
+    totalJobsCompleted: contractor.totalJobsCompleted,
+    avgRating: contractor.avgRating,
+    isVerified: contractor.isVerified
+});
+
+export const getMyContractorDashboard = async (req, res) => {
+    if (req.user.userType !== 'contractor') {
+        return res.status(403).json({ success: false, message: 'Contractor account required' });
+    }
+
+    try {
+        const assignments = await ContractorAssignment.find({ contractor: req.user._id })
+            .sort({ assignedDate: -1 })
+            .populate({ path: 'complaint', select: 'complaintId title status priority location category', populate: { path: 'category', select: 'name' } })
+            .lean();
+        const completed = assignments.filter(item => item.status === 'completed');
+        res.json({ success: true, data: {
+            contractor: {
+                companyName: req.user.contractorProfile?.companyName,
+                verificationStatus: req.user.status,
+                rating: req.user.contractorProfile?.rating || 0
+            },
+            stats: {
+                assigned: assignments.length,
+                inProgress: assignments.filter(item => item.status === 'in_progress').length,
+                completed: completed.length,
+                totalEarnings: completed.reduce((total, item) => total + (item.actualCost || 0), 0)
+            },
+            assignments
+        } });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Unable to load contractor dashboard' });
+    }
+};
 
 /**
  * Get all active contractors
@@ -7,10 +64,10 @@ import ContractorAssignment from '../models/ContractorAssignment.js';
  */
 export const getAllContractors = async (req, res) => {
     try {
-        const { specialization, city, verified } = req.query;
+        const { specialization, city } = req.query;
 
         // Build query
-        const query = { isActive: true, status: 'active' };
+        const query = { ...publicContractorQuery };
 
         if (specialization) {
             query.specialization = specialization;
@@ -20,30 +77,12 @@ export const getAllContractors = async (req, res) => {
             query.city = city;
         }
 
-        if (verified === 'true') {
-            query.isVerified = true;
-        }
-
         const contractors = await Contractor.find(query)
-            .select('-certifications -__v')
+            .select(PUBLIC_CONTRACTOR_FIELDS)
+            .lean()
             .sort({ avgRating: -1, totalJobsCompleted: -1 });
 
-        const formattedContractors = contractors.map(contractor => ({
-            id: contractor._id,
-            companyName: contractor.companyName,
-            companyNameHindi: contractor.companyNameHindi,
-            primaryContact: contractor.primaryContactPerson,
-            email: contractor.email,
-            phone: contractor.phone,
-            address: contractor.address,
-            city: contractor.city,
-            specialization: contractor.specialization,
-            serviceAreas: contractor.serviceAreas,
-            avgRating: contractor.avgRating,
-            totalJobsCompleted: contractor.totalJobsCompleted,
-            isVerified: contractor.isVerified,
-            establishedYear: contractor.establishedYear
-        }));
+        const formattedContractors = contractors.map(formatPublicContractor);
 
         res.json({
             success: true,
@@ -54,8 +93,7 @@ export const getAllContractors = async (req, res) => {
         console.error('Error fetching contractors:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching contractors',
-            error: error.message
+            message: 'Error fetching contractors'
         });
     }
 };
@@ -68,7 +106,13 @@ export const getContractorById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const contractor = await Contractor.findById(id);
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(404).json({ success: false, message: 'Contractor not found' });
+        }
+
+        const contractor = await Contractor.findOne({ _id: id, ...publicContractorQuery })
+            .select(PUBLIC_CONTRACTOR_FIELDS)
+            .lean();
 
         if (!contractor) {
             return res.status(404).json({
@@ -76,15 +120,6 @@ export const getContractorById = async (req, res) => {
                 message: 'Contractor not found'
             });
         }
-
-        // Get recent assignments
-        const recentAssignments = await ContractorAssignment.find({
-            contractor: contractor._id
-        })
-            .populate('complaint', 'title status')
-            .populate('department', 'name')
-            .sort({ assignedDate: -1 })
-            .limit(10);
 
         // Calculate on-time completion rate
         const completedAssignments = await ContractorAssignment.find({
@@ -103,49 +138,12 @@ export const getContractorById = async (req, res) => {
             : 0;
 
         const response = {
-            id: contractor._id,
-            companyName: contractor.companyName,
-            companyNameHindi: contractor.companyNameHindi,
-            registrationNumber: contractor.registrationNumber,
-            gstNumber: contractor.gstNumber,
-            panNumber: contractor.panNumber,
-            contact: {
-                primaryPerson: contractor.primaryContactPerson,
-                email: contractor.email,
-                phone: contractor.phone,
-                alternatePhone: contractor.alternatePhone
-            },
-            address: {
-                street: contractor.address,
-                city: contractor.city,
-                state: contractor.state,
-                pincode: contractor.pincode
-            },
-            specialization: contractor.specialization,
-            serviceAreas: contractor.serviceAreas,
-            establishedYear: contractor.establishedYear,
-            contract: {
-                startDate: contractor.contractStartDate,
-                endDate: contractor.contractEndDate,
-                value: contractor.contractValue
-            },
-            certifications: contractor.certifications,
+            ...formatPublicContractor(contractor),
             performance: {
                 totalJobsCompleted: contractor.totalJobsCompleted,
                 avgRating: contractor.avgRating,
                 onTimeCompletion: `${onTimeRate}%`
-            },
-            isVerified: contractor.isVerified,
-            status: contractor.status,
-            recentJobs: recentAssignments.map(assignment => ({
-                id: assignment._id,
-                complaintTitle: assignment.complaint?.title,
-                department: assignment.department?.name,
-                assignedDate: assignment.assignedDate,
-                completionDate: assignment.actualCompletionDate,
-                status: assignment.status,
-                rating: assignment.rating
-            }))
+            }
         };
 
         res.json({
@@ -156,8 +154,7 @@ export const getContractorById = async (req, res) => {
         console.error('Error fetching contractor details:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching contractor details',
-            error: error.message
+            message: 'Error fetching contractor details'
         });
     }
 };
@@ -170,7 +167,13 @@ export const getContractorStatistics = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const contractor = await Contractor.findById(id);
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(404).json({ success: false, message: 'Contractor not found' });
+        }
+
+        const contractor = await Contractor.findOne({ _id: id, ...publicContractorQuery })
+            .select('_id avgRating')
+            .lean();
 
         if (!contractor) {
             return res.status(404).json({
@@ -201,8 +204,7 @@ export const getContractorStatistics = async (req, res) => {
         console.error('Error fetching contractor statistics:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching contractor statistics',
-            error: error.message
+            message: 'Error fetching contractor statistics'
         });
     }
 };

@@ -5,6 +5,7 @@
 
 import { profileService } from '../api/profile.service.js';
 import { Loading } from '../components/loading.js';
+import { escapeHtml, escapeHtmlDeep, safeUrl } from '../utils/html.js';
 
 export async function renderProfilePage() {
     const app = document.getElementById('app');
@@ -29,7 +30,7 @@ export async function renderProfilePage() {
             <div class="container">
                 <div class="error-message">
                     <h3>😕 Failed to load profile</h3>
-                    <p>${error.message || 'Please try again later.'}</p>
+                    <p>${escapeHtml(error.message || 'Please try again later.')}</p>
                     <button class="btn btn-primary" onclick="window.location.reload()">Retry</button>
                 </div>
             </div>
@@ -38,6 +39,8 @@ export async function renderProfilePage() {
 }
 
 function renderProfileContent(app, profile) {
+    const profilePictureUrl = profile.profilePicture?.url;
+    profile = escapeHtmlDeep(profile);
     const completion = calculateProfileCompletion(profile);
     const missingFields = getMissingFields(profile);
 
@@ -58,7 +61,7 @@ function renderProfileContent(app, profile) {
                     <div class="profile-picture-section">
                         <div class="profile-picture-container">
                             ${profile.profilePicture?.url ?
-            `<img src="${profile.profilePicture.url}" alt="Profile Picture" class="profile-picture" id="profilePictureImg">` :
+            `<img src="${safeUrl(profilePictureUrl)}" alt="Profile Picture" class="profile-picture" id="profilePictureImg">` :
             `<div class="profile-picture-placeholder" id="profilePicturePlaceholder">
                                     <span class="placeholder-initials">${getInitials(profile)}</span>
                                 </div>`
@@ -714,9 +717,9 @@ async function handleProfilePictureUpload(e) {
         const img = document.getElementById('profilePictureImg');
 
         if (placeholder) {
-            placeholder.outerHTML = `<img src="${response.data.url}" alt="Profile Picture" class="profile-picture" id="profilePictureImg">`;
+            placeholder.outerHTML = `<img src="${safeUrl(response.data.url)}" alt="Profile Picture" class="profile-picture" id="profilePictureImg">`;
         } else if (img) {
-            img.src = response.data.url;
+            img.src = safeUrl(response.data.url);
         }
 
         Loading.hide();
@@ -742,9 +745,23 @@ async function handleFormSubmit(section, form, profile) {
             data[key] = value;
         }
     }
+    // Unchecked checkboxes are absent from FormData; serialize them explicitly
+    // so disabling a notification channel is persisted and unsubscribed.
+    form.querySelectorAll('input[type="checkbox"][name]').forEach(input => {
+        data[input.name] = input.checked;
+    });
 
     try {
         Loading.show('Saving changes...');
+
+        if (section === 'preferences' && data.pushNotifications === true) {
+            const permitted = await window.pwaManager?.requestNotificationPermission();
+            if (!permitted) throw new Error('Browser notification permission was not granted');
+            const subscription = await window.pwaManager.subscribeToPush();
+            if (!subscription) throw new Error('Push subscription could not be created');
+        } else if (section === 'preferences' && data.pushNotifications === false) {
+            await window.pwaManager?.unsubscribeFromPush();
+        }
 
         await profileService.updateProfile(section, data);
 
@@ -769,7 +786,7 @@ async function handleFormSubmit(section, form, profile) {
     } catch (error) {
         Loading.hide();
         console.error('Update error:', error);
-        alert('Failed to update profile. Please try again.');
+        alert(error.message || 'Failed to update profile. Please try again.');
     }
 }
 

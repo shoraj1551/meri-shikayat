@@ -15,7 +15,7 @@ function valid() {
     const audit = createAuditReport(snapshot, now);
     return { audit, approval: { operator: 'operator-one', ticket: 'BETA-123', auditSha256: audit.sha256,
         review: [...snapshot.identities, ...snapshot.legacyGuests].map(r => ({ key: recordKey(r), decision: 'verified', reason: 'Reviewed evidence in secure case record' })) },
-        account: { store: 'User', firstName: 'Beta', lastName: 'Operator', email: 'operator@example.com', phone: '9876543210',
+        account: { store: 'Admin', firstName: 'Beta', lastName: 'Operator', email: 'operator@example.com', phone: '9876543210',
             password: randomBytes(24).toString('hex') + 'Aa1!' } };
 }
 test('audit inventory is deterministic and exports no credentials, contacts or complaint text', () => {
@@ -25,11 +25,11 @@ test('audit inventory is deterministic and exports no credentials, contacts or c
     assert.equal(snapshot.legacyGuests[0].requiresOwnershipReview, true);
     assert.deepEqual(createAuditReport(snapshot, now), createAuditReport(snapshot, now));
 });
-test('valid reviewed provisioning input explicitly selects an identity store', () => {
-    assert.equal(validateProvisioning(valid(), snapshot, now).store, 'User');
+test('valid reviewed provisioning input requires the canonical Admin identity store', () => {
+    assert.equal(validateProvisioning(valid(), snapshot, now).store, 'Admin');
     const input = valid();
-    input.account.store = 'Admin';
-    assert.equal(validateProvisioning(input, snapshot, now).store, 'Admin');
+    input.account.store = 'User';
+    assert.throws(() => validateProvisioning(input, snapshot, now), /canonical Admin store/);
 });
 test('provisioning fails for stale, tampered, unapproved or changed inventory', () => {
     const stale = valid();

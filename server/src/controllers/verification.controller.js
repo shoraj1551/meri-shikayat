@@ -325,7 +325,7 @@ export async function getVerificationStatus(req, res) {
     try {
         const user = await User.findById(req.user.id).select('email phone verificationStatus isVerified userType');
 
-        const requiresBoth = ['admin', 'super_admin', 'contractor'].includes(user.userType);
+        const requiresBoth = user.userType === 'contractor';
 
         res.json({
             success: true,

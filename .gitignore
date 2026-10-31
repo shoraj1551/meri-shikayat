@@ -19,6 +19,7 @@ build/
 lighthouse-report*.json
 
 # Local runtime and test captures
+.runtime/
 server/*_output*.txt
 server/stdout.txt
 server/stderr.txt

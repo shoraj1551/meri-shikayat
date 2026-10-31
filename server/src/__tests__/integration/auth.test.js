@@ -2,6 +2,7 @@ import { it } from 'node:test';
 import assert from 'node:assert/strict';
 import { integrationHarness } from '../../../test/harness/integration.mjs';
 import { api, registration } from '../../../test/harness/fixtures.mjs';
+import User from '../../models/User.js';
 const context = integrationHarness(import.meta.url);
 async function register() {
     const data = registration();
@@ -56,4 +57,21 @@ it('rejects a missing bearer token', async () => {
 });
 it('rejects an invalid bearer token', async () => {
     await api(context, 'get', '/auth/me').set('Authorization', 'Bearer invalid').expect(401);
+});
+it('rotates a refresh token and accepts the returned access token on a protected route', async () => {
+    const { data } = await register();
+    const login = await api(context, 'post', '/auth/login')
+        .send({ identifier: data.email, password: data.password, rememberMe: true }).expect(200);
+    assert.equal(typeof login.body.refreshToken, 'string');
+    const refreshed = await api(context, 'post', '/auth/refresh-token')
+        .send({ refreshToken: login.body.refreshToken }).expect(200);
+    await api(context, 'get', '/auth/me')
+        .set('Authorization', 'Bearer ' + refreshed.body.accessToken).expect(200);
+    await api(context, 'post', '/auth/refresh-token')
+        .send({ refreshToken: login.body.refreshToken }).expect(401);
+});
+it('rejects an existing access token immediately after the user is suspended', async () => {
+    const user = await register();
+    await User.updateOne({ _id: user.id }, { $set: { status: 'suspended' } });
+    await api(context, 'get', '/auth/me').set('Authorization', 'Bearer ' + user.token).expect(403);
 });

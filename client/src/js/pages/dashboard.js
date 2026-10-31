@@ -1,5 +1,7 @@
 import { complaintService } from '../api/complaint.service.js';
+import { storiesService } from '../api/stories.service.js';
 import { Loading } from '../components/loading.js';
+import { escapeHtml, escapeHtmlDeep } from '../utils/html.js';
 
 export async function renderDashboardPage() {
     const app = document.getElementById('app');
@@ -53,9 +55,9 @@ export async function renderDashboardPage() {
         // Calculate Stats
         const stats = {
             total: myComplaints.length,
-            pending: myComplaints.filter(c => c.status === 'Pending').length,
-            resolved: myComplaints.filter(c => c.status === 'Resolved').length,
-            rejected: myComplaints.filter(c => c.status === 'Rejected').length
+            pending: myComplaints.filter(c => c.status === 'pending' || c.status === 'in_progress').length,
+            resolved: myComplaints.filter(c => c.status === 'resolved').length,
+            rejected: myComplaints.filter(c => c.status === 'rejected').length
         };
 
         // Render Premium Dashboard
@@ -372,7 +374,7 @@ function renderPremiumComplaintCard(complaint) {
     } else if (statusLower === 'rejected') {
         progressWidth = '100%';
         fillClass = 'rejected';
-    } else if (statusLower === 'in progress') {
+    } else if (statusLower === 'in_progress') {
         progressWidth = '60%';
         fillClass = 'inprogress';
     } else {
@@ -399,7 +401,7 @@ function renderPremiumComplaintCard(complaint) {
             <div class="status-tracker-mini">
                 <span class="status-badge-premium ${statusLower}">
                     ${statusLower === 'resolved' ? '✅' : statusLower === 'rejected' ? '❌' : '⏳'} 
-                    ${complaint.status}
+                    ${statusLower === 'in_progress' ? 'In Progress' : statusLower.charAt(0).toUpperCase() + statusLower.slice(1)}
                 </span>
                 <div class="tracker-bar">
                     <div class="tracker-fill ${fillClass}" style="width: ${progressWidth}"></div>
@@ -562,52 +564,18 @@ async function loadCommunityFeed(pincode) {
     const feedContainer = document.getElementById('communityFeed');
 
     try {
-        const mockFeedData = [
-            {
-                _id: '1',
-                user: { firstName: 'Raj', lastName: 'Kumar' },
-                title: 'Broken Street Light',
-                description: 'The street light near sector 15 has been broken for 3 days. It\'s very dark at night and unsafe for pedestrians.',
-                category: 'Street Lights',
-                location: { city: 'Delhi', district: 'Central' },
-                createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-                likes: 12,
-                hype: 5,
-                comments: [],
-                isLiked: false,
-                isHyped: false
-            },
-            {
-                _id: '2',
-                user: { firstName: 'Priya', lastName: 'Sharma' },
-                title: 'Pothole on Main Road',
-                description: 'Large pothole causing accidents. Multiple vehicles damaged. Urgent repair needed!',
-                category: 'Roads',
-                location: { city: 'Delhi', district: 'Central' },
-                createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
-                likes: 25,
-                hype: 15,
-                comments: [{ user: { firstName: 'Amit' }, text: 'Same issue here!' }],
-                isLiked: true,
-                isHyped: false
-            },
-            {
-                _id: '3',
-                user: { firstName: 'Amit', lastName: 'Singh' },
-                title: 'Water Supply Issue',
-                description: 'No water supply for the past 2 days in our area. Please fix urgently.',
-                category: 'Water',
-                location: { city: 'Delhi', district: 'Central' },
-                createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                likes: 8,
-                hype: 3,
-                comments: [],
-                isLiked: false,
-                isHyped: true
-            }
-        ];
-
-        feedContainer.innerHTML = mockFeedData.map(item => renderFeedItem(item)).join('');
+        const response = await storiesService.getFeed();
+        const currentUserId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        const feed = escapeHtmlDeep((response.data || []).map(story => ({
+            ...story,
+            category: story.category?.name,
+            hype: story.hypes?.length || 0,
+            isHyped: story.hypes?.some(id => String(id) === String(currentUserId)),
+            media: []
+        })));
+        feedContainer.innerHTML = feed.length
+            ? feed.map(item => renderFeedItem(item)).join('')
+            : '<div class="empty-state"><p>No resolved community stories have been published yet.</p></div>';
         attachFeedActionListeners();
 
     } catch (error) {
@@ -623,27 +591,20 @@ async function loadCommunityFeed(pincode) {
 
 function attachFeedActionListeners() {
     document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            this.classList.toggle('active');
-            const count = this.querySelector('.action-count');
-            const currentCount = parseInt(count.textContent);
-            count.textContent = this.classList.contains('active') ? currentCount + 1 : currentCount - 1;
-        });
+        btn.remove();
     });
 
     document.querySelectorAll('.hype-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
+        btn.addEventListener('click', async function (e) {
             e.stopPropagation();
-            this.classList.toggle('active');
-            const count = this.querySelector('.action-count');
-            const currentCount = parseInt(count.textContent);
-            count.textContent = this.classList.contains('active') ? currentCount + 1 : currentCount - 1;
+            const result = await storiesService.toggleHype(this.dataset.id);
+            this.classList.toggle('active', result.isHyped);
+            this.querySelector('.action-count').textContent = result.hypes;
         });
     });
 
     document.querySelectorAll('.comment-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
+        btn.addEventListener('click', async function (e) {
             e.stopPropagation();
             const id = this.dataset.id;
             const commentsSection = document.getElementById(`comments-${id}`);
@@ -652,33 +613,33 @@ function attachFeedActionListeners() {
     });
 
     document.querySelectorAll('.share-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
+        btn.addEventListener('click', async function (e) {
             e.stopPropagation();
             const id = this.dataset.id;
             const shareUrl = `${window.location.origin}/complaint/${id}`;
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                alert('Link copied to clipboard!');
-            });
+            await navigator.clipboard.writeText(shareUrl);
+            await storiesService.trackShare(id);
+            alert('Link copied to clipboard!');
         });
     });
 
     document.querySelectorAll('.btn-send-comment').forEach(btn => {
-        btn.addEventListener('click', function (e) {
+        btn.addEventListener('click', async function (e) {
             e.stopPropagation();
             const id = this.dataset.id;
             const input = document.querySelector(`.comment-input[data-id="${id}"]`);
             const text = input.value.trim();
 
             if (text) {
+                const result = await storiesService.addComment(id, text);
                 const commentsList = document.querySelector(`#comments-${id} .comments-list`);
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
 
                 const noComments = commentsList.querySelector('.no-comments');
                 if (noComments) noComments.remove();
 
                 const commentHTML = `
                     <div class="comment-item">
-                        <strong>${user.firstName || 'You'}:</strong> ${text}
+                        <strong>${escapeHtml(result.data.user?.firstName || 'You')}:</strong> ${escapeHtml(result.data.text)}
                     </div>
                 `;
                 commentsList.insertAdjacentHTML('beforeend', commentHTML);

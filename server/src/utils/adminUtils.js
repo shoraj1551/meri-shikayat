@@ -3,6 +3,7 @@
  */
 
 import Admin from '../models/Admin.js';
+import User from '../models/User.js';
 
 /**
  * Generate a unique Admin ID
@@ -24,6 +25,62 @@ export const generateAdminId = async () => {
     }
 
     return `${prefix}${sequence.toString().padStart(4, '0')}`;
+};
+
+/**
+ * Create every administrator registration in the canonical Admin collection.
+ * User is checked only to prevent cross-store identity collisions while legacy
+ * unified administrator records are being migrated.
+ */
+export const createPendingAdmin = async ({
+    firstName,
+    lastName,
+    email,
+    phone,
+    password,
+    department,
+    designation,
+    employeeId
+}) => {
+    const normalizedEmail = email?.trim().toLowerCase();
+    const normalizedPhone = phone?.trim();
+    const normalizedEmployeeId = employeeId?.trim() || undefined;
+    const identityConditions = [
+        { email: normalizedEmail },
+        { phone: normalizedPhone }
+    ];
+    if (normalizedEmployeeId) identityConditions.push({ employeeId: normalizedEmployeeId });
+
+    const [existingAdmin, existingUser] = await Promise.all([
+        Admin.findOne({ $or: identityConditions }).select('_id'),
+        User.findOne({
+            $or: [
+                { email: normalizedEmail },
+                { phone: normalizedPhone },
+                ...(normalizedEmployeeId ? [{ 'adminProfile.employeeId': normalizedEmployeeId }] : [])
+            ]
+        }).select('_id')
+    ]);
+    if (existingAdmin || existingUser) {
+        const error = new Error('An account with this email, phone, or employee ID already exists');
+        error.code = 'ADMIN_IDENTITY_EXISTS';
+        throw error;
+    }
+
+    return Admin.create({
+        firstName,
+        lastName,
+        email: normalizedEmail,
+        phone: normalizedPhone,
+        password,
+        adminId: await generateAdminId(),
+        employeeId: normalizedEmployeeId,
+        department,
+        designation,
+        role: 'viewer',
+        status: 'pending',
+        permissions: getDefaultPermissions('viewer')
+    });
 };
 
 /**

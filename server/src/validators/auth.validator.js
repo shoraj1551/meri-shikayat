@@ -114,6 +114,14 @@ export const otpVerificationSchema = Joi.object({
         })
 }).strict();
 
+export const adminOtpVerificationSchema = Joi.object({
+    adminId: Joi.string().trim().length(24).hex().required(),
+    otp: Joi.string()
+        .length(6)
+        .pattern(/^\d{6}$/)
+        .required()
+}).strict();
+
 /**
  * Password Reset Validation
  */
@@ -142,5 +150,6 @@ export default {
     loginSchema,
     passwordResetRequestSchema,
     otpVerificationSchema,
+    adminOtpVerificationSchema,
     passwordResetSchema
 };

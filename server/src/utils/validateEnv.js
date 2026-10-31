@@ -36,11 +36,32 @@ export const validateEnvironment = () => {
         if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 64) {
             errors.push('CRITICAL: JWT_SECRET must be at least 64 characters long for production. Current length: ' + process.env.JWT_SECRET.length);
         }
+
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+            errors.push('EMAIL_USER and EMAIL_PASSWORD are required in production for administrator OTP delivery');
+        }
+
+        if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+            errors.push('VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY are required in production for push notifications');
+        }
     } else {
         // Even in development, warn about weak secrets
         if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 64) {
             warnings.push('JWT_SECRET should be at least 64 characters long. Current length: ' + process.env.JWT_SECRET.length);
         }
+    }
+
+    const base64Url = /^[A-Za-z0-9_-]+$/;
+    if (process.env.VAPID_PUBLIC_KEY &&
+        (process.env.VAPID_PUBLIC_KEY.length !== 87 || !base64Url.test(process.env.VAPID_PUBLIC_KEY))) {
+        errors.push('VAPID_PUBLIC_KEY must be a valid base64url-encoded VAPID public key');
+    }
+    if (process.env.VAPID_PRIVATE_KEY &&
+        (process.env.VAPID_PRIVATE_KEY.length !== 43 || !base64Url.test(process.env.VAPID_PRIVATE_KEY))) {
+        errors.push('VAPID_PRIVATE_KEY must be a valid base64url-encoded VAPID private key');
+    }
+    if (process.env.VAPID_MAILTO && !/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/.test(process.env.VAPID_MAILTO)) {
+        errors.push('VAPID_MAILTO must be a valid mailto: address');
     }
 
     // Check CORS configuration in production

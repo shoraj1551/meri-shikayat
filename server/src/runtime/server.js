@@ -26,11 +26,13 @@ export function installProcessHandlers(runtime, {
 export async function startServer({
     database, redis, createApplication,
     attachSockets,
+    createSocketAdapter,
     authorizeSocketAdmin,
     socketAuthRevalidateMs,
     port = Number(process.env.PORT || 5000),
     host = process.env.HOST || '0.0.0.0',
     redisRequired = process.env.REDIS_REQUIRED === 'true',
+    socketHorizontalScaling = process.env.SOCKET_HORIZONTAL_SCALING === 'true',
     shutdownTimeoutMs = 10000,
     handleSignals = false,
     corsOptions
@@ -46,6 +48,7 @@ export async function startServer({
     let removeHandlers = () => {};
     let httpServer;
     let io;
+    let socketAdapter;
     const sockets = new Set();
     const errors = [];
 
@@ -64,7 +67,9 @@ export async function startServer({
                 // Close Engine.IO too, including clients that never joined a namespace.
                 // Socket.IO close also closes HTTP; concurrent close callbacks are safe.
                 const transportResults = await Promise.allSettled([
-                    httpClosed, Promise.resolve().then(() => io?.close())
+                    httpClosed,
+                    Promise.resolve().then(() => io?.close()),
+                    Promise.resolve().then(() => socketAdapter?.close?.())
                 ]);
                 errors.push(...transportResults.filter(r => r.status === 'rejected').map(r => r.reason));
                 const results = await Promise.allSettled([
@@ -96,6 +101,14 @@ export async function startServer({
             if (redisRequired) throw error;
         }
         if (redisRequired && !redisReady) throw new Error('Required Redis dependency is unavailable');
+        if (socketHorizontalScaling && !redisReady) {
+            throw new Error('Socket.IO horizontal scaling requires an available Redis connection');
+        }
+        if (socketHorizontalScaling) {
+            createSocketAdapter ??= (await import('./socket.js')).createRedisSocketAdapter;
+            socketAdapter = await createSocketAdapter();
+            if (!socketAdapter?.adapter) throw new Error('Socket.IO horizontal scaling requires a Redis adapter');
+        }
         const app = await createApplication({ database, redis, redisRequired, isDraining: () => draining, corsOptions });
         httpServer = createServer(app);
         httpServer.on('connection', socket => {
@@ -104,7 +117,9 @@ export async function startServer({
         });
         io = attachSockets(httpServer, app, corsOptions, {
             authorizeAdmin: authorizeSocketAdmin,
-            revalidateMs: socketAuthRevalidateMs
+            revalidateMs: socketAuthRevalidateMs,
+            adapter: socketAdapter?.adapter,
+            transports: socketAdapter?.transports
         });
         await new Promise((resolve, reject) => {
             const failed = error => { httpServer.off('listening', ready); reject(error); };

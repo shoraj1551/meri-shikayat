@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "roads", "name": "Roads", "aliases": ["road", "road_repair", "infrastructure"], "description": "Road damage, potholes and construction issues", "icon": "🛣️", "color": "#ef4444", "sortOrder": 1 },
+    { "id": "water_supply", "name": "Water Supply", "aliases": ["water", "water-supply"], "description": "Water shortage, leakage and quality issues", "icon": "💧", "color": "#3b82f6", "sortOrder": 2 },
+    { "id": "sanitation", "name": "Sanitation", "aliases": ["garbage", "waste", "cleanliness"], "description": "Garbage collection, waste disposal and cleanliness issues", "icon": "🧹", "color": "#10b981", "sortOrder": 3 },
+    { "id": "electricity", "name": "Electricity", "aliases": ["power", "electrical"], "description": "Power outages and electrical faults", "icon": "⚡", "color": "#f59e0b", "sortOrder": 4 },
+    { "id": "street_lights", "name": "Street Lights", "aliases": ["streetlights", "street_lighting"], "description": "Non-functional or damaged street lights", "icon": "💡", "color": "#8b5cf6", "sortOrder": 5 },
+    { "id": "drainage", "name": "Drainage", "aliases": ["drains", "sewage", "sewer"], "description": "Blocked drains, sewage and flooding issues", "icon": "🚰", "color": "#06b6d4", "sortOrder": 6 },
+    { "id": "parks_gardens", "name": "Parks & Gardens", "aliases": ["parks", "gardens", "park"], "description": "Park, playground and public-garden maintenance", "icon": "🌳", "color": "#22c55e", "sortOrder": 7 },
+    { "id": "public_transport", "name": "Public Transport", "aliases": ["transport", "bus", "transit"], "description": "Bus stops and public transport facilities", "icon": "🚌", "color": "#ec4899", "sortOrder": 8 },
+    { "id": "other", "name": "Other", "aliases": ["miscellaneous", "unknown"], "description": "Other civic issues requiring manual triage", "icon": "📋", "color": "#6b7280", "sortOrder": 99 }
+  ]
+}

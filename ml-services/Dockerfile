@@ -1,29 +1,19 @@
-# Use an official Python runtime as a parent image
 FROM python:3.10-slim
 
-# Set the working directory to /app
 WORKDIR /app
-
-# Install system dependencies required for OpenCV and other libs
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    libglib2.0-0 \
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the container at /app
-COPY requirements.txt ./
-
-# Install any needed packages specified in requirements.txt
+COPY ml-services/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /app
-COPY . .
+COPY ml-services/ ./
+COPY shared/complaint-categories.json ./shared/complaint-categories.json
+RUN python scripts/train_categorizer.py \
+    --dataset data/training/complaints.csv \
+    --taxonomy shared/complaint-categories.json \
+    --output data/models/categorizer.joblib
 
-# Make port 8000 available to the world outside this container
 EXPOSE 8000
-
-# Define environment variable
 ENV PORT=8000
-
-# Run app.main:app when the container launches
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

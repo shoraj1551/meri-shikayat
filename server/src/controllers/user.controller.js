@@ -116,6 +116,9 @@ export const changePassword = async (req, res) => {
 
         // Update password
         user.password = newPassword;
+        user.lastPasswordChange = new Date();
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
+        user.refreshTokens = [];
         await user.save();
 
         res.json({
@@ -137,6 +140,12 @@ export const changePassword = async (req, res) => {
 export const updateLocation = async (req, res) => {
     try {
         const { address, coordinates, pincode } = req.body;
+        const lat = Number(coordinates?.lat ?? coordinates?.latitude);
+        const lng = Number(coordinates?.lng ?? coordinates?.longitude);
+        if (coordinates && (!Number.isFinite(lat) || lat < -90 || lat > 90 ||
+            !Number.isFinite(lng) || lng < -180 || lng > 180)) {
+            return res.status(400).json({ success: false, message: 'Invalid location coordinates' });
+        }
 
         const user = await User.findById(req.user.id);
 
@@ -150,7 +159,7 @@ export const updateLocation = async (req, res) => {
         // Update location
         user.location = {
             address: address || user.location.address,
-            coordinates: coordinates || user.location.coordinates,
+            coordinates: coordinates ? { lat, lng } : user.location.coordinates,
             pincode: pincode || user.location.pincode
         };
         user.isLocationSet = true;

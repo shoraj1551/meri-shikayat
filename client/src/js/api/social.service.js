@@ -4,8 +4,7 @@
  */
 
 import { authService } from './auth.service.js';
-
-const API_URL = 'http://localhost:5000/api';
+import { apiUrl } from '../config/api.js';
 
 function getHeaders() {
     const token = authService.getToken();
@@ -17,7 +16,7 @@ function getHeaders() {
 
 export const socialService = {
     async searchUsers(query) {
-        const response = await fetch(`${API_URL}/users/search?q=${encodeURIComponent(query)}`, {
+        const response = await fetch(`${apiUrl('/social/users/search')}?q=${encodeURIComponent(query)}`, {
             headers: getHeaders()
         });
         const data = await response.json();
@@ -26,7 +25,7 @@ export const socialService = {
     },
 
     async getRecommendedUsers() {
-        const response = await fetch(`${API_URL}/users/recommended`, {
+        const response = await fetch(apiUrl('/social/users/recommended'), {
             headers: getHeaders()
         });
         const data = await response.json();
@@ -35,7 +34,7 @@ export const socialService = {
     },
 
     async sendConnectionRequest(recipientId, type) {
-        const response = await fetch(`${API_URL}/connections/request`, {
+        const response = await fetch(apiUrl('/social/connections/request'), {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ recipientId, type })
@@ -46,7 +45,7 @@ export const socialService = {
     },
 
     async getMyNetwork() {
-        const response = await fetch(`${API_URL}/connections/my-network`, {
+        const response = await fetch(apiUrl('/social/connections/my-network'), {
             headers: getHeaders()
         });
         const data = await response.json();
@@ -55,7 +54,7 @@ export const socialService = {
     },
 
     async sendMessage(recipientId, content) {
-        const response = await fetch(`${API_URL}/messages`, {
+        const response = await fetch(apiUrl('/social/messages'), {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ recipientId, content })
@@ -66,7 +65,7 @@ export const socialService = {
     },
 
     async getConversation(userId) {
-        const response = await fetch(`${API_URL}/messages/${userId}`, {
+        const response = await fetch(apiUrl(`/social/messages/${userId}`), {
             headers: getHeaders()
         });
         const data = await response.json();
@@ -75,7 +74,7 @@ export const socialService = {
     },
 
     async getInbox() {
-        const response = await fetch(`${API_URL}/messages/inbox`, {
+        const response = await fetch(apiUrl('/social/messages/inbox'), {
             headers: getHeaders()
         });
         const data = await response.json();

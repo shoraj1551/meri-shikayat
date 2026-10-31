@@ -3,6 +3,7 @@
  */
 
 import { adminService } from '../api/admin.service.js';
+import { escapeHtmlDeep } from '../utils/html.js';
 
 export async function renderPermissionRequestsPage() {
     const app = document.getElementById('app');
@@ -12,6 +13,8 @@ export async function renderPermissionRequestsPage() {
         window.router.navigate('/admin/dashboard');
         return;
     }
+
+    const safeAdmin = escapeHtmlDeep(admin);
 
     app.innerHTML = `
         <div class="dashboard-layout admin-theme">
@@ -33,7 +36,7 @@ export async function renderPermissionRequestsPage() {
                 </nav>
                 <div class="sidebar-footer">
                     <div class="user-info">
-                        <div class="user-name">${admin.firstName} ${admin.lastName}</div>
+                        <div class="user-name">${safeAdmin.firstName} ${safeAdmin.lastName}</div>
                         <div class="user-role">SUPER ADMIN</div>
                     </div>
                     <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
@@ -64,7 +67,7 @@ export async function renderPermissionRequestsPage() {
 
     try {
         const response = await adminService.getPermissionRequests();
-        const requests = response.data;
+        const requests = escapeHtmlDeep(response.data);
         const listContainer = document.getElementById('requestsList');
         document.getElementById('loadingState').style.display = 'none';
 

@@ -6,10 +6,6 @@
 import User from '../models/User.js';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // ========================================
 // GET PROFILE
@@ -331,6 +327,7 @@ export const updatePreferences = async (req, res) => {
 // UPLOAD PROFILE PICTURE
 // ========================================
 export const uploadProfilePicture = async (req, res) => {
+    let saved = false;
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -342,19 +339,14 @@ export const uploadProfilePicture = async (req, res) => {
         const user = await User.findById(req.user.id);
 
         if (!user) {
+            if (req.file?.path && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
             });
         }
 
-        // Delete old profile picture if exists
-        if (user.profilePicture?.url) {
-            const oldFilePath = path.join(__dirname, '../../', user.profilePicture.url);
-            if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath);
-            }
-        }
+        const oldPublicId = user.profilePicture?.publicId;
 
         // Save new profile picture
         const fileUrl = `/uploads/profiles/${req.file.filename}`;
@@ -368,6 +360,17 @@ export const uploadProfilePicture = async (req, res) => {
         user.profileCompletion = calculateProfileCompletion(user);
 
         await user.save();
+        saved = true;
+
+        // Delete the replaced file only after the new database reference commits.
+        if (oldPublicId && oldPublicId !== req.file.filename) {
+            const oldFilePath = path.resolve(process.env.UPLOAD_PATH || 'uploads', 'profiles', path.basename(oldPublicId));
+            try {
+                if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+            } catch (cleanupError) {
+                console.error('Old profile picture cleanup failed:', cleanupError.message);
+            }
+        }
 
         res.status(200).json({
             success: true,
@@ -378,6 +381,13 @@ export const uploadProfilePicture = async (req, res) => {
             }
         });
     } catch (error) {
+        if (!saved && req.file?.path) {
+            try {
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+            } catch (cleanupError) {
+                console.error('New profile picture cleanup failed:', cleanupError.message);
+            }
+        }
         console.error('Upload Profile Picture Error:', error);
         res.status(500).json({
             success: false,
@@ -409,7 +419,11 @@ export const deleteProfilePicture = async (req, res) => {
         }
 
         // Delete file from filesystem
-        const filePath = path.join(__dirname, '../../', user.profilePicture.url);
+        const filePath = path.resolve(
+            process.env.UPLOAD_PATH || 'uploads',
+            'profiles',
+            path.basename(user.profilePicture.publicId || user.profilePicture.url)
+        );
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
         }

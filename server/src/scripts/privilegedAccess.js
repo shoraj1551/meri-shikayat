@@ -27,16 +27,10 @@ export async function runOperatorCommand(command, input, mongoose) {
                         throw new Error('Identity already exists; no reset, promotion or merge is permitted');
                     }
                 }
-                const { default: Model } = await import('../models/' + account.store + '.js');
+                const { default: Model } = await import('../models/Admin.js');
                 const fields = { firstName: account.firstName, lastName: account.lastName,
-                    email: account.email, phone: account.phone, password: account.password, status: 'active' };
-                if (account.store === 'User') {
-                    fields.userType = 'super_admin';
-                    fields.adminProfile = { role: 'super_admin' };
-                } else {
-                    fields.role = 'super_admin';
-                    fields.adminId = 'OP-' + randomBytes(12).toString('hex');
-                }
+                    email: account.email, phone: account.phone, password: account.password, status: 'active',
+                    role: 'super_admin', adminId: 'OP-' + randomBytes(12).toString('hex') };
                 const user = new Model(fields);
                 await user.save({ session }); // Uses the actual password-hashing model hook.
                 await db.collection('privileged_provisioning_audit').insertOne({
@@ -44,7 +38,7 @@ export async function runOperatorCommand(command, input, mongoose) {
                     operator: input.approval.operator, ticket: input.approval.ticket,
                     approvedAuditSha256: input.audit.sha256, review: input.approval.review, createdAt: new Date()
                 }, { session }); // No credentials/contact details; no TTL index is created.
-                result = { created: true, store: account.store, id: String(user._id) };
+                result = { created: true, store: 'Admin', id: String(user._id) };
             }, { readConcern: { level: 'snapshot' }, writeConcern: { w: 'majority' } });
         } finally { await session.endSession(); }
         return result;

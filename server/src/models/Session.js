@@ -38,8 +38,7 @@ const sessionSchema = new mongoose.Schema({
     },
     expiresAt: {
         type: Date,
-        required: [true, 'Expiry date is required'],
-        index: true
+        required: [true, 'Expiry date is required']
     },
     lastActivityAt: {
         type: Date,
@@ -51,7 +50,6 @@ const sessionSchema = new mongoose.Schema({
 
 // Indexes
 sessionSchema.index({ user: 1, isActive: 1 });
-sessionSchema.index({ refreshToken: 1 });
 sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 
 // Update last activity

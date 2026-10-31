@@ -5,18 +5,19 @@ import { protect } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
 import { validateUploadedFile } from '../middleware/fileValidation.js';
 import { uploadRateLimiter, readRateLimiter } from '../middleware/rateLimiting.js';
+import { sanitizePlainTextBody } from '../middleware/plainText.js';
 
 const router = express.Router();
 
 // Public routes (no authentication) with rate limiting and file validation
 router.all('/guest', createGuestComplaint);
 router.all('/:complaintId/claim', claimGuestComplaint);
-router.get('/search/:complaintId', readRateLimiter, searchComplaintById);
+router.get('/search/:complaintId', protect, readRateLimiter, searchComplaintById);
 
 // Protected routes
 router.use(protect);
 
-router.post('/', uploadRateLimiter, upload.single('media'), validateUploadedFile, createComplaint);
+router.post('/', uploadRateLimiter, upload.single('media'), sanitizePlainTextBody, validateUploadedFile, createComplaint);
 router.get('/my-complaints', readRateLimiter, getMyComplaints);
 router.get('/nearby', readRateLimiter, getNearbyComplaints);
 

@@ -51,8 +51,7 @@ const categorySchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Indexes
-categorySchema.index({ name: 1 });
+// Indexes (name is indexed by its unique schema option)
 categorySchema.index({ isActive: 1 });
 categorySchema.index({ sortOrder: 1 });
 

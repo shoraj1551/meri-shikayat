@@ -5,6 +5,8 @@ import { once, EventEmitter } from 'node:events';
 import express from 'express';
 import request from 'supertest';
 import { io as connectSocket } from 'socket.io-client';
+import { Adapter } from 'socket.io-adapter';
+import WebSocket from 'ws';
 import { startServer, installProcessHandlers } from '../../src/runtime/server.js';
 import { createAdminSocketAuthorizer, extractSocketToken } from '../../src/runtime/socket.js';
 import { emitNewComplaint, emitComplaintStatusUpdate } from '../../src/services/complaint-events.service.js';
@@ -236,6 +238,37 @@ test('optional Redis outage starts; required Redis/database failure rolls back',
     await assert.rejects(start(broken), /database offline/);
     assert.equal(broken.database.closes, 1);
     assert.equal(broken.redis.closes, 1);
+});
+
+test('horizontal Socket.IO mode fails closed without Redis or an adapter', async () => {
+    const offline = adapters();
+    await assert.rejects(start({ ...offline, socketHorizontalScaling: true }), /requires an available Redis/);
+
+    const online = adapters({ redisReady: true });
+    await assert.rejects(start({
+        ...online,
+        socketHorizontalScaling: true,
+        createSocketAdapter: async () => ({})
+    }), /requires a Redis adapter/);
+});
+
+test('horizontal Socket.IO mode installs its adapter, enforces WebSocket transport and closes it', async t => {
+    let adapterClosed = 0;
+    class TestAdapter extends Adapter {}
+    const runtime = await start({
+        ...adapters({ redisReady: true }),
+        socketHorizontalScaling: true,
+        createSocketAdapter: async () => ({
+            adapter: TestAdapter,
+            transports: ['websocket'],
+            close: async () => { adapterClosed++; }
+        })
+    });
+    t.after(() => runtime.stop());
+    assert.equal(runtime.io.of('/').adapter.constructor, TestAdapter);
+    assert.deepEqual(runtime.io.engine.opts.transports.map(value => value.name || value), ['websocket']);
+    await runtime.stop();
+    assert.equal(adapterClosed, 1);
 });
 
 test('bind failure releases connected dependencies', async t => {

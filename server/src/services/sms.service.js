@@ -1,10 +1,21 @@
 /**
  * SMS Service
- * Handles sending SMS using Fast2SMS
+ * Handles sending SMS using the Fast2SMS HTTPS API
  */
 
-import fast2sms from 'fast-two-sms';
+import axios from 'axios';
 import logger from '../utils/logger.js';
+
+async function sendMessage(message, phone) {
+    const { data } = await axios.post('https://www.fast2sms.com/dev/bulkV2', null, {
+        headers: { authorization: process.env.FAST2SMS_API_KEY },
+        params: { route: 'q', language: 'english', flash: 0, message, numbers: phone },
+        timeout: 5000,
+        maxRedirects: 0,
+        maxContentLength: 64 * 1024
+    });
+    return data;
+}
 
 /**
  * Send OTP via SMS
@@ -22,11 +33,7 @@ export async function sendOTPSMS(phone, otp) {
     try {
         const message = `Your Meri Shikayat verification OTP is: ${otp}. Valid for 5 minutes. Do not share this OTP with anyone.`;
 
-        const response = await fast2sms.sendMessage({
-            authorization: process.env.FAST2SMS_API_KEY,
-            message: message,
-            numbers: [phone]
-        });
+        const response = await sendMessage(message, phone);
 
         if (response.return) {
             logger.info('SMS sent successfully', { messageId: response.message_id, phone: phone.slice(-4) });
@@ -59,11 +66,7 @@ export async function sendVerificationSuccessSMS(phone, firstName) {
     try {
         const message = `Hi ${firstName}, your phone number has been successfully verified on Meri Shikayat. Welcome aboard!`;
 
-        const response = await fast2sms.sendMessage({
-            authorization: process.env.FAST2SMS_API_KEY,
-            message: message,
-            numbers: [phone]
-        });
+        const response = await sendMessage(message, phone);
 
         logger.info('Verification success SMS sent', { phone: phone.slice(-4) });
         return { success: true, messageId: response.message_id };

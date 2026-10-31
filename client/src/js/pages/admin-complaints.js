@@ -6,10 +6,18 @@
 import { adminService } from '../api/admin.service.js';
 import * as complaintAdminService from '../api/complaint-admin.service.js';
 import { Loading } from '../components/loading.js';
+import { escapeHtml, escapeHtmlDeep, escapeJsString, safeUrl } from '../utils/html.js';
 
 let currentView = 'kanban'; // 'kanban' or 'list'
 let complaintsData = [];
 let currentFilters = {};
+
+const formatStatus = status => ({
+    pending: 'Pending',
+    in_progress: 'In Progress',
+    resolved: 'Resolved',
+    rejected: 'Rejected'
+}[status] || status);
 
 export async function renderAdminComplaintsPage() {
     const app = document.getElementById('app');
@@ -19,6 +27,8 @@ export async function renderAdminComplaintsPage() {
         window.router.navigate('/admin/login');
         return;
     }
+
+    const safeAdmin = escapeHtmlDeep(admin);
 
     // Initial Layout
     app.innerHTML = `
@@ -46,10 +56,10 @@ export async function renderAdminComplaintsPage() {
                 </nav>
                 <div class="sidebar-footer">
                     <div class="admin-profile">
-                        <div class="admin-avatar">${admin.firstName[0]}</div>
+                        <div class="admin-avatar">${safeAdmin.firstName[0]}</div>
                         <div class="admin-info">
-                            <h4>${admin.firstName} ${admin.lastName}</h4>
-                            <p>${admin.role.replace('_', ' ').toUpperCase()}</p>
+                            <h4>${safeAdmin.firstName} ${safeAdmin.lastName}</h4>
+                            <p>${safeAdmin.role.replace('_', ' ').toUpperCase()}</p>
                         </div>
                     </div>
                 </div>
@@ -110,10 +120,13 @@ async function loadData() {
 
     try {
         const response = await complaintAdminService.getComplaints({ limit: 100 }); // Fetch more for Kanban
-        complaintsData = response.data.complaints;
+        complaintsData = response.data.complaints.map(complaint => ({
+            ...escapeHtmlDeep(complaint),
+            mediaUrl: safeUrl(complaint.mediaUrl)
+        }));
         renderContent();
     } catch (error) {
-        container.innerHTML = `<div class="error-message">Failed to load data: ${error.message}</div>`;
+        container.innerHTML = `<div class="error-message">Failed to load data: ${escapeHtml(error.message)}</div>`;
     }
 }
 
@@ -129,10 +142,10 @@ function renderContent() {
 
 function renderKanban(container) {
     const columns = {
-        'Pending': complaintsData.filter(c => c.status === 'Pending'),
-        'In Progress': complaintsData.filter(c => c.status === 'In Progress'),
-        'Resolved': complaintsData.filter(c => c.status === 'Resolved'),
-        'Rejected': complaintsData.filter(c => c.status === 'Rejected')
+        'Pending': complaintsData.filter(c => c.status === 'pending'),
+        'In Progress': complaintsData.filter(c => c.status === 'in_progress'),
+        'Resolved': complaintsData.filter(c => c.status === 'resolved'),
+        'Rejected': complaintsData.filter(c => c.status === 'rejected')
     };
 
     const colClasses = {
@@ -164,7 +177,7 @@ function renderKanban(container) {
 function createKanbanCard(c) {
     const date = new Date(c.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     return `
-        <div class="kanban-card" onclick="viewComplaint.open('${c._id}')">
+        <div class="kanban-card" onclick="viewComplaint.open('${escapeJsString(c._id)}')">
             <div class="kanban-card-meta">
                 <span>#${c._id.substring(c._id.length - 6).toUpperCase()}</span>
                 <span>${date}</span>
@@ -195,19 +208,22 @@ function renderList(container) {
                     </tr>
                 </thead>
                 <tbody>
-                    ${complaintsData.map(c => `
+                    ${complaintsData.map(c => {
+                        c._id = escapeJsString(c._id);
+                        return `
                         <tr>
                             <td>#${c._id.substring(c._id.length - 6).toUpperCase()}</td>
                             <td>${c.title}</td>
                             <td>${c.category}</td>
-                            <td><span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span></td>
+                            <td><span class="status-badge status-${c.status}">${formatStatus(c.status)}</span></td>
                             <td><span class="priority-badge priority-${c.priority.toLowerCase()}">${c.priority}</span></td>
                             <td>${new Date(c.createdAt).toLocaleDateString()}</td>
                             <td>
                                 <button class="action-btn-sm" onclick="viewComplaint.open('${c._id}')">👁️</button>
                             </td>
                         </tr>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </tbody>
             </table>
         </div>
@@ -244,7 +260,7 @@ async function openComplaintDetail(id) {
                             <p style="line-height: 1.6; color: #334155;">${c.description}</p>
                             ${c.mediaUrl ? `
                                 <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
-                                    <strong>Attachment:</strong> <a href="${c.mediaUrl}" target="_blank">View Media</a>
+                                    <strong>Attachment:</strong> <a href="${c.mediaUrl}" target="_blank" rel="noopener noreferrer">View Media</a>
                                 </div>
                             ` : ''}
                         </div>
@@ -254,17 +270,17 @@ async function openComplaintDetail(id) {
                             <div class="form-group">
                                 <label>Update Status</label>
                                 <select id="updateStatusSelect" class="form-input">
-                                    <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="In Progress" ${c.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                                    <option value="Resolved" ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
-                                    <option value="Rejected" ${c.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                                     <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                     <option value="in_progress" ${c.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                     <option value="resolved" ${c.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                                     <option value="rejected" ${c.status === 'rejected' ? 'selected' : ''}>Rejected</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Review Note</label>
                                 <textarea id="statusReason" class="form-input" placeholder="Why are you changing the status?"></textarea>
                             </div>
-                            <button class="btn btn-primary" onclick="updateComplaintStatus('${c._id}')">Update Case</button>
+                            <button class="btn btn-primary" onclick="updateComplaintStatus('${escapeJsString(c._id)}')">Update Case</button>
                         </div>
                     </div>
                     
@@ -299,7 +315,7 @@ async function openComplaintDetail(id) {
             const reason = document.getElementById('statusReason').value;
 
             try {
-                await complaintAdminService.updateComplaintStatus(id, newStatus.toLowerCase().replace(' ', '_'), reason);
+                await complaintAdminService.updateComplaintStatus(id, newStatus, reason);
                 alert('Status Updated!');
                 document.getElementById('complaintDetailModal').style.display = 'none';
                 loadData(); // Refresh board

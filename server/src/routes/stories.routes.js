@@ -5,10 +5,13 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
 import * as storiesController from '../controllers/stories.controller.js';
+import { sanitizePlainTextBody } from '../middleware/plainText.js';
 
 const router = express.Router();
 
+router.get('/impact', storiesController.getImpactStats);
 router.use(protect);
+router.use(sanitizePlainTextBody);
 
 router.get('/feed', storiesController.getStoriesFeed);
 router.put('/:id/hype', storiesController.toggleHype);

@@ -6,6 +6,17 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Admin from '../models/Admin.js';
 import { hasPermission } from '../utils/adminUtils.js';
+import logger from '../utils/logger.js';
+
+function getAccessTokenSubject(decoded) {
+    // Existing login/admin tokens predate the explicit type claim. They remain
+    // valid, while refresh/reset tokens must never authenticate HTTP requests.
+    if (decoded.type && decoded.type !== 'access') return null;
+    if (decoded.id) return decoded.id;
+
+    // Transitional support for access tokens issued by the old refresh flow.
+    return decoded.type === 'access' ? decoded.userId : null;
+}
 
 export const protect = async (req, res, next) => {
     try {
@@ -26,14 +37,36 @@ export const protect = async (req, res, next) => {
         try {
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const userId = getAccessTokenSubject(decoded);
+
+            if (!userId) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid token'
+                });
+            }
 
             // Get user from token
-            req.user = await User.findById(decoded.id).select('-password');
+            req.user = await User.findById(userId).select('-password');
 
             if (!req.user) {
                 return res.status(401).json({
                     success: false,
                     message: 'User not found'
+                });
+            }
+
+            if (req.user.isDeleted || req.user.status !== 'active') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Account is not active'
+                });
+            }
+
+            if ((decoded.tokenVersion || 0) !== (req.user.tokenVersion || 0)) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Token has been revoked'
                 });
             }
 
@@ -84,9 +117,17 @@ export const protectAdmin = async (req, res, next) => {
         try {
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const adminId = getAccessTokenSubject(decoded);
+
+            if (!adminId) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid token'
+                });
+            }
 
             // Get admin from token
-            req.admin = await Admin.findById(decoded.id).select('-password');
+            req.admin = await Admin.findById(adminId).select('-password');
 
             if (!req.admin) {
                 return res.status(401).json({
@@ -132,14 +173,37 @@ export const requireSuperAdmin = (req, res, next) => {
 
 // Require specific permission
 export const requirePermission = (permission) => {
-    return (req, res, next) => {
-        if (hasPermission(req.admin, permission)) {
-            next();
-        } else {
-            res.status(403).json({
+    const permissionGuard = (req, res, next) => {
+        if (!req.admin) {
+            logger.security('Admin permission check failed without authentication context', {
+                permission,
+                ip: req.ip,
+                path: req.path
+            });
+            return res.status(401).json({
                 success: false,
-                message: `Access denied. Missing permission: ${permission}`
+                message: 'Administrator authentication required'
             });
         }
+
+        if (hasPermission(req.admin, permission)) {
+            return next();
+        }
+
+        logger.security('Admin permission denied', {
+            adminId: req.admin._id,
+            role: req.admin.role,
+            permission,
+            ip: req.ip,
+            path: req.path
+        });
+        return res.status(403).json({
+            success: false,
+            message: `Access denied. Missing permission: ${permission}`
+        });
     };
+
+    // Expose non-sensitive metadata so route-policy tests can detect accidental removal.
+    permissionGuard.requiredPermission = permission;
+    return permissionGuard;
 };

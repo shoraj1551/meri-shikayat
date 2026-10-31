@@ -1,0 +1,55 @@
+category,text
+roads,Deep pothole on the main road is causing accidents
+roads,Road surface has broken near the market crossing
+roads,Large cracks have appeared across the public street
+roads,Construction debris has damaged the service road
+roads,The highway shoulder needs urgent repair
+roads,Uneven road and missing asphalt make driving dangerous
+water_supply,No water supply has reached our locality since morning
+water_supply,A drinking water pipe is leaking near the school
+water_supply,Dirty discoloured water is coming from household taps
+water_supply,Residents face severe water shortage every evening
+water_supply,The municipal water connection has broken
+water_supply,Low water pressure affects the entire neighbourhood
+sanitation,Garbage has not been collected for several days
+sanitation,Public streets are dirty and need cleaning
+sanitation,Waste bins are overflowing beside the residential block
+sanitation,Illegal dumping is creating unhygienic conditions
+sanitation,Trash and household waste cover the footpath
+sanitation,Sanitation workers have missed the collection route
+electricity,There has been a power outage for eight hours
+electricity,Dangerous electrical wires are hanging from a pole
+electricity,The local transformer is not working
+electricity,Frequent voltage fluctuations damage home appliances
+electricity,Sparks are coming from the electricity junction box
+electricity,Several homes have no electric power supply
+street_lights,Street lights are not working on this road
+street_lights,The lane remains dark at night due to broken lamps
+street_lights,A damaged streetlight pole may fall
+street_lights,More public lighting is needed near the bus stop
+street_lights,All lamp posts in the colony are switched off
+street_lights,The street light keeps flickering every night
+drainage,The drain is overflowing into nearby homes
+drainage,Blocked drainage is causing flooding after rain
+drainage,Sewage water is flowing across the road
+drainage,An open manhole is creating a public hazard
+drainage,The sewer line is blocked and smells terrible
+drainage,Stormwater drains need urgent cleaning
+parks_gardens,The public park has broken benches and equipment
+parks_gardens,Grass and bushes in the garden are overgrown
+parks_gardens,Playground equipment is damaged and unsafe
+parks_gardens,Trees in the municipal park need pruning
+parks_gardens,The community garden has not been maintained
+parks_gardens,Park pathways and boundary fencing are broken
+public_transport,The bus stop shelter is damaged
+public_transport,Public buses do not stop at the marked stand
+public_transport,The bus timetable display is missing
+public_transport,Commuters need a safe public transport shelter
+public_transport,The transit station has broken seating
+public_transport,Bus service is repeatedly delayed on this route
+other,A civic facility has an issue that needs manual review
+other,I need help identifying the correct municipal department
+other,This public service problem does not match listed categories
+other,A general community concern requires official attention
+other,Please inspect this miscellaneous civic complaint
+other,The issue affects residents but its type is unclear

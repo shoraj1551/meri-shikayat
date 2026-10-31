@@ -72,6 +72,7 @@ const redisConfig = {
     // Family preference (IPv4)
     family: 4
 };
+const redisUrl = process.env.REDIS_URL?.trim();
 
 // Create Redis client
 let redisClient = null;
@@ -81,7 +82,7 @@ const MAX_CONNECTION_ATTEMPTS = 10;
 
 export const getRedisClient = () => {
     if (!redisClient) {
-        redisClient = new Redis(redisConfig);
+        redisClient = new Redis(redisUrl || redisConfig);
 
         // Event handlers
         redisClient.on('connect', () => {

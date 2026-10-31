@@ -28,6 +28,7 @@ jobs:
             - run: npm run test:tooling
             - run: npm run test:bootstrap
             - run: npm run test:api
+            - run: npm test --workspace client
             - run: npm run build-client
             - run: git diff --exit-code -- package-lock.json
 
@@ -65,8 +66,7 @@ jobs:
               run: npm ci
 
             - name: Run ESLint
-              run: cd server && npm run lint
-              continue-on-error: true
+              run: npm run lint --workspace server
 
     test:
         name: Isolated API integration and worker isolation
@@ -126,17 +126,28 @@ jobs:
     security-scan:
         name: Security Scan
         runs-on: ubuntu-latest
-        continue-on-error: true
+        env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         steps:
             - uses: actions/checkout@v4
 
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .node-version
+                  cache: npm
+                  cache-dependency-path: package-lock.json
+
+            - run: npm install --global npm@11.11.0
+            - run: npm ci
+
+            - name: Block high-severity dependency vulnerabilities
+              run: npm audit --omit=dev --audit-level=high
+
             - name: Run Snyk Security Scan
               uses: snyk/actions/node@master
-              continue-on-error: true
-              env:
-                  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+              if: ${{ env.SNYK_TOKEN != '' }}
               with:
-                  args: --severity-threshold=high
+                  args: --severity-threshold=high --production
 
     # Vercel pilot deployments are managed by the connected Vercel project.
     # Keep image verification above, but do not publish to Docker Hub or claim

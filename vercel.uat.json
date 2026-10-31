@@ -1,35 +1,20 @@
 {
+    "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
     "name": "meri-shikayat-uat",
-    "builds": [
-        {
-            "src": "client/package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
-        },
-        {
-            "src": "server/src/serverless.js",
-            "use": "@vercel/node"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "/server/src/serverless.js"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/client/$1"
-        }
-    ],
-    "env": {
-        "NODE_ENV": "staging"
-    },
+    "framework": null,
+    "buildCommand": "npm run build-client",
+    "outputDirectory": "client/dist",
     "build": {
         "env": {
-            "NODE_ENV": "staging"
+            "VITE_API_URL": "https://meri-shikayat-api.onrender.com/api/v1",
+            "VITE_SOCKET_URL": "https://meri-shikayat-api.onrender.com"
         }
-    }
+    },
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
 }

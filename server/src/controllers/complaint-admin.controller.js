@@ -117,10 +117,10 @@ export const updateComplaintStatus = async (req, res) => {
     try {
         const { status, reason } = req.body;
 
-        if (!status) {
+        if (!['pending', 'in_progress', 'resolved', 'rejected'].includes(status)) {
             return res.status(400).json({
                 success: false,
-                message: 'Status is required'
+                message: 'Valid status (pending, in_progress, resolved, rejected) is required'
             });
         }
 
@@ -238,7 +238,7 @@ export const assignComplaint = async (req, res) => {
 
 // @desc    Add internal note to complaint
 // @route   POST /api/admin/complaints/:id/notes
-// @access  Private (Admin with viewComplaints permission)
+// @access  Private (Admin with editComplaints permission)
 export const addInternalNote = async (req, res) => {
     try {
         const { note } = req.body;

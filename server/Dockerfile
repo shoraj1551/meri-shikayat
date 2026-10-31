@@ -13,8 +13,9 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=dependencies --chown=node:node /app /app
 COPY --chown=node:node server/src ./server/src
+COPY --chown=node:node shared ./shared
 WORKDIR /app/server
-RUN mkdir -p uploads && chown node:node uploads
+RUN mkdir -p uploads/profiles && chown -R node:node uploads
 USER node
 EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \

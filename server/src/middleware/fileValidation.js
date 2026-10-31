@@ -7,6 +7,7 @@
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
 import { promises as fs } from 'fs';
+import path from 'path';
 import logger from '../utils/logger.js';
 
 /**
@@ -235,6 +236,54 @@ export const validateUploadedFile = async (req, res, next) => {
 };
 
 /**
+ * Profile pictures are images only. The upload is initially stored with a
+ * neutral extension and renamed from verified magic-number metadata.
+ */
+export const validateUploadedImage = async (req, res, next) => {
+    if (!req.file) return next();
+
+    const temporaryPath = req.file.path;
+    try {
+        const detectedType = await validateFileType(temporaryPath);
+        if (!new Set(['image/jpeg', 'image/png', 'image/webp']).has(detectedType.mime)) {
+            throw new Error('Profile pictures must be JPEG, PNG, or WebP images');
+        }
+        await validateImageDimensions(temporaryPath, detectedType.mime);
+
+        const finalFilename = `${path.parse(req.file.filename).name}.${detectedType.ext}`;
+        const finalPath = path.join(path.dirname(temporaryPath), finalFilename);
+        await fs.rename(temporaryPath, finalPath);
+        req.file.filename = finalFilename;
+        req.file.path = finalPath;
+        req.file.mimetype = detectedType.mime;
+        req.validatedFile = {
+            originalName: req.file.originalname,
+            mimeType: detectedType.mime,
+            extension: detectedType.ext,
+            size: req.file.size,
+            path: finalPath
+        };
+        next();
+    } catch (error) {
+        try {
+            await fs.unlink(temporaryPath);
+        } catch (unlinkError) {
+            if (unlinkError.code !== 'ENOENT') {
+                logger.error('Failed to delete invalid profile image', {
+                    filePath: temporaryPath,
+                    error: unlinkError.message
+                });
+            }
+        }
+        return res.status(400).json({
+            success: false,
+            message: 'Profile image validation failed',
+            error: error.message
+        });
+    }
+};
+
+/**
  * Validate multiple files
  */
 export const validateMultipleFiles = async (req, res, next) => {
@@ -317,5 +366,6 @@ export default {
     validateFileType,
     validateImageDimensions,
     validateUploadedFile,
+    validateUploadedImage,
     validateMultipleFiles
 };

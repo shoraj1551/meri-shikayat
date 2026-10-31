@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import mongoose from 'mongoose';
 import {
     createNewComplaintPayload,
     createStatusUpdatePayload,
@@ -85,9 +86,10 @@ test('socket delivery errors never fail an already-persisted complaint workflow'
     assert.equal(emitComplaintStatusUpdate(req, {}), false);
 });
 
-test('successful complaint creation emits after persistence without waiting for stats update', async t => {
+test('successful complaint creation emits only after transactional stats update', async t => {
     const originalFindOne = Complaint.findOne;
     const originalCreate = Complaint.create;
+    const originalStartSession = mongoose.startSession;
     const sequence = [];
     const savedComplaint = {
         _id: 'created-id', complaintId: 'generated-at-runtime', title: 'Broken road',
@@ -96,12 +98,17 @@ test('successful complaint creation emits after persistence without waiting for 
     Complaint.findOne = () => ({ sort: async () => null });
     Complaint.create = async values => {
         sequence.push('complaint-created');
-        Object.assign(savedComplaint, values);
-        return savedComplaint;
+        Object.assign(savedComplaint, Array.isArray(values) ? values[0] : values);
+        return [savedComplaint];
     };
+    mongoose.startSession = async () => ({
+        async withTransaction(work) { await work(); },
+        async endSession() {}
+    });
     t.after(() => {
         Complaint.findOne = originalFindOne;
         Complaint.create = originalCreate;
+        mongoose.startSession = originalStartSession;
     });
 
     const { req: socketReq, calls } = requestWithSocketRecorder(sequence);
@@ -109,12 +116,13 @@ test('successful complaint creation emits after persistence without waiting for 
         ...socketReq,
         body: {
             title: 'Broken road', description: 'A dangerous pothole needs urgent repair',
-            type: 'civic', location: { city: 'Delhi' }
+            type: 'text', customCategory: 'Roads',
+            location: { address: 'Delhi', coordinates: { lat: 28.61, lng: 77.2 } }
         },
         user: {
             id: 'user-id',
             constructor: {
-                async findByIdAndUpdate() { sequence.push('stats-updated'); }
+                async findByIdAndUpdate() { sequence.push('stats-updated'); return { _id: 'user-id' }; }
             }
         }
     };
@@ -128,7 +136,7 @@ test('successful complaint creation emits after persistence without waiting for 
     sequence.push('response-returned');
 
     assert.equal(response.status, 201);
-    assert.deepEqual(sequence, ['complaint-created', 'event-emitted', 'stats-updated', 'response-returned']);
+    assert.deepEqual(sequence, ['complaint-created', 'stats-updated', 'event-emitted', 'response-returned']);
     assert.equal(calls[1].event, 'new_complaint');
     assert.equal(calls[1].payload.id, 'created-id');
 });

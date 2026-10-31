@@ -13,8 +13,14 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: CORS_ORIGIN
+      - key: EMAIL_USER
         sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_SERVICE
+        value: gmail
+      - key: CORS_ORIGIN
+        value: https://meri-shikayat-prod.vercel.app,https://meri-shikayat-dev.vercel.app,https://meri-shikayat-uat.vercel.app
       - key: ML_SERVICE_ENABLED
         value: "true"
       - key: ML_SERVICE_URL
@@ -24,7 +30,7 @@ services:
     env: docker
     region: singapore
     plan: free
-    dockerContext: ./ml-services
+    dockerContext: .
     dockerfilePath: ./ml-services/Dockerfile
     healthCheckPath: /health
     envVars:

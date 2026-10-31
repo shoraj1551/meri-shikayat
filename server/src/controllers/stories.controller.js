@@ -5,6 +5,28 @@
 
 import Complaint from '../models/Complaint.js';
 
+export const getImpactStats = async (req, res) => {
+    try {
+        const [total, resolved, timing] = await Promise.all([
+            Complaint.countDocuments(),
+            Complaint.countDocuments({ status: 'resolved' }),
+            Complaint.aggregate([
+                { $match: { status: 'resolved' } },
+                { $project: { days: { $divide: [{ $subtract: ['$updatedAt', '$createdAt'] }, 86400000] } } },
+                { $group: { _id: null, averageDays: { $avg: '$days' } } }
+            ])
+        ]);
+        res.json({ success: true, data: {
+            complaintsFiled: total,
+            issuesResolved: resolved,
+            resolutionRate: total ? Math.round((resolved / total) * 1000) / 10 : 0,
+            averageResolutionDays: Math.round((timing[0]?.averageDays || 0) * 10) / 10
+        } });
+    } catch {
+        res.status(500).json({ success: false, message: 'Unable to calculate impact statistics' });
+    }
+};
+
 export const getStoriesFeed = async (req, res) => {
     try {
         const { limit = 10, page = 1 } = req.query;
@@ -12,7 +34,7 @@ export const getStoriesFeed = async (req, res) => {
 
         // Custom Algorithm for "Hot" stories could be implemented here
         // For now, simple chronological Order of public stories
-        const stories = await Complaint.find({ isStory: true })
+        const stories = await Complaint.find({ isStory: true, status: 'resolved' })
             .sort({ createdAt: -1 })
             .skip(parseInt(skip))
             .limit(parseInt(limit))
@@ -50,7 +72,7 @@ export const toggleHype = async (req, res) => {
 export const addComment = async (req, res) => {
     try {
         const { text } = req.body;
-        if (!text) return res.status(400).json({ success: false, message: 'Text required' });
+        if (!text || text.length > 1000) return res.status(400).json({ success: false, message: 'Comment must be between 1 and 1000 characters' });
 
         const complaint = await Complaint.findById(req.params.id);
         if (!complaint) return res.status(404).json({ success: false, message: 'Complaint not found' });

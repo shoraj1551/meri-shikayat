@@ -255,6 +255,7 @@ export async function resetPassword(req, res) {
         // Update password
         user.password = newPassword;
         user.lastPasswordChange = new Date();
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
 
         // Invalidate all refresh tokens (force re-login on all devices)
         user.refreshTokens = [];

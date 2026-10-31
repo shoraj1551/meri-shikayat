@@ -10,7 +10,7 @@ import logger from '../utils/logger.js';
 let transporter = null;
 
 if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-    transporter = nodemailer.createTransporter({
+    transporter = nodemailer.createTransport({
         service: process.env.EMAIL_SERVICE || 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
@@ -19,6 +19,48 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
     });
 } else {
     logger.warn('Email service not configured. Set EMAIL_USER and EMAIL_PASSWORD in .env');
+}
+
+/**
+ * Deliver an administrator login OTP. Admin authentication fails closed when
+ * the mail transport is unavailable; the OTP is never returned or logged.
+ */
+export async function sendAdminLoginOTP(email, otp, firstName) {
+    if (!transporter) {
+        logger.error('Admin login OTP delivery unavailable', { emailDomain: email.split('@')[1] });
+        return { success: false, reason: 'email_not_configured' };
+    }
+
+    const mailOptions = {
+        from: `Meri Shikayat <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'Administrator login verification code - Meri Shikayat',
+        html: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                <h1>Administrator login verification</h1>
+                <p>Hi ${firstName},</p>
+                <p>Use this one-time code to complete your administrator login:</p>
+                <p style="font-size:32px;font-weight:bold;letter-spacing:6px">${otp}</p>
+                <p>This code expires shortly and can be used only once.</p>
+                <p>If you did not attempt to sign in, do not share this code and contact your super administrator.</p>
+            </div>
+        `
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        logger.info('Admin login OTP delivered', {
+            messageId: info.messageId,
+            emailDomain: email.split('@')[1]
+        });
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        logger.error('Admin login OTP delivery failed', {
+            error: error.message,
+            emailDomain: email.split('@')[1]
+        });
+        return { success: false, reason: 'delivery_failed' };
+    }
 }
 
 /**

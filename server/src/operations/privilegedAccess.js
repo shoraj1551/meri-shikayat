@@ -9,7 +9,7 @@ export function auditSnapshot(database, { users, admins, complaints }) {
         ...users.map(u => ({ store: 'User', id: String(u._id), type: u.userType,
             role: u.adminProfile?.role || null, status: u.status, updatedAt: u.updatedAt || null,
             knownSeedIdentity: u.email === 'admin@merishikayat.com' })),
-        ...admins.map(a => ({ store: 'Admin', id: String(a._id), type: 'legacy_admin',
+        ...admins.map(a => ({ store: 'Admin', id: String(a._id), type: 'admin',
             role: a.role, status: a.status, updatedAt: a.updatedAt || null,
             knownSeedIdentity: a.email === 'admin@merishikayat.com' }))
     ];
@@ -44,7 +44,7 @@ export function validateProvisioning(input, snapshot, now = new Date()) {
             typeof decision.reason !== 'string' || decision.reason.trim().length < 5) throw new Error('Missing record decision or reason');
         if (decision.decision === 'hold') throw new Error('Held/suspicious records require resolution and a fresh audit before provisioning');
     }
-    if (!['User', 'Admin'].includes(account.store)) throw new Error('Choose User or legacy Admin explicitly; identities are not migrated here');
+    if (account.store !== 'Admin') throw new Error('Privileged identities must use the canonical Admin store');
     if (![account.firstName, account.lastName].every(v => typeof v === 'string' && /^[A-Za-z ]{2,50}$/.test(v)) ||
         typeof account.email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account.email) ||
         typeof account.phone !== 'string' || !/^[6-9][0-9]{9}$/.test(account.phone)) throw new Error('Invalid account fields');

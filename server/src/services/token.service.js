@@ -46,7 +46,11 @@ if (JWT_SECRET_PREVIOUS) {
  */
 export function generateAccessToken(user) {
     const payload = {
-        userId: user._id,
+        // `id` is the canonical subject claim used by HTTP authentication.
+        // Keep refresh/reset tokens on `userId` because they are distinct token
+        // types and are never accepted as access credentials.
+        id: user._id,
+        tokenVersion: user.tokenVersion || 0,
         email: user.email,
         phone: user.phone,
         role: user.role,
@@ -66,6 +70,7 @@ export function generateRefreshToken(user) {
 
     const payload = {
         userId: user._id,
+        tokenVersion: user.tokenVersion || 0,
         tokenId,
         type: 'refresh'
     };

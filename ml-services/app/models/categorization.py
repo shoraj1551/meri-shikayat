@@ -1,132 +1,63 @@
-"""
-Auto-categorization model with dummy training data
-"""
+import hashlib
+import json
+from pathlib import Path
 
 import joblib
-import os
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
 import numpy as np
 
+from app.config import settings
+
+
 class ComplaintCategorizer:
-    def __init__(self):
-        self.categories = [
-            "roads", "sanitation", "water", "electricity", 
-            "drainage", "street_lights", "garbage", "other"
-        ]
-        self.model = None
+    def __init__(self, model_path=None, taxonomy_path=None):
+        self.model_path = Path(model_path or settings.CATEGORIZATION_MODEL_PATH)
+        self.taxonomy_path = Path(taxonomy_path or settings.CATEGORY_TAXONOMY_PATH)
         self.pipeline = None
-        
-        # Try to load existing model, otherwise train new one
-        model_path = "./data/models/categorizer.joblib"
-        if os.path.exists(model_path):
-            self.load_model(model_path)
-        else:
-            self.train_dummy_model()
-    
-    def train_dummy_model(self):
-        """Train model with dummy data"""
-        # Dummy training data
-        training_data = [
-            # Roads
-            ("pothole on main street", "roads"),
-            ("road is damaged near market", "roads"),
-            ("broken road causing accidents", "roads"),
-            ("need road repair urgently", "roads"),
-            ("cracks in the highway", "roads"),
-            
-            # Sanitation
-            ("garbage not collected for days", "sanitation"),
-            ("dirty streets need cleaning", "sanitation"),
-            ("waste disposal issue", "sanitation"),
-            ("sanitation workers not coming", "sanitation"),
-            ("unhygienic conditions in area", "sanitation"),
-            
-            # Water
-            ("no water supply since morning", "water"),
-            ("water pipe leaking badly", "water"),
-            ("dirty water coming from tap", "water"),
-            ("water shortage in our locality", "water"),
-            ("broken water connection", "water"),
-            
-            # Electricity
-            ("power cut for 8 hours", "electricity"),
-            ("electricity wire hanging dangerously", "electricity"),
-            ("no power supply in area", "electricity"),
-            ("transformer not working", "electricity"),
-            ("frequent power outages", "electricity"),
-            
-            # Drainage
-            ("drain is overflowing", "drainage"),
-            ("blocked drainage causing flooding", "drainage"),
-            ("sewage water on road", "drainage"),
-            ("drainage system needs repair", "drainage"),
-            ("manhole cover missing", "drainage"),
-            
-            # Street Lights
-            ("street lights not working", "street_lights"),
-            ("dark streets at night", "street_lights"),
-            ("need more street lights", "street_lights"),
-            ("broken street lamp", "street_lights"),
-            
-            # Garbage
-            ("garbage dump near residential area", "garbage"),
-            ("trash bins overflowing", "garbage"),
-            ("illegal dumping of waste", "garbage"),
-            ("stray animals in garbage", "garbage"),
-        ]
-        
-        texts, labels = zip(*training_data)
-        
-        # Create pipeline
-        self.pipeline = Pipeline([
-            ('tfidf', TfidfVectorizer(max_features=100, ngram_range=(1, 2))),
-            ('clf', MultinomialNB())
-        ])
-        
-        # Train
-        self.pipeline.fit(texts, labels)
-        
-        # Save model
-        os.makedirs("./data/models", exist_ok=True)
-        joblib.dump(self.pipeline, "./data/models/categorizer.joblib")
-        
-        print("✅ Categorization model trained and saved")
-    
-    def load_model(self, path):
-        """Load pre-trained model"""
-        self.pipeline = joblib.load(path)
-        print("✅ Categorization model loaded")
-    
-    def predict(self, text: str):
-        """Predict category for given text"""
-        if not self.pipeline:
-            return {
-                "category": "other",
-                "confidence": 0.0,
-                "suggestions": []
-            }
-        
-        # Predict
-        prediction = self.pipeline.predict([text])[0]
+        self.categories = []
+        self.metadata = {}
+        self.load_model()
+
+    def load_model(self):
+        if not self.model_path.is_file():
+            raise RuntimeError(f"Categorization model artifact is missing: {self.model_path}")
+        if not self.taxonomy_path.is_file():
+            raise RuntimeError(f"Category taxonomy is missing: {self.taxonomy_path}")
+
+        taxonomy_bytes = self.taxonomy_path.read_bytes()
+        taxonomy = json.loads(taxonomy_bytes.decode("utf-8"))
+        artifact = joblib.load(self.model_path)
+        expected_hash = hashlib.sha256(taxonomy_bytes).hexdigest()
+        if artifact.get("artifact_version") != 1:
+            raise RuntimeError("Unsupported categorization artifact version")
+        if artifact.get("taxonomy_version") != taxonomy.get("version"):
+            raise RuntimeError("Categorization artifact taxonomy version mismatch")
+        if artifact.get("taxonomy_sha256") != expected_hash:
+            raise RuntimeError("Categorization artifact was trained with a different taxonomy")
+
+        pipeline = artifact.get("pipeline")
+        learned_classes = list(pipeline.classes_)
+        taxonomy_classes = [item["id"] for item in taxonomy["categories"]]
+        if set(learned_classes) != set(taxonomy_classes):
+            raise RuntimeError("Categorization artifact classes do not cover the canonical taxonomy")
+
+        self.pipeline = pipeline
+        self.categories = taxonomy_classes
+        self.metadata = {key: value for key, value in artifact.items() if key != "pipeline"}
+
+    def predict(self, text):
         probabilities = self.pipeline.predict_proba([text])[0]
-        confidence = float(probabilities.max())
-        
-        # Get top 3 suggestions
-        top_indices = np.argsort(probabilities)[-3:][::-1]
-        suggestions = [self.categories[i] if i < len(self.categories) else "other" 
-                      for i in top_indices]
-        
+        classes = list(self.pipeline.classes_)
+        ranked_indices = np.argsort(probabilities)[::-1]
+        prediction_index = int(ranked_indices[0])
         return {
-            "category": prediction,
-            "confidence": confidence,
-            "suggestions": suggestions,
+            "category": classes[prediction_index],
+            "confidence": float(probabilities[prediction_index]),
+            "suggestions": [classes[index] for index in ranked_indices[:3]],
             "all_probabilities": {
-                cat: float(prob) 
-                for cat, prob in zip(self.categories, probabilities)
+                category: float(probability)
+                for category, probability in zip(classes, probabilities)
             }
         }
 
-# Global instance
+
 categorizer = ComplaintCategorizer()

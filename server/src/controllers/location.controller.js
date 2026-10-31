@@ -5,6 +5,15 @@
 import User from '../models/User.js';
 import axios from 'axios';
 
+const normalizeCoordinates = coordinates => {
+    const lat = Number(coordinates?.lat ?? coordinates?.latitude);
+    const lng = Number(coordinates?.lng ?? coordinates?.longitude);
+    return Number.isFinite(lat) && lat >= -90 && lat <= 90 &&
+        Number.isFinite(lng) && lng >= -180 && lng <= 180
+        ? { lat, lng }
+        : null;
+};
+
 // @desc    Get location by pincode
 // @route   GET /api/location/pincode/:pincode
 // @access  Public
@@ -58,17 +67,18 @@ export const getLocationByPincode = async (req, res) => {
 export const reverseGeocode = async (req, res) => {
     try {
         const { latitude, longitude } = req.body;
+        const normalizedCoordinates = normalizeCoordinates({ latitude, longitude });
 
-        if (!latitude || !longitude) {
+        if (!normalizedCoordinates) {
             return res.status(400).json({
                 success: false,
-                message: 'Latitude and longitude are required'
+                message: 'Valid latitude and longitude are required'
             });
         }
 
         // Use Nominatim (OpenStreetMap) for reverse geocoding
         const response = await axios.get(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${normalizedCoordinates.lat}&lon=${normalizedCoordinates.lng}&addressdetails=1`,
             {
                 headers: {
                     'User-Agent': 'MeriShikayat/1.0'
@@ -88,10 +98,7 @@ export const reverseGeocode = async (req, res) => {
                     state: addr.state,
                     country: addr.country,
                     pincode: addr.postcode,
-                    coordinates: {
-                        latitude: parseFloat(latitude),
-                        longitude: parseFloat(longitude)
-                    }
+                    coordinates: normalizedCoordinates
                 }
             });
         } else {
@@ -143,8 +150,8 @@ export const searchLocations = async (req, res) => {
                 country: item.address.country,
                 pincode: item.address.postcode,
                 coordinates: {
-                    latitude: parseFloat(item.lat),
-                    longitude: parseFloat(item.lon)
+                    lat: parseFloat(item.lat),
+                    lng: parseFloat(item.lon)
                 }
             }));
 
@@ -173,6 +180,14 @@ export const searchLocations = async (req, res) => {
 export const updateUserLocation = async (req, res) => {
     try {
         const { pincode, village, city, district, state, country, coordinates } = req.body;
+        const normalizedCoordinates = normalizeCoordinates(coordinates);
+
+        if (coordinates && !normalizedCoordinates) {
+            return res.status(400).json({
+                success: false,
+                message: 'Valid latitude and longitude coordinates are required'
+            });
+        }
 
         const user = await User.findById(req.user.id);
 
@@ -191,7 +206,7 @@ export const updateUserLocation = async (req, res) => {
             district,
             state,
             country: country || 'India',
-            coordinates
+            ...(normalizedCoordinates ? { coordinates: normalizedCoordinates } : {})
         };
         user.isLocationSet = true;
 

@@ -68,7 +68,10 @@ export const deleteUserAccount = async (req, res) => {
             email: `deleted_${userId}@deleted.com`,
             phone: null,
             isDeleted: true,
-            deletedAt: new Date()
+            deletedAt: new Date(),
+            status: 'suspended',
+            refreshTokens: [],
+            $inc: { tokenVersion: 1 }
         });
 
         // Anonymize complaints

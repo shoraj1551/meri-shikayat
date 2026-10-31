@@ -15,7 +15,7 @@
         "install-all": "npm ci",
         "build-client": "npm run build --workspace client && node scripts/verify-client-build.cjs",
         "vercel-build": "npm run build-client",
-        "test:tooling": "node --test scripts/tests/*.test.cjs",
+        "test:tooling": "node --test scripts/tests",
         "test:bootstrap": "node --test server/test/bootstrap/*.test.mjs",
         "test:container": "node scripts/test-api-container.mjs",
         "test:api": "npm test --workspace server",
@@ -25,5 +25,10 @@
     "workspaces": [
         "client",
         "server"
-    ]
+    ],
+    "overrides": {
+        "follow-redirects": "^1.16.2",
+        "ip-address": "^10.7.4",
+        "source-map-js": "^1.2.2"
+    }
 }

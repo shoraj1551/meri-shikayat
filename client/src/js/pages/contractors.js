@@ -4,6 +4,7 @@
  */
 
 import { fetchAllContractors } from '../services/contractors.service.js';
+import { escapeHtml } from '../utils/html.js';
 
 export async function renderContractorsPage() {
     const app = document.getElementById('app');
@@ -59,48 +60,39 @@ export async function renderContractorsPage() {
                                             ${contractor.isVerified ? '<span class="verified-badge">✓ Verified</span>' : ''}
                                         </div>
                                         
-                                        <h3>${contractor.companyName}</h3>
-                                        ${contractor.companyNameHindi ? `<p class="hindi-name">${contractor.companyNameHindi}</p>` : ''}
+                                        <h3>${escapeHtml(contractor.companyName)}</h3>
+                                        ${contractor.companyNameHindi ? `<p class="hindi-name">${escapeHtml(contractor.companyNameHindi)}</p>` : ''}
                                         
                                         <div class="contractor-specialization">
-                                            ${contractor.specialization.map(spec => `
-                                                <span class="spec-badge">${formatSpecialization(spec)}</span>
+                                            ${(contractor.specialization || []).map(spec => `
+                                                <span class="spec-badge">${escapeHtml(formatSpecialization(spec))}</span>
                                             `).join('')}
                                         </div>
                                         
                                         <div class="contractor-stats">
                                             <div class="contractor-stat">
                                                 <span class="stat-icon">⭐</span>
-                                                <span class="stat-value">${contractor.avgRating.toFixed(1)}</span>
+                                                <span class="stat-value">${Number(contractor.avgRating || 0).toFixed(1)}</span>
                                             </div>
                                             <div class="contractor-stat">
                                                 <span class="stat-icon">✅</span>
-                                                <span class="stat-value">${contractor.totalJobsCompleted}</span>
+                                                <span class="stat-value">${Number(contractor.totalJobsCompleted || 0)}</span>
                                                 <span class="stat-label">Jobs</span>
                                             </div>
                                         </div>
                                         
                                         <div class="contractor-service-areas">
                                             <strong>Service Areas:</strong>
-                                            <p>${contractor.serviceAreas.join(', ')}</p>
-                                        </div>
-                                        
-                                        <div class="contractor-contact">
-                                            <a href="tel:${contractor.phone}" class="contact-link">
-                                                📞 ${contractor.phone}
-                                            </a>
-                                            <a href="mailto:${contractor.email}" class="contact-link">
-                                                📧 ${contractor.email}
-                                            </a>
+                                            <p>${(contractor.serviceAreas || []).map(escapeHtml).join(', ')}</p>
                                         </div>
                                         
                                         <div class="contractor-footer">
                                             <p class="contractor-contact-person">
-                                                <strong>Contact:</strong> ${contractor.primaryContact}
+                                                <strong>Verified service partner</strong>
                                             </p>
                                             ${contractor.establishedYear ? `
                                                 <p class="contractor-established">
-                                                    Est. ${contractor.establishedYear}
+                                                    Est. ${Number(contractor.establishedYear)}
                                                 </p>
                                             ` : ''}
                                         </div>

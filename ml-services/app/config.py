@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     
     # Model paths
     MODEL_DIR: str = "./data/models"
+    CATEGORIZATION_MODEL_PATH: str = "./data/models/categorizer.joblib"
+    CATEGORY_TAXONOMY_PATH: str = "./shared/complaint-categories.json"
     
     # ML settings
     CATEGORIZATION_CONFIDENCE_THRESHOLD: float = 0.6

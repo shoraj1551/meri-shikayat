@@ -4,18 +4,14 @@
  */
 
 import Joi from 'joi';
-import sanitizeHtml from 'sanitize-html';
 import logger from '../utils/logger.js';
+import { sanitizePlainTextValue } from './plainText.js';
 
 /**
  * Sanitize HTML content to prevent XSS attacks
  */
 const sanitizeHtmlContent = (value) => {
-    return sanitizeHtml(value, {
-        allowedTags: [], // No HTML tags allowed
-        allowedAttributes: {},
-        disallowedTagsMode: 'discard'
-    });
+    return sanitizePlainTextValue(value);
 };
 
 /**

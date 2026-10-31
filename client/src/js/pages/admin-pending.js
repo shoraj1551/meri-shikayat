@@ -3,6 +3,7 @@
  */
 
 import { adminService } from '../api/admin.service.js';
+import { escapeHtmlDeep } from '../utils/html.js';
 
 let currentAdminId = null;
 let currentAction = null;
@@ -15,6 +16,8 @@ export async function renderAdminPendingPage() {
         window.router.navigate('/admin/dashboard');
         return;
     }
+
+    const safeCurrentAdmin = escapeHtmlDeep(admin);
 
     app.innerHTML = `
         <div class="dashboard-layout admin-theme">
@@ -36,7 +39,7 @@ export async function renderAdminPendingPage() {
                 </nav>
                 <div class="sidebar-footer">
                     <div class="user-info">
-                        <div class="user-name">${admin.firstName} ${admin.lastName}</div>
+                        <div class="user-name">${safeCurrentAdmin.firstName} ${safeCurrentAdmin.lastName}</div>
                         <div class="user-role">SUPER ADMIN</div>
                     </div>
                     <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
@@ -130,7 +133,7 @@ export async function renderAdminPendingPage() {
 
     try {
         const response = await adminService.getPendingAdmins();
-        const pendingAdmins = response.data;
+        const pendingAdmins = escapeHtmlDeep(response.data);
         const listContainer = document.getElementById('pendingList');
         document.getElementById('loadingState').style.display = 'none';
 

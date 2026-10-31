@@ -62,8 +62,8 @@ services:
 
   ml:
     build:
-      context: ./ml-services
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ml-services/Dockerfile
     container_name: meri-shikayat-ml
     restart: unless-stopped
     ports:

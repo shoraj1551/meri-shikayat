@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { categorizeComplaint, analyzeSentiment, analyzeImage } from './ml.service.js';
+import { resolveComplaintCategoryLabel } from '../config/complaintTaxonomy.js';
 
 const validPriorities = new Set(['low', 'medium', 'high']);
 const finiteNumber = value => Number.isFinite(Number(value)) ? Number(value) : undefined;
@@ -18,6 +19,13 @@ export async function enrichComplaintWithML({ description, imagePath, imageMimeT
 
     const [categoryResult, sentimentResult, imageResult] = await Promise.allSettled(jobs);
     const category = categoryResult.status === 'fulfilled' ? categoryResult.value : null;
+    const canonicalCategory = resolveComplaintCategoryLabel(category?.category);
+    const canonicalSuggestions = Array.isArray(category?.suggestions)
+        ? category.suggestions
+            .map(value => resolveComplaintCategoryLabel(value)?.id)
+            .filter((value, index, values) => value && values.indexOf(value) === index)
+            .slice(0, 3)
+        : [];
     const tone = sentimentResult.status === 'fulfilled' ? sentimentResult.value : null;
     const imageQuality = imageResult?.status === 'fulfilled' ? imageResult.value : null;
 
@@ -26,9 +34,9 @@ export async function enrichComplaintWithML({ description, imagePath, imageMimeT
     const analysis = {
         analyzedAt: new Date(),
         category: category ? {
-            name: category.category,
+            name: canonicalCategory?.id || category.category,
             confidence: finiteNumber(category.confidence),
-            suggestions: Array.isArray(category.suggestions) ? category.suggestions.slice(0, 3) : []
+            suggestions: canonicalSuggestions
         } : undefined,
         sentiment: tone ? {
             label: tone.sentiment,
@@ -53,7 +61,7 @@ export async function enrichComplaintWithML({ description, imagePath, imageMimeT
 
     return {
         analysis,
-        suggestedCategory: categoryConfidence >= categoryThreshold ? category?.category || null : null,
+        suggestedCategory: categoryConfidence >= categoryThreshold ? canonicalCategory?.id || null : null,
         suggestedPriority: validPriorities.has(tone?.urgency) ? tone.urgency : null
     };
 }

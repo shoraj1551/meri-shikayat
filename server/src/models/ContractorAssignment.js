@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const contractorAssignmentSchema = new mongoose.Schema({
     contractor: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Contractor',
+        ref: 'User',
         required: true
     },
     complaint: {

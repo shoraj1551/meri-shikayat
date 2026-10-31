@@ -1,6 +1,53 @@
 import { defineConfig } from 'vite';
 import viteCompression from 'vite-plugin-compression';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+function enforceVercelPersistentApi() {
+    return {
+        name: 'enforce-vercel-persistent-api',
+        apply: 'build',
+        configResolved() {
+            if (process.env.VERCEL !== '1') return;
+            const api = process.env.VITE_API_URL;
+            const socket = process.env.VITE_SOCKET_URL;
+            if (!api || !socket) throw new Error('Vercel builds require VITE_API_URL and VITE_SOCKET_URL');
+            const apiOrigin = new URL(api).origin;
+            const socketUrl = new URL(socket);
+            if (apiOrigin !== socketUrl.origin || socketUrl.hostname !== 'meri-shikayat-api.onrender.com') {
+                throw new Error('Vercel HTTP and Socket.IO traffic must use meri-shikayat-api.onrender.com');
+            }
+        }
+    };
+}
+
+function injectServiceWorkerPrecache() {
+    return {
+        name: 'inject-service-worker-precache',
+        apply: 'build',
+        async writeBundle(outputOptions, bundle) {
+            const outputDirectory = resolve(outputOptions.dir || 'dist');
+            const workerPath = resolve(outputDirectory, 'service-worker.js');
+            const generatedAssets = Object.keys(bundle)
+                .filter(file => !file.endsWith('.map') && !file.endsWith('.gz') && !file.endsWith('.br'))
+                .map(file => `/${file}`);
+            const assets = [...new Set([
+                '/', '/index.html', '/offline.html', '/favicon.ico', '/manifest.json',
+                ...generatedAssets
+            ])];
+            const worker = await readFile(workerPath, 'utf8');
+            if (!worker.includes('self.__PRECACHE_MANIFEST')) {
+                throw new Error('Service worker precache placeholder is missing');
+            }
+            await writeFile(
+                workerPath,
+                worker.replace('self.__PRECACHE_MANIFEST', JSON.stringify(assets)),
+                'utf8'
+            );
+        }
+    };
+}
 
 export default defineConfig({
     server: {
@@ -19,6 +66,8 @@ export default defineConfig({
         }
     },
     plugins: [
+        enforceVercelPersistentApi(),
+        injectServiceWorkerPrecache(),
         // Gzip compression
         viteCompression({
             algorithm: 'gzip',

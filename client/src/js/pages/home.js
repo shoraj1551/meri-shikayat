@@ -4,6 +4,7 @@
  */
 
 import { translations, t, getCurrentLanguage, setLanguage } from '../i18n/translations.js';
+import { storiesService } from '../api/stories.service.js';
 
 export function renderHomePage() {
     const app = document.getElementById('app');
@@ -17,6 +18,7 @@ export function renderHomePage() {
 
     // Initialize event listeners
     initializeEventListeners();
+    loadPersistedImpact();
 }
 
 /**
@@ -94,19 +96,19 @@ function generateHomeHTML(lang) {
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon">📝</div>
-                            <div class="stat-number">5,480+</div>
+                            <div class="stat-number" id="homeComplaintsFiled">—</div>
                             <div class="stat-label" data-i18n="trust.complaints.label">${t('trust.complaints.label', lang)}</div>
                             <div class="stat-description">${lang === 'hi' ? 'नागरिकों द्वारा दर्ज' : 'Filed by citizens'}</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon">✅</div>
-                            <div class="stat-number">4,100+</div>
+                            <div class="stat-number" id="homeIssuesResolved">—</div>
                             <div class="stat-label" data-i18n="trust.resolved.label">${t('trust.resolved.label', lang)}</div>
                             <div class="stat-description">${lang === 'hi' ? 'सफलतापूर्वक हल किया गया' : 'Successfully resolved'}</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon">⚡</div>
-                            <div class="stat-number">3.5</div>
+                            <div class="stat-number" id="homeAverageResolution">—</div>
                             <div class="stat-label">${lang === 'hi' ? 'दिन औसत समाधान समय' : 'Days Avg. Resolution Time'}</div>
                             <div class="stat-description">${lang === 'hi' ? 'तेज़ प्रतिक्रिया' : 'Quick response'}</div>
                         </div>
@@ -354,6 +356,11 @@ function generateHomeHTML(lang) {
  * Generate impact cards with sample data
  */
 function generateImpactCards(lang) {
+    return `<div class="impact-card"><p class="impact-text">${lang === 'hi'
+        ? 'सत्यापित प्रभाव आंकड़े ऊपर दिखाए गए हैं।'
+        : 'Verified aggregate impact is shown above. Sign in to view published resolved stories.'}</p></div>`;
+    /* Legacy sample declarations below are unreachable and retained only until
+       the related carousel styling is removed in a separate design cleanup. */
     const impacts = [
         { status: 'resolved', time: lang === 'hi' ? '1 घंटे पहले' : '1 hour ago', text: lang === 'hi' ? 'MG रोड (सेक्टर 12) पर गड्ढा भरा गया।' : 'Pothole repaired on MG Road (Sector 12).' },
         { status: 'in-progress', time: lang === 'hi' ? '3 घंटे पहले' : '3 hours ago', text: lang === 'hi' ? 'सिटी पार्क के पास स्ट्रीटलाइट की समस्या रिपोर्ट की गई।' : 'Streetlight issue reported near City Park.' },
@@ -385,6 +392,10 @@ function generateImpactCards(lang) {
  * Generate testimonials
  */
 function generateTestimonials(lang) {
+    return `<div class="feedback-card active"><p class="feedback-text">${lang === 'hi'
+        ? 'अभी तक कोई सत्यापित प्रशंसापत्र प्रकाशित नहीं हुआ है।'
+        : 'No verified citizen testimonials have been published.'}</p></div>`;
+    /* Legacy sample declarations below are unreachable and are never rendered. */
     const testimonials = lang === 'hi' ? [
         { text: '"आखिरकार गड्ढे भरवाने का एक तरीका! प्रतिक्रिया मेरी अपेक्षा से तेज थी।"', name: 'राहुल शर्मा', location: 'निवासी, सेक्टर 4' },
         { text: '"वीडियो अपलोड सुविधा से समस्या दिखाना बहुत आसान हो गया। बढ़िया पहल!"', name: 'प्रिया सिंह', location: 'निवासी, वार्ड 12' },
@@ -419,6 +430,20 @@ function getStatusLabel(status, lang) {
         'new': lang === 'hi' ? 'नई शिकायत' : 'New Complaint'
     };
     return labels[status] || status;
+}
+
+async function loadPersistedImpact() {
+    try {
+        const impact = (await storiesService.getImpact()).data;
+        document.getElementById('homeComplaintsFiled').textContent = new Intl.NumberFormat('en-IN').format(impact.complaintsFiled);
+        document.getElementById('homeIssuesResolved').textContent = new Intl.NumberFormat('en-IN').format(impact.issuesResolved);
+        document.getElementById('homeAverageResolution').textContent = String(impact.averageResolutionDays);
+    } catch {
+        for (const id of ['homeComplaintsFiled', 'homeIssuesResolved', 'homeAverageResolution']) {
+            const element = document.getElementById(id);
+            if (element) element.textContent = 'Unavailable';
+        }
+    }
 }
 
 /**

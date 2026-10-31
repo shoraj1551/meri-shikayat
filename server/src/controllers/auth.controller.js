@@ -7,8 +7,8 @@ import jwt from 'jsonwebtoken';
 import { logAuth } from '../services/audit.service.js';
 
 // Generate JWT token
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (user) => {
+    return jwt.sign({ id: user._id, tokenVersion: user.tokenVersion || 0 }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE || '7d'
     });
 };
@@ -61,7 +61,7 @@ export const register = async (req, res) => {
         });
 
         // Generate token
-        const token = generateToken(user._id);
+        const token = generateToken(user);
 
         // Log registration
         await logAuth('register', user._id, req, {
@@ -193,7 +193,7 @@ export const login = async (req, res) => {
         user.accountLockedUntil = undefined;
 
         // Generate access token (always)
-        const accessToken = generateToken(user._id);
+        const accessToken = generateToken(user);
 
         // Generate refresh token if Remember Me is checked
         let refreshToken = null;
@@ -240,15 +240,6 @@ export const login = async (req, res) => {
                 status: user.status,
                 isLocationSet: user.isLocationSet,
                 location: user.location,
-                // Include role-specific data
-                ...(user.userType === 'admin' || user.userType === 'super_admin' ? {
-                    adminProfile: {
-                        department: user.adminProfile?.department,
-                        designation: user.adminProfile?.designation,
-                        role: user.adminProfile?.role,
-                        permissions: user.adminProfile?.permissions
-                    }
-                } : {}),
                 ...(user.userType === 'contractor' ? {
                     contractorProfile: {
                         companyName: user.contractorProfile?.companyName,
@@ -308,10 +299,7 @@ export const logout = async (req, res) => {
             });
         }
 
-        if (logoutAll) {
-            // Logout from all devices
-            user.refreshTokens = [];
-        } else if (refreshToken) {
+        if (!logoutAll && refreshToken) {
             // Logout from current device only
             const { verifyRefreshToken } = await import('../services/token.service.js');
             try {
@@ -324,6 +312,11 @@ export const logout = async (req, res) => {
             }
         }
 
+        // Access tokens are stateless, so advancing the security version is the
+        // authoritative revocation event. Clear refresh credentials as well so
+        // no older session can mint a token at the new version.
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
+        user.refreshTokens = [];
         await user.save();
 
         // Log logout
@@ -378,6 +371,20 @@ export const refreshAccessToken = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
+            });
+        }
+
+        if (user.isDeleted || user.status !== 'active') {
+            return res.status(403).json({
+                success: false,
+                message: 'Account is not active'
+            });
+        }
+
+        if ((decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) {
+            return res.status(401).json({
+                success: false,
+                message: 'Refresh token has been revoked'
             });
         }
 

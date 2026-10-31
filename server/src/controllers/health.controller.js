@@ -6,7 +6,9 @@
 import mongoose from 'mongoose';
 import getRedisClient, { isRedisAvailable } from '../config/redis.js';
 import { getAllStates as getCircuitBreakerStates } from '../utils/circuitBreaker.js';
+import { getMLClientState } from '../services/ml.service.js';
 import logger from '../utils/logger.js';
+import { statfs } from 'node:fs/promises';
 
 /**
  * Liveness probe - checks if application is running
@@ -49,8 +51,9 @@ export const healthCheck = async (req, res) => {
         database: await checkDatabase(),
         redis: await checkRedis(),
         memory: checkMemory(),
-        disk: checkDisk(),
-        circuitBreakers: checkCircuitBreakers()
+        disk: await checkDisk(),
+        circuitBreakers: checkCircuitBreakers(),
+        mlEnrichment: checkMLEnrichment()
     };
 
     const isHealthy = checks.database.status === 'UP';
@@ -150,14 +153,23 @@ function checkMemory() {
 }
 
 /**
- * Check disk usage (placeholder - requires OS-specific implementation)
+ * Check filesystem capacity for the current deployment volume.
  */
-function checkDisk() {
-    // TODO: Implement actual disk check using 'diskusage' package
-    return {
-        status: 'UP',
-        note: 'Disk check not implemented'
-    };
+async function checkDisk() {
+    try {
+        const stats = await statfs(process.cwd());
+        const total = Number(stats.blocks) * Number(stats.bsize);
+        const available = Number(stats.bavail) * Number(stats.bsize);
+        const percentUsed = total ? Math.round(((total - available) / total) * 100) : 0;
+        return {
+            status: percentUsed >= 95 ? 'WARNING' : 'UP',
+            totalBytes: total,
+            availableBytes: available,
+            percentUsed
+        };
+    } catch (error) {
+        return { status: 'UNKNOWN', error: error.message };
+    }
 }
 
 /**
@@ -170,6 +182,17 @@ function checkCircuitBreakers() {
     return {
         status: hasOpenCircuits ? 'WARNING' : 'UP',
         breakers: states
+    };
+}
+
+function checkMLEnrichment() {
+    const state = getMLClientState();
+    if (!state.enabled) return { status: 'DISABLED', ...state };
+
+    const saturated = state.concurrency.active >= state.concurrency.limit;
+    return {
+        status: state.circuitBreaker.state === 'OPEN' || saturated ? 'WARNING' : 'UP',
+        ...state
     };
 }
 

@@ -45,3 +45,17 @@ it('rejects missing description', async () => {
     delete body.description;
     await create(body).expect(400);
 });
+it('requires authentication for lookup, scopes it to the owner and excludes private fields', async () => {
+    const created = await create(complaintData({ category: category.id })).expect(201);
+    const complaintId = created.body.data.complaintId;
+    await api(context, 'get', '/complaints/search/' + complaintId).expect(401);
+
+    const owner = await api(context, 'get', '/complaints/search/' + complaintId)
+        .set('Authorization', 'Bearer ' + token).expect(200);
+    assert.deepEqual(Object.keys(owner.body.data).sort(), ['category', 'complaintId', 'priority', 'status']);
+
+    const other = await api(context, 'post', '/auth/register')
+        .send(registration({ email: 'lookup-other@example.com', phone: '9876543214' })).expect(201);
+    await api(context, 'get', '/complaints/search/' + complaintId)
+        .set('Authorization', 'Bearer ' + other.body.token).expect(404);
+});

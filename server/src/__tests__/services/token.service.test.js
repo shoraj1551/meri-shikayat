@@ -35,7 +35,9 @@ describe('Token Service Tests', () => {
             const decoded = verifyAccessToken(token);
 
             expect(decoded).toBeDefined();
-            expect(decoded.userId).toBe(mockUser._id);
+            expect(decoded.id).toBe(mockUser._id);
+            expect(decoded.userId).toBeUndefined();
+            expect(decoded.tokenVersion).toBe(0);
             expect(decoded.email).toBe(mockUser.email);
             expect(decoded.type).toBe('access');
         });
@@ -73,6 +75,7 @@ describe('Token Service Tests', () => {
 
             expect(decoded).toBeDefined();
             expect(decoded.userId).toBe(mockUser._id);
+            expect(decoded.id).toBeUndefined();
             expect(decoded.type).toBe('refresh');
             expect(decoded.tokenId).toBeDefined();
         });
@@ -100,6 +103,7 @@ describe('Token Service Tests', () => {
 
             expect(decoded).toBeDefined();
             expect(decoded.userId).toBe(mockUser._id);
+            expect(decoded.id).toBeUndefined();
             expect(decoded.type).toBe('reset');
             expect(decoded.timestamp).toBeDefined();
         });
@@ -182,7 +186,8 @@ describe('Token Service Tests', () => {
             const token = generateAccessToken(mockUser);
             const decoded = verifyAccessToken(token);
 
-            expect(decoded.userId).toBe(mockUser._id);
+            expect(decoded.id).toBe(mockUser._id);
+            expect(decoded.userId).toBeUndefined();
             expect(decoded.email).toBe(mockUser.email);
             expect(decoded.phone).toBe(mockUser.phone);
             expect(decoded.role).toBe(mockUser.role);

@@ -1,122 +1,33 @@
-/**
- * Contractor Dashboard Page
- * Dashboard for contractor users to view and manage assigned jobs
- */
+import apiClient from '../api/client.js';
+import { escapeHtmlDeep } from '../utils/html.js';
 
-export function renderContractorDashboard() {
+const money = value => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(Number(value) || 0);
+
+export async function renderContractorDashboard() {
     const app = document.getElementById('app');
+    app.innerHTML = '<div class="dashboard-page"><div class="dashboard-container"><p>Loading contractor dashboard...</p></div></div>';
 
-    app.innerHTML = `
-        <div class="dashboard-page">
-            <div class="dashboard-container">
-                <!-- Header -->
-                <header class="dashboard-header">
-                    <div class="header-content">
-                        <h1>🏗️ Contractor Dashboard</h1>
-                        <p>Manage your assigned jobs and track progress</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn btn-outline" onclick="window.router.navigate('/profile')">
-                            Profile
-                        </button>
-                        <button class="btn btn-outline" onclick="handleLogout()">
-                            Logout
-                        </button>
-                    </div>
-                </header>
-
-                <!-- Stats Grid -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">📋</div>
-                        <div class="stat-content">
-                            <h3 class="stat-value">0</h3>
-                            <p class="stat-label">Assigned Jobs</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">⏳</div>
-                        <div class="stat-content">
-                            <h3 class="stat-value">0</h3>
-                            <p class="stat-label">In Progress</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-content">
-                            <h3 class="stat-value">0</h3>
-                            <p class="stat-label">Completed</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">💰</div>
-                        <div class="stat-content">
-                            <h3 class="stat-value">₹0</h3>
-                            <p class="stat-label">Total Earnings</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Main Content -->
-                <div class="dashboard-content">
-                    <div class="content-section">
-                        <h2>Assigned Jobs</h2>
-                        <div class="jobs-list">
-                            <div class="empty-state">
-                                <div class="empty-icon">📭</div>
-                                <h3>No jobs assigned yet</h3>
-                                <p>Jobs will appear here when they are assigned to you by administrators.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="sidebar">
-                        <div class="sidebar-card">
-                            <h3>Quick Actions</h3>
-                            <div class="quick-actions">
-                                <button class="action-btn" onclick="window.router.navigate('/profile')">
-                                    👤 View Profile
-                                </button>
-                                <button class="action-btn" onclick="window.router.navigate('/help')">
-                                    ❓ Help & Support
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="sidebar-card">
-                            <h3>Recent Activity</h3>
-                            <div class="activity-list">
-                                <p class="text-muted">No recent activity</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    initializeContractorDashboard();
-}
-
-function initializeContractorDashboard() {
-    // Load contractor data
-    loadContractorData();
-}
-
-async function loadContractorData() {
     try {
-        // TODO: Fetch contractor data from API
-        console.log('Loading contractor data...');
+        const { data: response } = await apiClient.get('/contractors/dashboard/me');
+        const data = escapeHtmlDeep(response.data);
+        app.innerHTML = `
+            <div class="dashboard-page"><div class="dashboard-container">
+                <header class="dashboard-header"><div class="header-content"><h1>Contractor Dashboard</h1><p>${data.contractor.companyName || 'Contractor account'}</p></div></header>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-content"><h3 class="stat-value">${data.stats.assigned}</h3><p>Assigned Jobs</p></div></div>
+                    <div class="stat-card"><div class="stat-content"><h3 class="stat-value">${data.stats.inProgress}</h3><p>In Progress</p></div></div>
+                    <div class="stat-card"><div class="stat-content"><h3 class="stat-value">${data.stats.completed}</h3><p>Completed</p></div></div>
+                    <div class="stat-card"><div class="stat-content"><h3 class="stat-value">${money(data.stats.totalEarnings)}</h3><p>Total Earnings</p></div></div>
+                </div>
+                <section class="content-section"><h2>Assigned Jobs</h2><div class="jobs-list">
+                    ${data.assignments.length ? data.assignments.map(item => `<article class="glass-card">
+                        <h3>${item.complaint?.title || 'Complaint unavailable'}</h3>
+                        <p>${item.complaint?.complaintId || ''} · ${item.status}</p>
+                        <p>${item.workDescription || 'No work instructions provided.'}</p>
+                    </article>`).join('') : '<div class="empty-state"><h3>No persisted assignments</h3><p>Jobs will appear after an administrator assigns them.</p></div>'}
+                </div></section>
+            </div></div>`;
     } catch (error) {
-        console.error('Error loading contractor data:', error);
+        app.innerHTML = '<div class="dashboard-page"><div class="dashboard-container"><div class="error-state"><h1>Contractor dashboard unavailable</h1><p>Unable to load persisted contractor data.</p></div></div></div>';
     }
-}
-
-function handleLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.router.navigate('/login');
 }

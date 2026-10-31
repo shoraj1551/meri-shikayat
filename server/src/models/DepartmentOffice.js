@@ -95,7 +95,6 @@ const departmentOfficeSchema = new mongoose.Schema({
 
 // Indexes
 departmentOfficeSchema.index({ department: 1 });
-departmentOfficeSchema.index({ officeCode: 1 });
 departmentOfficeSchema.index({ city: 1 });
 departmentOfficeSchema.index({ isActive: 1 });
 

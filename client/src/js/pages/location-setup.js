@@ -4,6 +4,7 @@
 
 import { locationService } from '../api/location.service.js';
 import { geolocation } from '../utils/geolocation.js';
+import { escapeHtmlDeep } from '../utils/html.js';
 
 export function renderLocationSetupPage() {
     const app = document.getElementById('app');
@@ -210,12 +211,15 @@ export function renderLocationSetupPage() {
                 const response = await locationService.searchLocations(query);
 
                 if (response.success && response.data.length > 0) {
-                    resultsDiv.innerHTML = response.data.map((location, index) => `
+                    resultsDiv.innerHTML = response.data.map((rawLocation, index) => {
+                        const location = escapeHtmlDeep(rawLocation);
+                        return `
                         <div class="search-result-item" data-index="${index}">
                             <div class="result-name">${location.displayName}</div>
                             <div class="result-details">${location.city || ''}, ${location.district || ''}, ${location.state || ''}</div>
                         </div>
-                    `).join('');
+                    `;
+                    }).join('');
 
                     // Add click handlers to results
                     resultsDiv.querySelectorAll('.search-result-item').forEach((item, index) => {

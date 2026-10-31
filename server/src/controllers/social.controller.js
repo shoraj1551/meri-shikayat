@@ -136,6 +136,10 @@ export const sendMessage = async (req, res) => {
     try {
         const { recipientId, content } = req.body;
 
+        if (!content || content.length > 2000) {
+            return res.status(400).json({ success: false, message: 'Message content must be between 1 and 2000 characters' });
+        }
+
         const message = await Message.create({
             sender: req.user._id,
             recipient: recipientId,
@@ -144,7 +148,7 @@ export const sendMessage = async (req, res) => {
 
         res.status(201).json({ success: true, data: message });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: 'Failed to send message' });
     }
 };
 

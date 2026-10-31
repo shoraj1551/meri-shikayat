@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
 
 const complaintSchema = new mongoose.Schema({
-    // Unique Complaint ID (MSK-YYYY-NNNNNN)
+    // Unique opaque complaint ID (legacy sequential IDs remain readable)
     complaintId: {
         type: String,
         unique: true,
-        required: true,
-        index: true
+        required: true
     },
 
     // User reference (optional for guest complaints)
@@ -68,8 +67,8 @@ const complaintSchema = new mongoose.Schema({
     location: {
         address: String,
         coordinates: {
-            lat: { type: Number, required: true },
-            lng: { type: Number, required: true }
+            lat: { type: Number, required: true, min: -90, max: 90 },
+            lng: { type: Number, required: true, min: -180, max: 180 }
         },
         pincode: String
     },
@@ -176,12 +175,12 @@ const complaintSchema = new mongoose.Schema({
 // Index for faster queries
 complaintSchema.index({ user: 1, status: 1 });
 complaintSchema.index({ 'location.pincode': 1 });
+complaintSchema.index({ 'location.coordinates.lat': 1, 'location.coordinates.lng': 1 });
 complaintSchema.index({ category: 1 });
 complaintSchema.index({ department: 1 });
 complaintSchema.index({ media: 1 });
 // Social indexes
 complaintSchema.index({ isStory: 1, createdAt: -1 });
-complaintSchema.index({ complaintId: 1 });  // For quick ID lookup
 complaintSchema.index({ isGuest: 1 });  // For filtering guest complaints
 
 // Auto-assign department based on category

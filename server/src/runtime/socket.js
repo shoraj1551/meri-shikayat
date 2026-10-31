@@ -1,9 +1,61 @@
 import { Server } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
+import { getRedisClient } from '../config/redis.js';
 
 const ADMIN_ROLES = new Set(['viewer', 'moderator', 'manager', 'super_admin']);
 const MAX_TIMER_DELAY_MS = 2_147_483_647;
+
+function waitUntilReady(client, timeoutMs) {
+    if (client.status === 'ready') return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        let timer;
+        const cleanup = () => {
+            clearTimeout(timer);
+            client.off('ready', ready);
+            client.off('end', ended);
+            client.off('error', failed);
+        };
+        const ready = () => { cleanup(); resolve(); };
+        const ended = () => { cleanup(); reject(new Error('Redis connection ended before the Socket.IO adapter was ready')); };
+        const failed = error => { cleanup(); reject(error); };
+        client.once('ready', ready);
+        client.once('end', ended);
+        client.once('error', failed);
+        timer = setTimeout(() => {
+            cleanup();
+            reject(new Error('Timed out connecting the Socket.IO Redis adapter'));
+        }, timeoutMs);
+        timer.unref?.();
+    });
+}
+
+export async function createRedisSocketAdapter({
+    redisClient = getRedisClient(),
+    timeoutMs = Number(process.env.SOCKET_REDIS_CONNECT_TIMEOUT_MS || 5000),
+    key = process.env.SOCKET_REDIS_CHANNEL_PREFIX || 'meri-shikayat-socket.io'
+} = {}) {
+    const pubClient = redisClient.duplicate();
+    const subClient = redisClient.duplicate();
+    try {
+        await Promise.all([waitUntilReady(pubClient, timeoutMs), waitUntilReady(subClient, timeoutMs)]);
+    } catch (error) {
+        pubClient.disconnect();
+        subClient.disconnect();
+        throw error;
+    }
+
+    return {
+        adapter: createAdapter(pubClient, subClient, { key }),
+        transports: ['websocket'],
+        close: async () => {
+            await Promise.allSettled([pubClient.quit(), subClient.quit()]);
+            pubClient.disconnect();
+            subClient.disconnect();
+        }
+    };
+}
 
 function disconnectAtExpiry(socket, expiresAt) {
     if (!Number.isFinite(expiresAt)) return;
@@ -81,9 +133,15 @@ export function createAdminSocketAuthorizer({
 
 export function attachSockets(httpServer, app, corsOptions, {
     authorizeAdmin,
-    revalidateMs = Number(process.env.SOCKET_AUTH_REVALIDATE_MS || 60000)
+    revalidateMs = Number(process.env.SOCKET_AUTH_REVALIDATE_MS || 60000),
+    adapter,
+    transports
 } = {}) {
-    const io = new Server(httpServer, { cors: { ...corsOptions, methods: ['GET', 'POST'] } });
+    const io = new Server(httpServer, {
+        cors: { ...corsOptions, methods: ['GET', 'POST'] },
+        ...(transports ? { transports } : {})
+    });
+    if (adapter) io.adapter(adapter);
     app.set('io', io);
     const authenticateAdmin = authorizeAdmin || createAdminSocketAuthorizer();
 

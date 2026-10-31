@@ -5,13 +5,16 @@
 
 import express from 'express';
 import { protect } from '../middleware/auth.js';
-import { upload } from '../middleware/upload.middleware.js';
+import { upload, handleMulterError } from '../middleware/upload.middleware.js';
+import { validateUploadedImage } from '../middleware/fileValidation.js';
 import * as profileController from '../controllers/profile.controller.js';
+import { sanitizePlainTextBody } from '../middleware/plainText.js';
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(protect);
+router.use(sanitizePlainTextBody);
 
 // ========================================
 // PROFILE CRUD
@@ -32,7 +35,12 @@ router.patch('/preferences', profileController.updatePreferences);
 // ========================================
 
 // Upload profile picture
-router.post('/picture', upload.single('profilePicture'), profileController.uploadProfilePicture);
+router.post('/picture',
+    upload.single('profilePicture'),
+    validateUploadedImage,
+    profileController.uploadProfilePicture,
+    handleMulterError
+);
 
 // Delete profile picture
 router.delete('/picture', profileController.deleteProfilePicture);

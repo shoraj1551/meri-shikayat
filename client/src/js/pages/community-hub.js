@@ -6,6 +6,7 @@
 import { authService } from '../api/auth.service.js';
 import { socialService } from '../api/social.service.js';
 import { Loading } from '../components/loading.js';
+import { escapeHtml, escapeHtmlDeep, escapeJsString } from '../utils/html.js';
 
 export async function renderCommunityPage() {
     const app = document.getElementById('app');
@@ -16,6 +17,8 @@ export async function renderCommunityPage() {
         return;
     }
 
+    const safeUser = escapeHtmlDeep(user);
+
     app.innerHTML = `
         <div class="dashboard-layout">
             <header class="dashboard-header glass-card">
@@ -25,7 +28,7 @@ export async function renderCommunityPage() {
                 <div class="header-right">
                     <button class="btn btn-outline" onclick="window.router.navigate('/dashboard')">Back</button>
                     <div class="user-profile">
-                        <div class="avatar">${user.firstName[0]}</div>
+                        <div class="avatar">${safeUser.firstName[0]}</div>
                     </div>
                 </div>
             </header>
@@ -85,7 +88,7 @@ export async function renderCommunityPage() {
 async function loadNetwork() {
     try {
         const response = await socialService.getMyNetwork();
-        const connections = response.data;
+        const connections = escapeHtmlDeep(response.data);
         const container = document.getElementById('myNetworkList');
 
         if (connections.length === 0) {
@@ -133,11 +136,12 @@ async function performSearch() {
         const response = await socialService.searchUsers(query);
         renderUserCards(response.data, 'searchResultsList');
     } catch (e) {
-        container.innerHTML = `<p class="error-text">Search failed: ${e.message}</p>`;
+        container.innerHTML = `<p class="error-text">Search failed: ${escapeHtml(e.message)}</p>`;
     }
 }
 
 function renderUserCards(users, containerId) {
+    users = escapeHtmlDeep(users);
     const container = document.getElementById(containerId);
     if (users.length === 0) {
         container.innerHTML = '<p class="text-muted">No users found.</p>';
@@ -152,7 +156,7 @@ function renderUserCards(users, containerId) {
                 <p>📍 ${u.location?.city || 'Citizen'}</p>
             </div>
             <div class="uc-actions">
-                <button class="btn btn-sm btn-primary" onclick="sendRequest('${u._id}')">Connect</button>
+                <button class="btn btn-sm btn-primary" onclick="sendRequest('${escapeJsString(u._id)}')">Connect</button>
             </div>
         </div>
     `).join('');

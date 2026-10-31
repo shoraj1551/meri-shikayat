@@ -5,6 +5,7 @@
 
 import { authService } from '../api/auth.service.js';
 import { socialService } from '../api/social.service.js';
+import { escapeHtmlDeep, escapeJsString } from '../utils/html.js';
 
 export async function renderMessagesPage() {
     const app = document.getElementById('app');
@@ -67,12 +68,12 @@ async function loadInbox() {
     const list = document.getElementById('inboxList');
     try {
         const response = await socialService.getMyNetwork(); // For MVP using network as inbox source
-        const connections = response.data;
+        const connections = escapeHtmlDeep(response.data);
 
         list.innerHTML = connections.map(c => {
             const friend = c.requester._id === authService.getCurrentUser()._id ? c.recipient : c.requester;
             return `
-                <div class="inbox-item" onclick="openChat('${friend._id}', '${friend.firstName}')">
+                <div class="inbox-item" onclick="openChat('${escapeJsString(friend._id)}', '${escapeJsString(friend.firstName)}')">
                     <div class="avatar-sm">${friend.firstName[0]}</div>
                     <div class="inbox-details">
                         <span class="inbox-name">${friend.firstName} ${friend.lastName}</span>
@@ -110,15 +111,7 @@ async function loadMessages(userId) {
         const messages = response.data;
         const currentUserId = authService.getCurrentUser()._id;
 
-        area.innerHTML = messages.map(msg => {
-            const isMe = msg.sender._id === currentUserId || msg.sender === currentUserId;
-            return `
-                <div class="message-bubble ${isMe ? 'sent' : 'received'}">
-                    <div class="message-content">${msg.content}</div>
-                    <div class="message-time">${new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                </div>
-            `;
-        }).join('');
+        area.innerHTML = messages.map(msg => renderMessageMarkup(msg, currentUserId)).join('');
 
         // Scroll to bottom
         area.scrollTop = area.scrollHeight;
@@ -137,6 +130,17 @@ async function loadMessages(userId) {
     } catch (e) {
         area.innerHTML = 'Failed to load messages.';
     }
+}
+
+export function renderMessageMarkup(rawMessage, currentUserId) {
+    const msg = escapeHtmlDeep(rawMessage);
+    const isMe = msg.sender?._id === currentUserId || msg.sender === currentUserId;
+    return `
+        <div class="message-bubble ${isMe ? 'sent' : 'received'}">
+            <div class="message-content">${msg.content}</div>
+            <div class="message-time">${new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+        </div>
+    `;
 }
 
 async function sendMessage() {

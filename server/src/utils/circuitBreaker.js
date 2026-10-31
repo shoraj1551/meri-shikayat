@@ -30,6 +30,7 @@ class CircuitBreaker {
         this.failureCount = 0;
         this.successCount = 0;
         this.nextAttempt = Date.now();
+        this.halfOpenInFlight = false;
     }
 
     async execute(fn, fallback = null) {
@@ -51,6 +52,14 @@ class CircuitBreaker {
             logger.info('Circuit breaker entering HALF_OPEN state', { name: this.name });
         }
 
+        if (this.state === STATES.HALF_OPEN && this.halfOpenInFlight) {
+            if (fallback) return await fallback();
+            throw new Error(`Circuit breaker ${this.name} recovery probe is already running`);
+        }
+
+        const isRecoveryProbe = this.state === STATES.HALF_OPEN;
+        if (isRecoveryProbe) this.halfOpenInFlight = true;
+
         try {
             const result = await this.executeWithTimeout(fn);
             this.onSuccess();
@@ -64,6 +73,8 @@ class CircuitBreaker {
             }
 
             throw error;
+        } finally {
+            if (isRecoveryProbe) this.halfOpenInFlight = false;
         }
     }
 
@@ -124,6 +135,7 @@ class CircuitBreaker {
         this.state = STATES.CLOSED;
         this.failureCount = 0;
         this.successCount = 0;
+        this.halfOpenInFlight = false;
         logger.info('Circuit breaker manually reset', { name: this.name });
     }
 }

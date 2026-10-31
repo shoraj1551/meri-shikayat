@@ -3,9 +3,10 @@ const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
 const { randomBytes } = require('node:crypto');
 const path = require('node:path');
+const { createRequire } = require('node:module');
 
 test('native image dependency can encode and inspect an image', async () => {
-    const sharp = require('sharp');
+    const sharp = createRequire(path.resolve(__dirname, '../../server/package.json'))('sharp');
     const png = await sharp({ create: { width: 2, height: 2, channels: 3, background: '#ffffff' } }).png().toBuffer();
     const metadata = await sharp(png).metadata();
     assert.equal(metadata.format, 'png');

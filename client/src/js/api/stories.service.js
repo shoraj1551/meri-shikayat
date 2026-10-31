@@ -1,9 +1,7 @@
-import { authService } from './auth.service.js';
-
-const API_URL = 'http://localhost:5000/api/stories';
+import { apiUrl } from '../config/api.js';
 
 function getHeaders() {
-    const token = authService.getToken();
+    const token = localStorage.getItem('token');
     return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -11,15 +9,21 @@ function getHeaders() {
 }
 
 export const storiesService = {
+    async getImpact() {
+        const response = await fetch(apiUrl('/stories/impact'));
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to load impact statistics');
+        return data;
+    },
     async getFeed(page = 1) {
-        const response = await fetch(`${API_URL}/feed?page=${page}`, { headers: getHeaders() });
+        const response = await fetch(`${apiUrl('/stories/feed')}?page=${page}`, { headers: getHeaders() });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message);
         return data;
     },
 
     async toggleHype(id) {
-        const response = await fetch(`${API_URL}/${id}/hype`, {
+        const response = await fetch(apiUrl(`/stories/${id}/hype`), {
             method: 'PUT',
             headers: getHeaders()
         });
@@ -28,7 +32,7 @@ export const storiesService = {
     },
 
     async addComment(id, text) {
-        const response = await fetch(`${API_URL}/${id}/comment`, {
+        const response = await fetch(apiUrl(`/stories/${id}/comment`), {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ text })
@@ -39,7 +43,7 @@ export const storiesService = {
     },
 
     async trackShare(id) {
-        await fetch(`${API_URL}/${id}/share`, {
+        await fetch(apiUrl(`/stories/${id}/share`), {
             method: 'PUT',
             headers: getHeaders()
         });

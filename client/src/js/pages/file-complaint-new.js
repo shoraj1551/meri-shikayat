@@ -4,8 +4,10 @@
  */
 
 import { categoryService } from '../api/category.service.js';
+import { escapeHtml, escapeHtmlDeep, escapeJsString } from '../utils/html.js';
 
 let formData = {
+    title: '',
     description: '',
     category: null,
     customCategory: '',
@@ -20,25 +22,11 @@ let mediaStream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
 
-// Predefined categories as fallback
-const PREDEFINED_CATEGORIES = [
-    { id: 'roads', name: 'Roads & Infrastructure', icon: '🛣️' },
-    { id: 'sanitation', name: 'Sanitation & Cleanliness', icon: '🧹' },
-    { id: 'water', name: 'Water Supply', icon: '💧' },
-    { id: 'electricity', name: 'Electricity', icon: '⚡' },
-    { id: 'drainage', name: 'Drainage & Sewage', icon: '🚰' },
-    { id: 'street_lights', name: 'Street Lights', icon: '💡' },
-    { id: 'garbage', name: 'Garbage Collection', icon: '🗑️' },
-    { id: 'traffic', name: 'Traffic Issues', icon: '🚦' },
-    { id: 'noise', name: 'Noise Pollution', icon: '🔊' },
-    { id: 'public_property', name: 'Public Property Damage', icon: '🏛️' }
-];
-
 export async function renderFileComplaintNew() {
     const app = document.getElementById('app');
 
-    // Use predefined categories immediately
-    categories = PREDEFINED_CATEGORIES;
+    // Only server-issued ObjectIds are submitted as categories.
+    categories = [];
 
     // Render page immediately
     app.innerHTML = generatePageHTML();
@@ -48,11 +36,11 @@ export async function renderFileComplaintNew() {
     categoryService.getCategories()
         .then(response => {
             if (response && response.length > 0) {
-                categories = response;
+                categories = escapeHtmlDeep(response);
                 updateCategoryDropdown();
             }
         })
-        .catch(() => console.log('Using predefined categories'));
+        .catch(() => console.warn('Category list unavailable; custom category entry remains available.'));
 }
 
 function updateCategoryDropdown() {
@@ -63,7 +51,7 @@ function updateCategoryDropdown() {
     categorySelect.innerHTML = `
         <option value="">Choose a category...</option>
         ${categories.map(cat => `
-            <option value="${cat._id || cat.id}">
+            <option value="${cat._id}">
                 ${cat.icon || '📋'} ${cat.name}
             </option>
         `).join('')}
@@ -82,6 +70,19 @@ function generatePageHTML() {
                 </div>
 
                 <form class="complaint-form" id="complaintForm">
+                    <div class="form-section">
+                        <label class="section-label" for="complaintTitle">Complaint title</label>
+                        <input
+                            type="text"
+                            id="complaintTitle"
+                            class="form-input"
+                            placeholder="Briefly summarize the issue"
+                            minlength="5"
+                            maxlength="100"
+                            required
+                            value="${escapeHtml(formData.title)}"
+                        >
+                    </div>
                     <!-- Description Section -->
                     <div class="form-section">
                         <label class="section-label">
@@ -108,7 +109,7 @@ function generatePageHTML() {
                         <select id="categorySelect" class="form-select" required>
                             <option value="">Choose a category...</option>
                             ${categories.map(cat => `
-                                <option value="${cat._id || cat.id}">
+                                <option value="${cat._id}">
                                     ${cat.icon || '📋'} ${cat.name}
                                 </option>
                             `).join('')}
@@ -211,11 +212,16 @@ function generatePageHTML() {
 
 function setupEventListeners() {
     const form = document.getElementById('complaintForm');
+    const titleInput = document.getElementById('complaintTitle');
     const descInput = document.getElementById('description');
     const charCount = document.getElementById('charCount');
     const categorySelect = document.getElementById('categorySelect');
     const getLocationBtn = document.getElementById('getLocationBtn');
     const manualAddress = document.getElementById('manualAddress');
+
+    titleInput.addEventListener('input', (e) => {
+        formData.title = e.target.value;
+    });
 
     // Character counter
     descInput.addEventListener('input', (e) => {
@@ -349,7 +355,7 @@ async function updateLocationInfo(lat, lng) {
 
         document.getElementById('locationInfo').innerHTML = `
             <strong>📍 Selected Location:</strong>
-            <p>${data.display_name}</p>
+            <p>${escapeHtml(data.display_name)}</p>
         `;
     } catch (error) {
         formData.location.address = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -391,7 +397,7 @@ function showEvidenceOptions(type) {
                         ${formData.mediaFile ? `
                             <div class="file-preview">
                                 <span class="preview-icon">${typeConfig.icon}</span>
-                                <span class="preview-name">${formData.mediaFile.name}</span>
+                                <span class="preview-name">${escapeHtml(formData.mediaFile.name)}</span>
                                 <button type="button" class="remove-file" id="removeFile">✕</button>
                             </div>
                         ` : `
@@ -667,6 +673,12 @@ async function submitComplaint() {
     const submitBtn = document.getElementById('submitBtn');
 
     // Validation
+    formData.title = formData.title.trim();
+    if (formData.title.length < 5) {
+        alert('Please provide a title of at least 5 characters');
+        return;
+    }
+
     if (!formData.description || formData.description.length < 20) {
         alert('Please provide a description of at least 20 characters');
         return;
@@ -690,24 +702,15 @@ async function submitComplaint() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span>Submitting...</span>';
 
+    let normalizedLocation;
+    let submitData;
     try {
-        const submitData = new FormData();
-        submitData.append('description', formData.description);
-
-        if (formData.category !== 'other') {
-            submitData.append('category', formData.category);
-        } else {
-            submitData.append('customCategory', formData.customCategory);
-        }
-
-        submitData.append('location', JSON.stringify(formData.location));
-
-        if (formData.mediaFile) {
-            submitData.append('media', formData.mediaFile);
-        }
+        normalizedLocation = await normalizeLocationForApi(formData.location);
+        submitData = buildComplaintFormData(formData, normalizedLocation);
 
         const endpoint = '/complaints';
-        const url = `${window.API_BASE_URL || 'http://localhost:5000/api'}${endpoint}`;
+        const { apiUrl } = await import('../config/api.js');
+        const url = apiUrl(endpoint);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -724,23 +727,9 @@ async function submitComplaint() {
         }
     } catch (error) {
         // Offline Handling
-        if (!navigator.onLine) {
+        if (!navigator.onLine && submitData) {
             console.log('Network failed, attempting offline save...');
-            const offlineData = {
-                description: formData.description,
-                category: formData.category,
-                customCategory: formData.customCategory,
-                location: formData.location,
-                mediaFile: formData.mediaFile ? {
-                    name: formData.mediaFile.name,
-                    type: formData.mediaFile.type,
-                    size: formData.mediaFile.size
-                    // Note: Binary file storage handling in IndexedDB needs care, simple object here
-                } : null,
-                timestamp: Date.now()
-            };
-
-            const saved = await window.pwaManager.saveOfflineComplaint(offlineData);
+            const saved = await window.pwaManager.saveOfflineComplaint(submitData);
 
             if (saved) {
                 showSuccess('OFFLINE-PENDING');
@@ -753,6 +742,45 @@ async function submitComplaint() {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span>Submit Complaint</span><span>→</span>';
     }
+}
+
+export function buildComplaintFormData(data, normalizedLocation, FormDataCtor = FormData) {
+    const payload = new FormDataCtor();
+    const type = data.mediaFile
+        ? ({ photo: 'image', video: 'video', audio: 'audio' }[data.mediaType] || 'text')
+        : 'text';
+    payload.append('title', data.title.trim());
+    payload.append('type', type);
+    payload.append('description', data.description.trim());
+    if (data.category === 'other') payload.append('customCategory', data.customCategory.trim());
+    else payload.append('category', data.category);
+    payload.append('location', JSON.stringify(normalizedLocation));
+    if (data.mediaFile) payload.append('media', data.mediaFile);
+    return payload;
+}
+
+export async function normalizeLocationForApi(location, fetchImpl = fetch) {
+    if (Number.isFinite(location.lat) && Number.isFinite(location.lng)) {
+        return {
+            address: location.address || `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`,
+            coordinates: { lat: location.lat, lng: location.lng }
+        };
+    }
+
+    if (location.manual && location.address) {
+        const response = await fetchImpl(
+            `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(location.address)}`
+        );
+        if (!response.ok) throw new Error('Unable to validate the entered location');
+        const [match] = await response.json();
+        if (!match) throw new Error('Unable to find coordinates for the entered address');
+        return {
+            address: location.address,
+            coordinates: { lat: Number(match.lat), lng: Number(match.lon) }
+        };
+    }
+
+    throw new Error('A valid complaint location is required');
 }
 
 function showSuccess(complaintId) {
@@ -772,8 +800,8 @@ function showSuccess(complaintId) {
                 <div class="complaint-id-card">
                     <label>Your Complaint ID</label>
                     <div class="id-box">
-                        <code>${complaintId}</code>
-                        <button onclick="navigator.clipboard.writeText('${complaintId}'); this.textContent='Copied!'">Copy</button>
+                        <code>${escapeHtml(complaintId)}</code>
+                        <button onclick="navigator.clipboard.writeText('${escapeJsString(complaintId)}'); this.textContent='Copied!'">Copy</button>
                     </div>
                     <small>Save this ID to track your complaint</small>
                 </div>

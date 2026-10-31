@@ -34,8 +34,17 @@ export function renderFollowUsPage() {
 
     // Load social feeds
     getSocialFeeds().then(response => {
-        if (response.success) {
+        if (response.success && response.configured) {
             renderSocialFeeds(response.data, lang);
+        } else {
+            app.querySelector('.follow-content').innerHTML = `
+                <div class="container"><div class="empty-state">
+                    <h2>Live social feeds are not connected</h2>
+                    <p>Use the official profile links below instead of displaying unverified posts.</p>
+                    <a href="https://facebook.com/merishikayat" target="_blank" rel="noopener noreferrer">Facebook</a>
+                    <a href="https://instagram.com/merishikayat" target="_blank" rel="noopener noreferrer">Instagram</a>
+                    <a href="https://twitter.com/merishikayat" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                </div></div>`;
         }
     }).catch(error => {
         console.error('Failed to load social feeds:', error);

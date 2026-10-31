@@ -29,8 +29,7 @@ const otpLogSchema = new mongoose.Schema({
     },
     expiresAt: {
         type: Date,
-        required: [true, 'Expiry date is required'],
-        index: true
+        required: [true, 'Expiry date is required']
     },
     verified: {
         type: Boolean,
