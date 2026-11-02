@@ -4,35 +4,21 @@
  */
 
 import { fetchDepartmentByCode } from '../services/authorities.service.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderAuthorityDetailPage(params) {
     const app = document.getElementById('app');
     const authorityId = params.id;
 
     // Show loading state
-    app.innerHTML = `
-        <div class="legal-page authority-detail-page">
-            <div class="loading-container">
-                <div class="loading-spinner"></div>
-                <p>Loading department information...</p>
-            </div>
-        </div>
-    `;
+    app.innerHTML = `<main class="legal-page authority-detail-page">${Loading.state('loading', { message: 'Loading department information', count: 3 })}</main>`;
 
     try {
         // Fetch real data from API
         const authority = await fetchDepartmentByCode(authorityId);
 
         if (!authority) {
-            app.innerHTML = `
-                <div class="legal-page">
-                    <div class="container">
-                        <h1>Authority Not Found</h1>
-                        <p>The requested department could not be found.</p>
-                        <a href="/authorities" class="btn btn-primary">Back to Authorities</a>
-                    </div>
-                </div>
-            `;
+            app.innerHTML = `<main class="legal-page container">${Loading.empty('Department not found', 'The requested department is unavailable or may have been removed.')}</main>`;
             return;
         }
 
@@ -46,7 +32,7 @@ export async function renderAuthorityDetailPage(params) {
                             <div class="authority-icon-large">${authority.icon}</div>
                             <div>
                                 <h1 class="page-title">${authority.name}</h1>
-                                <p class="page-subtitle">${authority.nameHindi}</p>
+                                <p class="page-subtitle" lang="hi">${authority.nameHindi}</p>
                             </div>
                         </div>
                     </div>
@@ -71,15 +57,8 @@ export async function renderAuthorityDetailPage(params) {
         });
     } catch (error) {
         console.error('Error loading authority details:', error);
-        app.innerHTML = `
-            <div class="legal-page">
-                <div class="container">
-                    <h1>Error Loading Department</h1>
-                    <p>Sorry, we couldn't load the department information. Please try again later.</p>
-                    <a href="/authorities" class="btn btn-primary">Back to Authorities</a>
-                </div>
-            </div>
-        `;
+        app.innerHTML = `<main class="legal-page container">${Loading.error('Department unavailable', 'We could not load this department. Please try again.', { actionLabel: 'Try again' })}</main>`;
+        app.querySelector('[data-state-action="retry"]')?.addEventListener('click', () => renderAuthorityDetailPage(params));
     }
 }
 
@@ -140,7 +119,7 @@ function renderOffices(offices) {
                 ${offices.map(office => `
                     <div class="office-card">
                         <h4>${office.name}</h4>
-                        ${office.nameHindi ? `<p class="hindi-name">${office.nameHindi}</p>` : ''}
+                        ${office.nameHindi ? `<p class="hindi-name" lang="hi">${office.nameHindi}</p>` : ''}
                         
                         <div class="office-details">
                             <div class="office-detail-item">
@@ -206,7 +185,7 @@ function renderPersonnel(personnel) {
                     <div class="personnel-card">
                         <div class="personnel-avatar">👤</div>
                         <h4>${person.designation}</h4>
-                        ${person.designationHindi ? `<p class="designation-hindi">${person.designationHindi}</p>` : ''}
+                        ${person.designationHindi ? `<p class="designation-hindi" lang="hi">${person.designationHindi}</p>` : ''}
                         <p class="personnel-name">${person.name}</p>
                         <div class="personnel-contact">
                             ${person.email ? `
@@ -234,7 +213,7 @@ function renderCTA(authority) {
             <h2>Need to File a Complaint?</h2>
             <p>Report issues related to ${authority.name}</p>
             <div class="support-buttons">
-                <a href="/file-complaint?dept=${authority.code}" class="btn btn-primary" style="background: ${authority.color}">
+                <a href="/submit-complaint?dept=${authority.code}" class="btn btn-primary" style="background: ${authority.color}">
                     File Complaint with ${authority.name}
                 </a>
                 <a href="/authorities" class="btn btn-outline-primary">View All Departments</a>

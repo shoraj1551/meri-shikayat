@@ -1,6 +1,6 @@
 /**
- * i18n Translations for Meri Shikayat
- * English (en) and Hindi (hi) translations
+ * English copy catalog for Meri Shikayat.
+ * Additional locales must not be exposed until every production workflow is translated.
  */
 
 export const translations = {
@@ -196,30 +196,9 @@ export const translations = {
 /**
  * Get translation for a key
  * @param {string} key - Translation key (e.g., 'hero.title')
- * @param {string} lang - Language code ('en' or 'hi')
+ * @param {string} lang - Internal catalog code; production currently passes 'en'
  * @returns {string} Translated text
  */
 export function t(key, lang = 'en') {
   return translations[lang]?.[key] || translations.en[key] || key;
-}
-
-/**
- * Get current language from localStorage
- * @returns {string} Current language code
- */
-export function getCurrentLanguage() {
-  return localStorage.getItem('language') || 'en';
-}
-
-/**
- * Set current language
- * @param {string} lang - Language code ('en' or 'hi')
- */
-export function setLanguage(lang) {
-  if (lang !== 'en' && lang !== 'hi') {
-    console.warn(`Invalid language: ${lang}. Defaulting to 'en'`);
-    lang = 'en';
-  }
-  localStorage.setItem('language', lang);
-  document.documentElement.lang = lang;
 }

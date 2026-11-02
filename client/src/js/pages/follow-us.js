@@ -4,11 +4,10 @@
  */
 
 import { getSocialFeeds, formatTimestamp, formatNumber } from '../services/social-media.service.js';
-import { getCurrentLanguage } from '../i18n/translations.js';
 
 export function renderFollowUsPage() {
     const app = document.getElementById('app');
-    const lang = getCurrentLanguage() || 'en';
+    const lang = 'en';
 
     // Show loading state
     app.innerHTML = `

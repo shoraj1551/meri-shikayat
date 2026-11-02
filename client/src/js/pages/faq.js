@@ -5,12 +5,12 @@
 
 import { generateNavbar, initializeNavbar } from '../components/navbar.js';
 
-export function renderFAQPage() {
+export function renderFAQPage(_params, lifecycle) {
     const app = document.getElementById('app');
 
     app.innerHTML = `
         <div class="legal-page faq-page">
-            ${generateNavbar({ showAuth: true, showLanguage: false })}
+            ${generateNavbar({ showAuth: true })}
             
             <div class="page-header-section">
                 <div class="container">
@@ -357,7 +357,7 @@ export function renderFAQPage() {
     `;
 
     // Initialize navbar
-    initializeNavbar();
+    initializeNavbar(lifecycle);
 
     // Add FAQ accordion functionality
     const faqItems = app.querySelectorAll('.faq-item');

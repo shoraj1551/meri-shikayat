@@ -1,7 +1,7 @@
 import { complaintService } from '../api/complaint.service.js';
 import { storiesService } from '../api/stories.service.js';
 import { Loading } from '../components/loading.js';
-import { escapeHtml, escapeHtmlDeep } from '../utils/html.js';
+import { escapeHtml, escapeHtmlDeep, safeUrl } from '../utils/html.js';
 
 export async function renderDashboardPage() {
     const app = document.getElementById('app');
@@ -47,6 +47,8 @@ export async function renderDashboardPage() {
         </div>
     `;
 
+    app.innerHTML = `<main class="dashboard-page container">${Loading.state('loading', { message: 'Loading your dashboard', count: 5 })}</main>`;
+
     try {
         // Fetch data
         const myComplaintsResponse = await complaintService.getMyComplaints();
@@ -74,6 +76,8 @@ export async function renderDashboardPage() {
                 </div>
             </div>
         `;
+        app.innerHTML = `<main class="dashboard-page container">${Loading.error('Dashboard unavailable', 'We could not load your complaints and statistics. Please try again.', { actionLabel: 'Try again' })}</main>`;
+        app.querySelector('[data-state-action="retry"]')?.addEventListener('click', renderDashboardPage);
     }
 }
 
@@ -195,7 +199,7 @@ function renderPremiumContent(app, user, complaints, stats) {
 
                         ${complaints.length > 0 ? `
                             <div class="complaints-list-premium" id="complaintsGrid">
-                                ${complaints.map(c => renderPremiumComplaintCard(c)).join('')}
+                                ${complaints.map(c => renderPremiumComplaintCard(escapeHtmlDeep(c))).join('')}
                             </div>
                         ` : renderEmptyState()}
                     </div>
@@ -222,13 +226,15 @@ function renderPremiumContent(app, user, complaints, stats) {
                     </div>
                 </div>
 
+                <dialog id="complaintDetailDialog" class="complaint-detail-dialog" aria-labelledby="complaintDetailTitle"></dialog>
+
                 <!-- Dashboard Footer - Matching Home Page -->
                 <footer class="enhanced-footer">
                     <div class="container">
                         <div class="footer-grid">
                             <div class="footer-col footer-about">
                                 <div class="footer-logo">
-                                    <h2>मेरी शिकायत</h2>
+                                    <h2 lang="hi">मेरी शिकायत</h2>
                                     <p>Empowering citizens to report and resolve community issues.</p>
                                 </div>
                                 <div class="about-section">
@@ -350,14 +356,36 @@ function renderPremiumContent(app, user, complaints, stats) {
     // PIN code change handler
     const changePinBtn = document.getElementById('changePinBtn');
     if (changePinBtn) {
-        changePinBtn.addEventListener('click', () => {
-            const newPin = prompt('Enter PIN code:', user.location?.pincode || '110001');
-            if (newPin && /^\d{6}$/.test(newPin)) {
+        changePinBtn.addEventListener('click', async () => {
+            const newPin = await window.appFeedback.requestText({
+                title: 'Change community location',
+                message: 'Enter a six-digit PIN code to update the nearby community feed.',
+                label: 'PIN code',
+                defaultValue: user.location?.pincode || '110001',
+                multiline: false,
+                confirmLabel: 'Update location',
+                validate: value => /^\d{6}$/.test(value) ? '' : 'Enter a valid six-digit PIN code.'
+            });
+            if (newPin) {
                 loadCommunityFeed(newPin);
                 changePinBtn.innerHTML = `📍 ${newPin} <span class="change-icon">⚙️</span>`;
             }
         });
     }
+
+    document.querySelectorAll('.complaint-card-premium[data-complaint-id]').forEach(card => {
+        const openDetails = () => {
+            const complaint = complaints.find(item => item._id === card.dataset.complaintId);
+            if (complaint) openComplaintDetails(complaint);
+        };
+        card.addEventListener('click', openDetails);
+        card.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openDetails();
+            }
+        });
+    });
 }
 
 function renderPremiumComplaintCard(complaint) {
@@ -384,7 +412,7 @@ function renderPremiumComplaintCard(complaint) {
     }
 
     return `
-        <div class="complaint-card-premium" onclick="window.alert('Detailed view coming soon!')" style="cursor: pointer;">
+        <div class="complaint-card-premium" data-complaint-id="${complaint._id}" role="button" tabindex="0" style="cursor: pointer;" aria-label="View details for ${complaint.title || 'complaint'}">
             <div class="complaint-icon-box">
                 ${icon}
             </div>
@@ -409,6 +437,50 @@ function renderPremiumComplaintCard(complaint) {
             </div>
         </div>
     `;
+}
+
+function openComplaintDetails(rawComplaint) {
+    const complaint = escapeHtmlDeep(rawComplaint);
+    const dialog = document.getElementById('complaintDetailDialog');
+    if (!dialog) return;
+    const category = complaint.category?.name || complaint.category || 'Uncategorized';
+    const status = String(complaint.status || 'pending').replace('_', ' ');
+    const media = Array.isArray(rawComplaint.media) ? rawComplaint.media : [];
+    const mediaMarkup = media.map(item => renderComplaintMedia(item)).join('');
+
+    dialog.innerHTML = `
+        <div class="complaint-detail-dialog__header">
+            <div>
+                <span class="status-badge-premium ${complaint.status}">${status}</span>
+                <h2 id="complaintDetailTitle">${complaint.title || 'Complaint details'}</h2>
+                <p>${complaint.complaintId || `#${String(complaint._id).slice(-6).toUpperCase()}`}</p>
+            </div>
+            <button type="button" class="complaint-detail-dialog__close" aria-label="Close complaint details">&times;</button>
+        </div>
+        <dl class="complaint-detail-dialog__meta">
+            <div><dt>Category</dt><dd>${category}</dd></div>
+            <div><dt>Priority</dt><dd>${complaint.priority || 'Normal'}</dd></div>
+            <div><dt>Submitted</dt><dd>${new Date(rawComplaint.createdAt).toLocaleString()}</dd></div>
+            <div><dt>Location</dt><dd>${complaint.location?.address || complaint.location?.city || 'Not provided'}</dd></div>
+        </dl>
+        <section><h3>Description</h3><p>${complaint.description || 'No description provided.'}</p></section>
+        ${mediaMarkup ? `<section><h3>Attachments</h3><div class="complaint-detail-dialog__media">${mediaMarkup}</div></section>` : ''}
+    `;
+    dialog.querySelector('.complaint-detail-dialog__close').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => {
+        if (event.target === dialog) dialog.close();
+    }, { once: true });
+    dialog.showModal();
+}
+
+function renderComplaintMedia(rawMedia) {
+    const url = safeUrl(rawMedia?.url);
+    if (!url) return '';
+    const label = escapeHtml(rawMedia.filename || 'Complaint attachment');
+    if (rawMedia.type === 'image') return `<img src="${url}" alt="${label}" loading="lazy">`;
+    if (rawMedia.type === 'video') return `<video src="${url}" controls preload="metadata" aria-label="${label}"></video>`;
+    if (rawMedia.type === 'audio') return `<audio src="${url}" controls preload="metadata" aria-label="${label}"></audio>`;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">Open ${label}</a>`;
 }
 
 function renderEmptyState() {
@@ -575,17 +647,13 @@ async function loadCommunityFeed(pincode) {
         })));
         feedContainer.innerHTML = feed.length
             ? feed.map(item => renderFeedItem(item)).join('')
-            : '<div class="empty-state"><p>No resolved community stories have been published yet.</p></div>';
+            : Loading.empty('No community stories yet', 'Resolved complaint stories will appear here.', { compact: true });
         attachFeedActionListeners();
 
     } catch (error) {
         console.error('Error loading feed:', error);
-        feedContainer.innerHTML = `
-            <div class="feed-error">
-                <p>Failed to load community feed</p>
-                <button class="btn btn-secondary" onclick="loadCommunityFeed('${pincode}')">Retry</button>
-            </div>
-        `;
+        feedContainer.innerHTML = Loading.error('Community feed unavailable', 'We could not load nearby stories.', { compact: true, actionLabel: 'Try again' });
+        feedContainer.querySelector('[data-state-action="retry"]')?.addEventListener('click', () => loadCommunityFeed(pincode));
     }
 }
 
@@ -619,7 +687,7 @@ function attachFeedActionListeners() {
             const shareUrl = `${window.location.origin}/complaint/${id}`;
             await navigator.clipboard.writeText(shareUrl);
             await storiesService.trackShare(id);
-            alert('Link copied to clipboard!');
+            window.appFeedback.notify('Link copied to clipboard.', { type: 'success' });
         });
     });
 

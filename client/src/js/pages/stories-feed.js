@@ -6,7 +6,7 @@
 import { authService } from '../api/auth.service.js';
 import { storiesService } from '../api/stories.service.js';
 import { Loading } from '../components/loading.js';
-import { escapeHtml, escapeHtmlDeep, escapeJsString } from '../utils/html.js';
+import { escapeHtml, escapeHtmlDeep, escapeJsString, safeUrl } from '../utils/html.js';
 
 export async function renderStoriesPage() {
     const app = document.getElementById('app');
@@ -54,7 +54,7 @@ async function loadStories() {
         const currentUser = authService.getCurrentUser();
 
         if (stories.length === 0) {
-            container.innerHTML = '<p class="text-center text-muted">No stories yet. Be the first to share!</p>';
+            container.innerHTML = Loading.empty('No stories yet', 'Resolved complaint stories shared by the community will appear here.');
             return;
         }
 
@@ -64,7 +64,8 @@ async function loadStories() {
         setupStoryInteractions();
 
     } catch (e) {
-        container.innerHTML = `<p class="error-text">Failed to load stories: ${escapeHtml(e.message)}</p>`;
+        container.innerHTML = Loading.error('Stories unavailable', 'We could not load community stories. Please try again.', { actionLabel: 'Try again' });
+        container.querySelector('[data-state-action="retry"]')?.addEventListener('click', loadStories);
     }
 }
 
@@ -74,7 +75,7 @@ export function renderStoryCard(rawStory, currentUser) {
     const date = new Date(story.createdAt).toLocaleDateString();
 
     return `
-        <div class="story-card glass-card fade-in-up" data-id="${story._id}">
+        <div id="story-${story._id}" class="story-card glass-card fade-in-up" data-id="${story._id}">
             <div class="story-header">
                 <div class="story-author">
                     <div class="avatar-sm">${story.user.firstName[0]}</div>
@@ -90,7 +91,7 @@ export function renderStoryCard(rawStory, currentUser) {
             <div class="story-content">
                 <h3 class="story-title">${story.title}</h3>
                 <p class="story-desc">${story.description}</p>
-                ${story.media && story.media.length ? `<div class="story-media-placeholder">📷 Media Attachment</div>` : ''}
+                ${rawStory.media?.length ? `<div class="story-media-gallery">${rawStory.media.map(renderStoryMedia).join('')}</div>` : ''}
             </div>
 
             <div class="story-actions">
@@ -100,7 +101,7 @@ export function renderStoryCard(rawStory, currentUser) {
                 <button class="action-btn comment-btn" onclick="toggleComments('${escapeJsString(rawStory._id)}')">
                     <span class="icon">💬</span> <span class="count">${story.comments.length}</span> Comment
                 </button>
-                <button class="action-btn share-btn" onclick="shareStory('${escapeJsString(rawStory._id)}', '${escapeJsString(rawStory.title)}')">
+                <button class="action-btn share-btn" onclick="shareStory('${escapeJsString(rawStory._id)}', '${escapeJsString(rawStory.title)}', this)">
                     <span class="icon">📤</span> <span class="count">${story.shares}</span> Share
                 </button>
             </div>
@@ -119,6 +120,16 @@ export function renderStoryCard(rawStory, currentUser) {
             </div>
         </div>
     `;
+}
+
+function renderStoryMedia(media) {
+    const url = safeUrl(media?.url);
+    if (!url) return '';
+    const label = escapeHtml(media.originalName || media.filename || 'Story attachment');
+    if (media.type === 'image') return `<img src="${url}" alt="${label}" loading="lazy">`;
+    if (media.type === 'video') return `<video src="${url}" controls preload="metadata" aria-label="${label}"></video>`;
+    if (media.type === 'audio') return `<audio src="${url}" controls preload="metadata" aria-label="${label}"></audio>`;
+    return `<a class="story-media-document" href="${url}" target="_blank" rel="noopener noreferrer">Open ${label}</a>`;
 }
 
 // Global Interaction Handlers
@@ -147,33 +158,48 @@ window.handleComment = async (e, id) => {
         if (!text) return;
 
         try {
-            await storiesService.addComment(id, text);
-            // Refresh logic (Simple reload for MVP, ideal is append)
-            // For now just clear input and alert success to keep it simple without re-rendering everything
+            e.target.disabled = true;
+            const response = await storiesService.addComment(id, text);
+            const comment = response.data;
+            const card = e.target.closest('.story-card');
+            const item = document.createElement('div');
+            item.className = 'comment-item';
+            const author = document.createElement('strong');
+            author.textContent = `${comment.user?.firstName || 'You'}:`;
+            item.append(author, ` ${comment.text}`);
+            card.querySelector('.comments-list').appendChild(item);
+            const count = card.querySelector('.comment-btn .count');
+            count.textContent = String(Number(count.textContent) + 1);
             e.target.value = '';
-            alert('Comment added! (Reload to see)');
+            window.appFeedback.notify('Comment added.', { type: 'success' });
         } catch (err) {
-            alert('Failed to comment');
+            window.appFeedback.notify('Failed to add the comment.', { type: 'error' });
+        } finally {
+            e.target.disabled = false;
+            e.target.focus();
         }
     }
 };
 
-window.shareStory = async (id, title) => {
+window.shareStory = async (id, title, button) => {
     const shareData = {
         title: `Support this cause: ${title}`,
         text: `I just hyped this issue on Meri Shikayat! Check it out.`,
-        url: window.location.href // In real app, deep link to story
+        url: `${window.location.origin}/stories#story-${encodeURIComponent(id)}`
     };
 
     try {
         if (navigator.share) {
             await navigator.share(shareData);
-            await storiesService.trackShare(id);
-            alert('Shared successfully!');
+            const response = await storiesService.trackShare(id);
+            button.querySelector('.count').textContent = response.shares;
+            window.appFeedback.notify('Shared successfully.', { type: 'success' });
         } else {
             // Fallback
             await navigator.clipboard.writeText(`${shareData.title} - ${shareData.url}`);
-            alert('Link copied to clipboard!');
+            const response = await storiesService.trackShare(id);
+            button.querySelector('.count').textContent = response.shares;
+            window.appFeedback.notify('Link copied to clipboard.', { type: 'success' });
         }
     } catch (e) {
         console.log('Share canceled');

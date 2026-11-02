@@ -4,12 +4,11 @@
  */
 
 import { loadContactInfo } from '../services/contact.service.js';
-import { getCurrentLanguage } from '../i18n/translations.js';
 import { generateNavbar, initializeNavbar } from '../components/navbar.js';
 
-export function renderContactPage() {
+export function renderContactPage(_params, lifecycle) {
     const app = document.getElementById('app');
-    const lang = getCurrentLanguage() || 'en';
+    const lang = 'en';
 
     // Load contact info and then render
     loadContactInfo().then(data => {
@@ -17,7 +16,7 @@ export function renderContactPage() {
 
         app.innerHTML = `
             <div class="legal-page contact-page">
-                ${generateNavbar({ showAuth: true, showLanguage: false })}
+                ${generateNavbar({ showAuth: true })}
                 
                 <div class="page-header-section">
                     <div class="container">
@@ -184,7 +183,7 @@ export function renderContactPage() {
         `;
 
         // Initialize navbar event listeners after rendering
-        initializeNavbar();
+        initializeNavbar(lifecycle);
     }).catch(error => {
         console.error('Failed to render contact page:', error);
         app.innerHTML = `<p>Error loading contact information. Please try again later.</p>`;

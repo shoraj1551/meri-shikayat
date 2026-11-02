@@ -5,23 +5,21 @@
 
 import { fetchAllContractors } from '../services/contractors.service.js';
 import { escapeHtml } from '../utils/html.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderContractorsPage() {
     const app = document.getElementById('app');
 
     // Show loading state
-    app.innerHTML = `
-        <div class="legal-page contractors-page">
-            <div class="loading-container">
-                <div class="loading-spinner"></div>
-                <p>Loading contractors...</p>
-            </div>
-        </div>
-    `;
+    app.innerHTML = `<main class="legal-page contractors-page">${Loading.state('loading', { message: 'Loading contractors', count: 4 })}</main>`;
 
     try {
         // Fetch real data from API
         const contractors = await fetchAllContractors();
+        if (contractors.length === 0) {
+            app.innerHTML = `<main class="legal-page container">${Loading.empty('No contractors available', 'Verified service partners will appear here when they become available.')}</main>`;
+            return;
+        }
 
         app.innerHTML = `
             <div class="legal-page contractors-page">
@@ -61,7 +59,7 @@ export async function renderContractorsPage() {
                                         </div>
                                         
                                         <h3>${escapeHtml(contractor.companyName)}</h3>
-                                        ${contractor.companyNameHindi ? `<p class="hindi-name">${escapeHtml(contractor.companyNameHindi)}</p>` : ''}
+                                        ${contractor.companyNameHindi ? `<p class="hindi-name" lang="hi">${escapeHtml(contractor.companyNameHindi)}</p>` : ''}
                                         
                                         <div class="contractor-specialization">
                                             ${(contractor.specialization || []).map(spec => `
@@ -122,15 +120,8 @@ export async function renderContractorsPage() {
         });
     } catch (error) {
         console.error('Error loading contractors:', error);
-        app.innerHTML = `
-            <div class="legal-page">
-                <div class="container">
-                    <h1>Error Loading Contractors</h1>
-                    <p>Sorry, we couldn't load the contractors. Please try again later.</p>
-                    <a href="/" class="btn btn-primary">Back to Home</a>
-                </div>
-            </div>
-        `;
+        app.innerHTML = `<main class="legal-page container">${Loading.error('Contractors unavailable', 'We could not load the contractor directory. Please try again.', { actionLabel: 'Try again' })}</main>`;
+        app.querySelector('[data-state-action="retry"]')?.addEventListener('click', renderContractorsPage);
     }
 }
 

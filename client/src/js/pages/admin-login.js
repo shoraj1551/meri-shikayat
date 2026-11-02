@@ -1,4 +1,14 @@
-export function renderAdminLoginPage() {
+import { adminService } from '../api/admin.service.js';
+import {
+    hideError,
+    initFloatingLabels,
+    initFocusAnimations,
+    initIdentifierValidation,
+    initPasswordToggle,
+    showError
+} from '../utils/form-utils.js';
+
+export function renderAdminLoginPage(_params, lifecycle) {
     const app = document.getElementById('app');
 
     app.innerHTML = `
@@ -183,7 +193,7 @@ export function renderAdminLoginPage() {
                         const timerElement = document.getElementById('timerCount');
                         const resendBtn = document.getElementById('resendOtpBtn');
 
-                        const timerInterval = setInterval(() => {
+                        const tickTimer = () => {
                             timeLeft--;
                             const minutes = Math.floor(timeLeft / 60);
                             const seconds = timeLeft % 60;
@@ -197,7 +207,8 @@ export function renderAdminLoginPage() {
                                 resendBtn.style.opacity = '1';
                                 resendBtn.style.cursor = 'pointer';
                             }
-                        }, 1000);
+                        };
+                        const timerInterval = lifecycle ? lifecycle.setInterval(tickTimer, 1000) : setInterval(tickTimer, 1000);
 
                         // Handle resend OTP
                         resendBtn.addEventListener('click', async () => {

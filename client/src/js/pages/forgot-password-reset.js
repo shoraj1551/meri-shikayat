@@ -138,7 +138,7 @@ export function renderForgotPasswordResetPage() {
             sessionStorage.removeItem('otpVerified');
 
             // Show success and redirect
-            alert('✅ Password reset successful!\n\nYou can now login with your new password.');
+            window.appFeedback.notify('Password reset successfully. You can now sign in with your new password.', { type: 'success' });
             window.router.navigate('/login');
         }, 1500);
     });

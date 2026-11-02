@@ -102,20 +102,9 @@ class LocationService {
      * @returns {Promise<{coordinates: Object, address: Object}>}
      */
     async getCurrentLocationWithAddress() {
-        try {
-            // Get GPS coordinates
-            const coords = await this.getCurrentLocation();
-
-            // Get address from coordinates
-            const addressData = await this.reverseGeocode(coords.latitude, coords.longitude);
-
-            return {
-                coordinates: coords,
-                address: addressData
-            };
-        } catch (error) {
-            throw error;
-        }
+        const coords = await this.getCurrentLocation();
+        const addressData = await this.reverseGeocode(coords.latitude, coords.longitude);
+        return { coordinates: coords, address: addressData };
     }
 
     /**

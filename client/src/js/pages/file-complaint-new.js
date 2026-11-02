@@ -21,9 +21,32 @@ let marker = null;
 let mediaStream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
+const activeIntervals = new Set();
+let activeLifecycleSignal = null;
+const activeObjectUrls = new Set();
+let leafletPromise = null;
 
-export async function renderFileComplaintNew() {
+async function loadLeaflet() {
+    leafletPromise ||= Promise.all([
+        import('leaflet'),
+        import('leaflet/dist/leaflet.css')
+    ]).then(([module]) => module.default || module).catch((error) => {
+        // A transient network failure must not permanently poison later attempts.
+        leafletPromise = null;
+        throw error;
+    });
+    return leafletPromise;
+}
+
+function createTrackedObjectUrl(value) {
+    const url = URL.createObjectURL(value);
+    activeObjectUrls.add(url);
+    return url;
+}
+
+export async function renderFileComplaintNew(_params, lifecycle) {
     const app = document.getElementById('app');
+    activeLifecycleSignal = lifecycle?.signal || null;
 
     // Only server-issued ObjectIds are submitted as categories.
     categories = [];
@@ -32,9 +55,24 @@ export async function renderFileComplaintNew() {
     app.innerHTML = generatePageHTML();
     setupEventListeners();
 
+    lifecycle?.onCleanup(() => {
+        if (mediaRecorder?.state === 'recording') mediaRecorder.stop();
+        mediaStream?.getTracks?.().forEach((track) => track.stop());
+        activeIntervals.forEach((interval) => clearInterval(interval));
+        activeIntervals.clear();
+        activeObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+        activeObjectUrls.clear();
+        map?.remove?.();
+        map = null;
+        marker = null;
+        mediaStream = null;
+        mediaRecorder = null;
+    });
+
     // Load categories from API in background
     categoryService.getCategories()
         .then(response => {
+            if (lifecycle?.signal.aborted) return;
             if (response && response.length > 0) {
                 categories = escapeHtmlDeep(response);
                 updateCategoryDropdown();
@@ -286,7 +324,7 @@ function setupEventListeners() {
         getLocationBtn.innerHTML = '<span>📍</span><span>Getting location...</span>';
 
         if (!navigator.geolocation) {
-            alert('Geolocation is not supported');
+            window.appFeedback.notify('Geolocation is not supported by your browser.', { type: 'warning' });
             getLocationBtn.disabled = false;
             getLocationBtn.innerHTML = '<span>📍</span><span>Use My Current Location</span>';
             return;
@@ -304,7 +342,7 @@ function setupEventListeners() {
                 getLocationBtn.style.background = '#10b981';
             },
             (error) => {
-                alert('Unable to get location. Please try again.');
+                window.appFeedback.notify('Unable to get your location. Please try again.', { type: 'error' });
                 getLocationBtn.disabled = false;
                 getLocationBtn.innerHTML = '<span>📍</span><span>Use My Current Location</span>';
             }
@@ -328,7 +366,7 @@ function setupEventListeners() {
 }
 
 async function initializeMap(lat, lng) {
-    const L = window.L;
+    const L = await loadLeaflet();
 
     map = L.map('map').setView([lat, lng], 15);
 
@@ -507,13 +545,17 @@ function setupPhotoCapture() {
     startBtn.addEventListener('click', async () => {
         try {
             mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            if (activeLifecycleSignal?.aborted) {
+                mediaStream.getTracks().forEach((track) => track.stop());
+                return;
+            }
             video.srcObject = mediaStream;
             video.style.display = 'block';
             startBtn.style.display = 'none';
             captureBtn.style.display = 'inline-block';
             stopBtn.style.display = 'inline-block';
         } catch (err) {
-            alert('Camera access denied or not available');
+            window.appFeedback.notify('Camera access was denied or is unavailable.', { type: 'error' });
         }
     });
 
@@ -524,7 +566,7 @@ function setupPhotoCapture() {
 
         canvas.toBlob((blob) => {
             formData.mediaFile = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
-            capturedImg.src = URL.createObjectURL(blob);
+            capturedImg.src = createTrackedObjectUrl(blob);
             video.style.display = 'none';
             capturedDiv.style.display = 'block';
 
@@ -561,6 +603,10 @@ function setupVideoRecording() {
     startBtn.addEventListener('click', async () => {
         try {
             mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            if (activeLifecycleSignal?.aborted) {
+                mediaStream.getTracks().forEach((track) => track.stop());
+                return;
+            }
             video.srcObject = mediaStream;
             video.style.display = 'block';
 
@@ -590,8 +636,9 @@ function setupVideoRecording() {
                 const secs = elapsed % 60;
                 timer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }, 1000);
+            activeIntervals.add(timerInterval);
         } catch (err) {
-            alert('Camera/microphone access denied or not available');
+            window.appFeedback.notify('Camera or microphone access was denied or is unavailable.', { type: 'error' });
         }
     });
 
@@ -618,6 +665,10 @@ function setupAudioRecording() {
     startBtn.addEventListener('click', async () => {
         try {
             mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            if (activeLifecycleSignal?.aborted) {
+                mediaStream.getTracks().forEach((track) => track.stop());
+                return;
+            }
 
             recordedChunks = [];
             mediaRecorder = new MediaRecorder(mediaStream);
@@ -629,7 +680,7 @@ function setupAudioRecording() {
             mediaRecorder.onstop = () => {
                 const blob = new Blob(recordedChunks, { type: 'audio/webm' });
                 formData.mediaFile = new File([blob], 'audio.webm', { type: 'audio/webm' });
-                playback.src = URL.createObjectURL(blob);
+                playback.src = createTrackedObjectUrl(blob);
                 playback.style.display = 'block';
                 if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
                 clearInterval(timerInterval);
@@ -649,8 +700,9 @@ function setupAudioRecording() {
                 const secs = elapsed % 60;
                 timer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }, 1000);
+            activeIntervals.add(timerInterval);
         } catch (err) {
-            alert('Microphone access denied or not available');
+            window.appFeedback.notify('Microphone access was denied or is unavailable.', { type: 'error' });
         }
     });
 
@@ -667,7 +719,7 @@ function setupAudioRecording() {
 async function submitComplaint() {
     const token = localStorage.getItem('token');
     if (!token) {
-        alert('Please sign in to submit a complaint during beta. Your draft has not been submitted.');
+        window.appFeedback.notify('Please sign in to submit a complaint. Your draft has not been submitted.', { type: 'warning' });
         return;
     }
     const submitBtn = document.getElementById('submitBtn');
@@ -675,27 +727,27 @@ async function submitComplaint() {
     // Validation
     formData.title = formData.title.trim();
     if (formData.title.length < 5) {
-        alert('Please provide a title of at least 5 characters');
+        window.appFeedback.notify('Please provide a title of at least 5 characters.', { type: 'warning' });
         return;
     }
 
     if (!formData.description || formData.description.length < 20) {
-        alert('Please provide a description of at least 20 characters');
+        window.appFeedback.notify('Please provide a description of at least 20 characters.', { type: 'warning' });
         return;
     }
 
     if (!formData.category) {
-        alert('Please select a category');
+        window.appFeedback.notify('Please select a category.', { type: 'warning' });
         return;
     }
 
     if (formData.category === 'other' && !formData.customCategory) {
-        alert('Please specify your custom category');
+        window.appFeedback.notify('Please specify your custom category.', { type: 'warning' });
         return;
     }
 
     if (!formData.location) {
-        alert('Please set your location (either use GPS or enter manually)');
+        window.appFeedback.notify('Please set your location using GPS or enter it manually.', { type: 'warning' });
         return;
     }
 
@@ -738,7 +790,7 @@ async function submitComplaint() {
         }
 
         console.error('Submit error:', error);
-        alert(`Failed to submit complaint: ${error.message}`);
+        window.appFeedback.notify(`Failed to submit complaint: ${error.message}`, { type: 'error' });
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span>Submit Complaint</span><span>→</span>';
     }

@@ -10,7 +10,7 @@ let emailOTPComponent = null;
 let phoneOTPComponent = null;
 let verificationData = null;
 
-export async function renderVerifyAccountPage() {
+export async function renderVerifyAccountPage(_params, lifecycle) {
     const app = document.getElementById('app');
 
     // Add OTP styles
@@ -29,7 +29,7 @@ export async function renderVerifyAccountPage() {
         verificationData = response.data;
 
         app.innerHTML = generateVerificationHTML();
-        initializeEventListeners();
+        initializeEventListeners(lifecycle);
     } catch (error) {
         console.error('Error loading verification page:', error);
         app.innerHTML = `
@@ -45,7 +45,7 @@ export async function renderVerifyAccountPage() {
 }
 
 function generateVerificationHTML() {
-    const { email, phone, verificationStatus, requiresBoth, userType } = verificationData;
+    const { email, phone, verificationStatus, requiresBoth } = verificationData;
 
     const emailVerified = verificationStatus.email;
     const phoneVerified = verificationStatus.phone;
@@ -158,14 +158,14 @@ function generateVerificationHTML() {
     `;
 }
 
-function initializeEventListeners() {
+function initializeEventListeners(lifecycle) {
     const { verificationStatus } = verificationData;
 
     // Email verification
     if (!verificationStatus.email) {
         const sendEmailBtn = document.getElementById('send-email-otp-btn');
         if (sendEmailBtn) {
-            sendEmailBtn.addEventListener('click', handleSendEmailOTP);
+            sendEmailBtn.addEventListener('click', () => handleSendEmailOTP(lifecycle));
         }
     }
 
@@ -173,12 +173,12 @@ function initializeEventListeners() {
     if (!verificationStatus.phone) {
         const sendPhoneBtn = document.getElementById('send-phone-otp-btn');
         if (sendPhoneBtn) {
-            sendPhoneBtn.addEventListener('click', handleSendPhoneOTP);
+            sendPhoneBtn.addEventListener('click', () => handleSendPhoneOTP(lifecycle));
         }
     }
 }
 
-async function handleSendEmailOTP() {
+async function handleSendEmailOTP(lifecycle) {
     const btn = document.getElementById('send-email-otp-btn');
     const section = document.getElementById('email-otp-section');
     const errorDiv = document.getElementById('email-error');
@@ -195,7 +195,7 @@ async function handleSendEmailOTP() {
         section.classList.remove('hidden');
 
         // Create OTP input
-        emailOTPComponent = createOTPInput('email-otp-input', (otp) => {
+        emailOTPComponent = createOTPInput('email-otp-input', (_otp) => {
             document.getElementById('verify-email-btn').disabled = false;
         });
 
@@ -203,7 +203,7 @@ async function handleSendEmailOTP() {
         document.getElementById('verify-email-btn').addEventListener('click', handleVerifyEmail);
 
         // Setup resend button with timer
-        startResendTimer('email', 120); // 2 minutes
+        startResendTimer('email', 120, lifecycle); // 2 minutes
 
         showToast('success', response.message || 'OTP sent to your email!');
     } catch (error) {
@@ -213,7 +213,7 @@ async function handleSendEmailOTP() {
     }
 }
 
-async function handleSendPhoneOTP() {
+async function handleSendPhoneOTP(lifecycle) {
     const btn = document.getElementById('send-phone-otp-btn');
     const section = document.getElementById('phone-otp-section');
     const errorDiv = document.getElementById('phone-error');
@@ -230,7 +230,7 @@ async function handleSendPhoneOTP() {
         section.classList.remove('hidden');
 
         // Create OTP input
-        phoneOTPComponent = createOTPInput('phone-otp-input', (otp) => {
+        phoneOTPComponent = createOTPInput('phone-otp-input', (_otp) => {
             document.getElementById('verify-phone-btn').disabled = false;
         });
 
@@ -238,7 +238,7 @@ async function handleSendPhoneOTP() {
         document.getElementById('verify-phone-btn').addEventListener('click', handleVerifyPhone);
 
         // Setup resend button with timer
-        startResendTimer('phone', 120); // 2 minutes
+        startResendTimer('phone', 120, lifecycle); // 2 minutes
 
         showToast('success', response.message || 'OTP sent to your phone!');
     } catch (error) {
@@ -320,14 +320,14 @@ async function handleVerifyPhone() {
     }
 }
 
-function startResendTimer(type, seconds) {
+function startResendTimer(type, seconds, lifecycle) {
     const resendBtn = document.getElementById(`resend-${type}-btn`);
     const timerSpan = document.getElementById(`${type}-timer`);
     let remaining = seconds;
 
     resendBtn.disabled = true;
 
-    const interval = setInterval(() => {
+    const tick = () => {
         remaining--;
         const mins = Math.floor(remaining / 60);
         const secs = remaining % 60;
@@ -347,7 +347,8 @@ function startResendTimer(type, seconds) {
                 }
             });
         }
-    }, 1000);
+    };
+    const interval = lifecycle ? lifecycle.setInterval(tick, 1000) : setInterval(tick, 1000);
 }
 
 function showError(element, message) {

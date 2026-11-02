@@ -1,23 +1,21 @@
 /**
- * Home page component - Bilingual (English/Hindi) landing page
+ * Home page component
  * [U] UI/UX Engineer Implementation
  */
 
-import { translations, t, getCurrentLanguage, setLanguage } from '../i18n/translations.js';
+import { t } from '../i18n/translations.js';
 import { storiesService } from '../api/stories.service.js';
+import { initializeMobileDrawer } from '../components/mobile-drawer.js';
 
-export function renderHomePage() {
+export function renderHomePage(_params, lifecycle) {
     const app = document.getElementById('app');
-    const currentLang = getCurrentLanguage();
-
-    // Set HTML lang attribute
-    document.documentElement.lang = currentLang;
+    const currentLang = 'en';
 
     // Render page with translations
     app.innerHTML = generateHomeHTML(currentLang);
 
     // Initialize event listeners
-    initializeEventListeners();
+    initializeEventListeners(lifecycle);
     loadPersistedImpact();
 }
 
@@ -32,23 +30,18 @@ function generateHomeHTML(lang) {
                 <div class="container">
                     <nav class="home-navbar">
                         <div class="logo">
-                            <h1 class="logo-gradient">मेरी शिकायत</h1>
+                            <h1 class="logo-gradient" lang="hi">मेरी शिकायत</h1>
                             <p class="tagline">Your Voice, Our Priority</p>
                         </div>
                         
                         <!-- Desktop Navigation -->
                         <div class="nav-actions">
-                            <div class="language-toggle">
-                                <button class="lang-btn ${lang === 'en' ? 'active' : ''}" data-lang="en">English</button>
-                                <span class="lang-divider">|</span>
-                                <button class="lang-btn ${lang === 'hi' ? 'active' : ''}" data-lang="hi">हिन्दी</button>
-                            </div>
                             <a href="/login" class="btn btn-outline-light" data-i18n="nav.login">${t('nav.login', lang)}</a>
                             <a href="/register" class="btn btn-primary" data-i18n="nav.signup">${t('nav.signup', lang)}</a>
                         </div>
                         
                         <!-- Mobile Menu Toggle -->
-                        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="home-mobile-navigation">
                             <span></span>
                             <span></span>
                             <span></span>
@@ -58,13 +51,9 @@ function generateHomeHTML(lang) {
             </header>
 
             <!-- Mobile Navigation Drawer -->
-            <div class="mobile-nav-overlay"></div>
-            <nav class="mobile-nav">
+            <div class="mobile-nav-overlay" aria-hidden="true"></div>
+            <nav class="mobile-nav" id="home-mobile-navigation" aria-label="Mobile navigation" aria-hidden="true" tabindex="-1" inert>
                 <div class="mobile-nav-items">
-                    <div class="language-toggle">
-                        <button class="lang-btn ${lang === 'en' ? 'active' : ''}" data-lang="en">English</button>
-                        <button class="lang-btn ${lang === 'hi' ? 'active' : ''}" data-lang="hi">हिन्दी</button>
-                    </div>
                     <a href="/login" class="btn btn-outline-light" data-i18n="nav.login">${t('nav.login', lang)}</a>
                     <a href="/register" class="btn btn-primary" data-i18n="nav.signup">${t('nav.signup', lang)}</a>
                 </div>
@@ -79,7 +68,7 @@ function generateHomeHTML(lang) {
                             ${t('hero.subtitle', lang)}
                         </p>
                         <div class="hero-cta-group">
-                            <a href="/file-complaint" class="btn btn-primary btn-lg">
+                            <a href="/submit-complaint" class="btn btn-primary btn-lg">
                                 📝 <span data-i18n="hero.cta.primary">${t('hero.cta.primary', lang)}</span>
                             </a>
                             <a href="/how-it-works" class="btn btn-primary btn-lg">
@@ -198,23 +187,23 @@ function generateHomeHTML(lang) {
                     <p class="section-subtitle" data-i18n="authorities.subtitle">${t('authorities.subtitle', lang)}</p>
                     <div class="authorities-logos">
                         <a href="/authorities/municipal" class="authority-logo">
-                            <div class="logo-placeholder">🏛️</div>
+                            <div class="authority-mark">${authorityMark('municipal')}</div>
                             <span data-i18n="authorities.municipal">${t('authorities.municipal', lang)}</span>
                         </a>
                         <a href="/authorities/police" class="authority-logo">
-                            <div class="logo-placeholder">👮</div>
+                            <div class="authority-mark">${authorityMark('police')}</div>
                             <span data-i18n="authorities.police">${t('authorities.police', lang)}</span>
                         </a>
                         <a href="/authorities/electricity" class="authority-logo">
-                            <div class="logo-placeholder">⚡</div>
+                            <div class="authority-mark">${authorityMark('electricity')}</div>
                             <span data-i18n="authorities.electricity">${t('authorities.electricity', lang)}</span>
                         </a>
                         <a href="/authorities/water" class="authority-logo">
-                            <div class="logo-placeholder">💧</div>
+                            <div class="authority-mark">${authorityMark('water')}</div>
                             <span data-i18n="authorities.water">${t('authorities.water', lang)}</span>
                         </a>
                         <a href="/authorities" class="authority-logo and-more">
-                            <div class="logo-placeholder">➕</div>
+                            <div class="authority-mark">${authorityMark('all')}</div>
                             <span>${lang === 'hi' ? 'और अधिक.......' : 'and more.......'}</span>
                         </a>
                     </div>
@@ -284,7 +273,7 @@ function generateHomeHTML(lang) {
                     <div class="footer-grid">
                         <div class="footer-col footer-about">
                             <div class="footer-logo">
-                                <h2>मेरी शिकायत</h2>
+                                <h2 lang="hi">मेरी शिकायत</h2>
                                 <p data-i18n="footer.tagline">${t('footer.tagline', lang)}</p>
                             </div>
                             <div class="about-section">
@@ -420,6 +409,17 @@ function generateTestimonials(lang) {
     `).join('');
 }
 
+function authorityMark(type) {
+    const paths = {
+        municipal: '<path d="M4 9h16M6 9V6l6-3 6 3v3M6 21h12M8 9v8m4-8v8m4-8v8"/>',
+        police: '<path d="M12 3l7 3v5c0 4.6-2.8 8-7 10-4.2-2-7-5.4-7-10V6l7-3zm-2 9l1.5 1.5L15 10"/>',
+        electricity: '<path d="M13 2L5 14h6l-1 8 9-13h-6V2z"/>',
+        water: '<path d="M12 2s6 7 6 12a6 6 0 01-12 0c0-5 6-12 6-12z"/>',
+        all: '<path d="M12 5v14M5 12h14"/>'
+    };
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[type]}</svg>`;
+}
+
 /**
  * Get status label in current language
  */
@@ -449,73 +449,26 @@ async function loadPersistedImpact() {
 /**
  * Initialize all event listeners
  */
-function initializeEventListeners() {
+function initializeEventListeners(lifecycle) {
     const app = document.getElementById('app');
-
-    // Language toggle buttons
-    const langButtons = document.querySelectorAll('.lang-btn');
-    langButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const lang = e.target.dataset.lang;
-            setLanguage(lang);
-            renderHomePage();
-        });
-    });
 
     // Mobile menu toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mobileNav = document.querySelector('.mobile-nav');
     const mobileNavOverlay = document.querySelector('.mobile-nav-overlay');
 
-    if (mobileMenuToggle && mobileNav && mobileNavOverlay) {
-        // Toggle menu on button click
-        mobileMenuToggle.addEventListener('click', () => {
-            mobileMenuToggle.classList.toggle('active');
-            mobileNav.classList.toggle('active');
-            mobileNavOverlay.classList.toggle('active');
-
-            // Prevent body scroll when menu is open
-            document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
-        });
-
-        // Close menu on overlay click
-        mobileNavOverlay.addEventListener('click', () => {
-            mobileMenuToggle.classList.remove('active');
-            mobileNav.classList.remove('active');
-            mobileNavOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
-        // Close menu on link click
-        const mobileNavLinks = mobileNav.querySelectorAll('a');
-        mobileNavLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenuToggle.classList.remove('active');
-                mobileNav.classList.remove('active');
-                mobileNavOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-        });
-
-        // Close menu on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && mobileNav.classList.contains('active')) {
-                mobileMenuToggle.classList.remove('active');
-                mobileNav.classList.remove('active');
-                mobileNavOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-    }
+    initializeMobileDrawer({ toggle: mobileMenuToggle, drawer: mobileNav, overlay: mobileNavOverlay, lifecycle });
 
     // Feedback carousel
     const feedbackCards = app.querySelectorAll('.feedback-card');
     if (feedbackCards.length > 0) {
         let currentFeedback = 0;
-        setInterval(() => {
+        const rotateFeedback = () => {
             feedbackCards[currentFeedback].classList.remove('active');
             currentFeedback = (currentFeedback + 1) % feedbackCards.length;
             feedbackCards[currentFeedback].classList.add('active');
-        }, 5000);
+        };
+        if (lifecycle) lifecycle.setInterval(rotateFeedback, 5000);
+        else setInterval(rotateFeedback, 5000);
     }
 }

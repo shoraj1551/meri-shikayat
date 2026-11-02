@@ -43,9 +43,12 @@ export const storiesService = {
     },
 
     async trackShare(id) {
-        await fetch(apiUrl(`/stories/${id}/share`), {
+        const response = await fetch(apiUrl(`/stories/${id}/share`), {
             method: 'PUT',
             headers: getHeaders()
         });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to record share');
+        return data;
     }
 };

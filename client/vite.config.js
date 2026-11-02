@@ -29,9 +29,24 @@ function injectServiceWorkerPrecache() {
         async writeBundle(outputOptions, bundle) {
             const outputDirectory = resolve(outputOptions.dir || 'dist');
             const workerPath = resolve(outputDirectory, 'service-worker.js');
-            const generatedAssets = Object.keys(bundle)
-                .filter(file => !file.endsWith('.map') && !file.endsWith('.gz') && !file.endsWith('.br'))
-                .map(file => `/${file}`);
+
+            // Precache only the initial application shell. Lazy route chunks and
+            // their page-specific CSS are cached on first use by the worker's
+            // runtime strategy instead of being downloaded during installation.
+            const shellFiles = new Set();
+            const visitChunk = (fileName) => {
+                if (shellFiles.has(fileName)) return;
+                const item = bundle[fileName];
+                if (!item || item.type !== 'chunk') return;
+                shellFiles.add(fileName);
+                item.imports.forEach(visitChunk);
+                item.viteMetadata?.importedCss?.forEach(file => shellFiles.add(file));
+                item.viteMetadata?.importedAssets?.forEach(file => shellFiles.add(file));
+            };
+            Object.values(bundle)
+                .filter(item => item.type === 'chunk' && item.isEntry)
+                .forEach(item => visitChunk(item.fileName));
+            const generatedAssets = [...shellFiles].map(file => `/${file}`);
             const assets = [...new Set([
                 '/', '/index.html', '/offline.html', '/favicon.ico', '/manifest.json',
                 ...generatedAssets
@@ -108,34 +123,10 @@ export default defineConfig({
                         return 'vendor';
                     }
 
-                    // API services
-                    if (id.includes('/src/js/api/')) {
-                        return 'api-services';
-                    }
-
-                    // Components
-                    if (id.includes('/src/js/components/')) {
-                        return 'components';
-                    }
-
-                    // Pages - split by route
-                    if (id.includes('/src/js/pages/')) {
-                        if (id.includes('admin')) {
-                            return 'pages-admin';
-                        }
-                        if (id.includes('dashboard')) {
-                            return 'pages-dashboard';
-                        }
-                        if (id.includes('complaint')) {
-                            return 'pages-complaint';
-                        }
-                        return 'pages-other';
-                    }
-
-                    // Utils
-                    if (id.includes('/src/js/utils/')) {
-                        return 'utils';
-                    }
+                    // Application modules are intentionally left to Rollup's
+                    // automatic graph splitting so each dynamic route keeps
+                    // its own loading boundary and shared code is extracted
+                    // only when multiple routes actually need it.
                 },
                 // Optimize chunk file names
                 chunkFileNames: 'assets/js/[name]-[hash].js',

@@ -21,7 +21,15 @@ function ci(dir) {
     assert.ok(process.env.npm_execpath, 'Run through npm run test:tooling');
     return spawnSync(process.execPath, [
         process.env.npm_execpath, 'ci', '--ignore-scripts', '--offline', '--no-audit', '--no-fund'
-    ], { cwd: dir, encoding: 'utf8', timeout: 30000 });
+    ], {
+        cwd: dir,
+        encoding: 'utf8',
+        timeout: 30000,
+        // These fixtures validate npm's lockfile contract, not the repository's
+        // separately tested toolchain pin. Do not let engine-strict mask the
+        // lockfile error under an older local Node runtime.
+        env: { ...process.env, npm_config_engine_strict: 'false' }
+    });
 }
 
 test('npm ci refuses a missing lockfile', () => {

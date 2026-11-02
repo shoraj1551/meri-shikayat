@@ -6,6 +6,7 @@
 import { authService } from '../api/auth.service.js';
 import { socialService } from '../api/social.service.js';
 import { escapeHtmlDeep, escapeJsString } from '../utils/html.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderMessagesPage() {
     const app = document.getElementById('app');
@@ -35,13 +36,14 @@ export async function renderMessagesPage() {
                         <h3>Inbox</h3>
                     </div>
                     <div id="inboxList" class="inbox-list">
-                        <div class="loading-spinner"></div>
+                        ${Loading.state('loading', { message: 'Loading conversations', compact: true, count: 2 })}
                     </div>
                 </div>
 
                 <!-- Chat Area -->
                 <div class="chat-main">
                     <div id="chatHeader" class="chat-header" style="display:none;">
+                        <button id="backToInboxBtn" class="btn btn-outline chat-back-button" type="button">Back to inbox</button>
                         <h3 id="chatUserName">Select a conversation</h3>
                     </div>
                     
@@ -62,6 +64,9 @@ export async function renderMessagesPage() {
     `;
 
     loadInbox();
+    document.getElementById('backToInboxBtn').addEventListener('click', () => {
+        document.querySelector('.chat-container').classList.remove('chat-active');
+    });
 }
 
 async function loadInbox() {
@@ -69,6 +74,11 @@ async function loadInbox() {
     try {
         const response = await socialService.getMyNetwork(); // For MVP using network as inbox source
         const connections = escapeHtmlDeep(response.data);
+
+        if (connections.length === 0) {
+            list.innerHTML = Loading.empty('No conversations yet', 'Connect with another citizen to start messaging.', { compact: true });
+            return;
+        }
 
         list.innerHTML = connections.map(c => {
             const friend = c.requester._id === authService.getCurrentUser()._id ? c.recipient : c.requester;
@@ -83,7 +93,8 @@ async function loadInbox() {
              `;
         }).join('');
     } catch (e) {
-        list.innerHTML = 'Failed to load contacts.';
+        list.innerHTML = Loading.error('Inbox unavailable', 'We could not load your conversations.', { compact: true, actionLabel: 'Try again' });
+        list.querySelector('[data-state-action="retry"]')?.addEventListener('click', loadInbox);
     }
 }
 
@@ -94,6 +105,7 @@ window.openChat = async (userId, userName) => {
     document.getElementById('chatHeader').style.display = 'flex';
     document.getElementById('chatInputArea').style.display = 'flex';
     document.getElementById('chatUserName').innerText = userName;
+    document.querySelector('.chat-container').classList.add('chat-active');
 
     // Select styling
     document.querySelectorAll('.inbox-item').forEach(el => el.classList.remove('active'));
@@ -104,14 +116,16 @@ window.openChat = async (userId, userName) => {
 
 async function loadMessages(userId) {
     const area = document.getElementById('messagesArea');
-    area.innerHTML = '<div class="loading-spinner"></div>';
+    area.innerHTML = Loading.state('loading', { message: 'Loading messages', compact: true, count: 3 });
 
     try {
         const response = await socialService.getConversation(userId);
         const messages = response.data;
         const currentUserId = authService.getCurrentUser()._id;
 
-        area.innerHTML = messages.map(msg => renderMessageMarkup(msg, currentUserId)).join('');
+        area.innerHTML = messages.length
+            ? messages.map(msg => renderMessageMarkup(msg, currentUserId)).join('')
+            : Loading.empty('No messages yet', 'Send the first message in this conversation.', { compact: true });
 
         // Scroll to bottom
         area.scrollTop = area.scrollHeight;
@@ -128,7 +142,8 @@ async function loadMessages(userId) {
         input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
 
     } catch (e) {
-        area.innerHTML = 'Failed to load messages.';
+        area.innerHTML = Loading.error('Messages unavailable', 'We could not load this conversation.', { compact: true, actionLabel: 'Try again' });
+        area.querySelector('[data-state-action="retry"]')?.addEventListener('click', () => loadMessages(userId));
     }
 }
 
@@ -153,6 +168,6 @@ async function sendMessage() {
         input.value = '';
         loadMessages(activeChatId); // Refresh (Polling style for MVP)
     } catch (e) {
-        alert('Failed to send');
+        window.appFeedback.notify('Failed to send the message.', { type: 'error' });
     }
 }

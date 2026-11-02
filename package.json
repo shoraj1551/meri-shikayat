@@ -16,7 +16,7 @@
         "build-client": "npm run build --workspace client && node scripts/verify-client-build.cjs",
         "vercel-build": "npm run build-client",
         "test:tooling": "node --test scripts/tests",
-        "test:bootstrap": "node --test server/test/bootstrap/*.test.mjs",
+        "test:bootstrap": "node --test server/test/bootstrap",
         "test:container": "node scripts/test-api-container.mjs",
         "test:api": "npm test --workspace server",
         "test:api:integration": "npm run test:integration --workspace server",

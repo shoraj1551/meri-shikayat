@@ -3,7 +3,7 @@
  * Professional, high-density, command-center aesthetic
  */
 
-:root {
+.admin-layout {
     --admin-sidebar-width: 260px;
     --admin-bg: #f3f4f6;
     --admin-sidebar-bg: #1e293b;
@@ -410,4 +410,26 @@
     .case-body {
         grid-template-columns: 1fr;
     }
+}
+.admin-filter-panel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(10rem, 1fr)) auto;
+    align-items: end;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+    padding: var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+}
+
+.admin-filter-panel[hidden] { display: none; }
+.admin-filter-panel label { display: grid; gap: var(--space-2); color: var(--text-secondary); font-size: .875rem; font-weight: 600; }
+
+@media (max-width: 900px) {
+    .admin-filter-panel { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+    .admin-filter-panel { grid-template-columns: 1fr; }
 }

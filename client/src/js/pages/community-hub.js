@@ -6,7 +6,7 @@
 import { authService } from '../api/auth.service.js';
 import { socialService } from '../api/social.service.js';
 import { Loading } from '../components/loading.js';
-import { escapeHtml, escapeHtmlDeep, escapeJsString } from '../utils/html.js';
+import { escapeHtmlDeep, escapeJsString } from '../utils/html.js';
 
 export async function renderCommunityPage() {
     const app = document.getElementById('app');
@@ -92,7 +92,7 @@ async function loadNetwork() {
         const container = document.getElementById('myNetworkList');
 
         if (connections.length === 0) {
-            container.innerHTML = '<p class="text-muted small">No connections yet.</p>';
+            container.innerHTML = Loading.empty('No connections yet', 'People you connect with will appear here.', { compact: true });
             return;
         }
 
@@ -110,7 +110,9 @@ async function loadNetwork() {
             `;
         }).join('');
     } catch (e) {
-        console.error(e);
+        const container = document.getElementById('myNetworkList');
+        container.innerHTML = Loading.error('Connections unavailable', 'We could not load your network.', { compact: true, actionLabel: 'Try again' });
+        container.querySelector('[data-state-action="retry"]')?.addEventListener('click', loadNetwork);
     }
 }
 
@@ -120,7 +122,9 @@ async function loadRecommendations() {
         const users = response.data;
         renderUserCards(users, 'recommendedList');
     } catch (e) {
-        console.error(e);
+        const container = document.getElementById('recommendedList');
+        container.innerHTML = Loading.error('Recommendations unavailable', 'We could not load recommendations.', { compact: true, actionLabel: 'Try again' });
+        container.querySelector('[data-state-action="retry"]')?.addEventListener('click', loadRecommendations);
     }
 }
 
@@ -136,7 +140,8 @@ async function performSearch() {
         const response = await socialService.searchUsers(query);
         renderUserCards(response.data, 'searchResultsList');
     } catch (e) {
-        container.innerHTML = `<p class="error-text">Search failed: ${escapeHtml(e.message)}</p>`;
+        container.innerHTML = Loading.error('Search unavailable', 'We could not complete this search.', { compact: true, actionLabel: 'Try again' });
+        container.querySelector('[data-state-action="retry"]')?.addEventListener('click', performSearch);
     }
 }
 
@@ -144,7 +149,7 @@ function renderUserCards(users, containerId) {
     users = escapeHtmlDeep(users);
     const container = document.getElementById(containerId);
     if (users.length === 0) {
-        container.innerHTML = '<p class="text-muted">No users found.</p>';
+        container.innerHTML = Loading.empty('No users found', 'Try a different name or search term.', { compact: true });
         return;
     }
 
@@ -166,8 +171,8 @@ function renderUserCards(users, containerId) {
 window.sendRequest = async (id) => {
     try {
         await socialService.sendConnectionRequest(id, 'friend');
-        alert('Friend request sent!');
+        window.appFeedback.notify('Friend request sent.', { type: 'success' });
     } catch (e) {
-        alert(e.message);
+        window.appFeedback.notify(e.message || 'Unable to send the friend request.', { type: 'error' });
     }
 };

@@ -1,4 +1,4 @@
-export function renderForgotPasswordVerifyPage() {
+export function renderForgotPasswordVerifyPage(_params, lifecycle) {
     const app = document.getElementById('app');
 
     const identifier = sessionStorage.getItem('resetIdentifier');
@@ -67,7 +67,7 @@ export function renderForgotPasswordVerifyPage() {
         document.getElementById('resendOtpBtn').disabled = false;
         document.getElementById('resendOtpBtn').style.opacity = '1';
     } else {
-        const timerInterval = setInterval(() => {
+        const tickTimer = () => {
             timeLeft--;
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
@@ -80,7 +80,8 @@ export function renderForgotPasswordVerifyPage() {
                 document.getElementById('resendOtpBtn').disabled = false;
                 document.getElementById('resendOtpBtn').style.opacity = '1';
             }
-        }, 1000);
+        };
+        const timerInterval = lifecycle ? lifecycle.setInterval(tickTimer, 1000) : setInterval(tickTimer, 1000);
     }
 
     // Handle OTP verification
@@ -130,7 +131,7 @@ export function renderForgotPasswordVerifyPage() {
         sessionStorage.setItem('otpExpiry', (Date.now() + 5 * 60 * 1000).toString());
 
         console.log('🔐 New OTP:', newOtp);
-        alert(`New OTP sent!\nOTP: ${newOtp}\n\nIn production, this would be sent to ${identifier}`);
+        window.appFeedback.notify(`A new OTP was sent to ${identifier}.`, { type: 'success' });
 
         // Reload page to restart timer
         window.router.navigate('/forgot-password-verify');

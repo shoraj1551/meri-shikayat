@@ -4,23 +4,21 @@
  */
 
 import { fetchAllDepartments } from '../services/authorities.service.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderAuthoritiesPage() {
     const app = document.getElementById('app');
 
     // Show loading state
-    app.innerHTML = `
-        <div class="legal-page authorities-page">
-            <div class="loading-container">
-                <div class="loading-spinner"></div>
-                <p>Loading departments...</p>
-            </div>
-        </div>
-    `;
+    app.innerHTML = `<main class="legal-page authorities-page">${Loading.state('loading', { message: 'Loading departments', count: 4 })}</main>`;
 
     try {
         // Fetch real data from API
         const allAuthorities = await fetchAllDepartments();
+        if (allAuthorities.length === 0) {
+            app.innerHTML = `<main class="legal-page container">${Loading.empty('No departments available', 'Connected government departments will appear here when they become available.')}</main>`;
+            return;
+        }
         const primaryAuthorities = allAuthorities.filter(auth => auth.category === 'Primary');
         const additionalAuthorities = allAuthorities.filter(auth => auth.category === 'Additional');
 
@@ -83,7 +81,7 @@ export async function renderAuthoritiesPage() {
                                             ${auth.icon}
                                         </div>
                                         <h3>${auth.name}</h3>
-                                        <p class="hindi-name">${auth.nameHindi}</p>
+                                        <p class="hindi-name" lang="hi">${auth.nameHindi}</p>
                                         <div class="view-details">View Details →</div>
                                     </a>
                                 `).join('')}
@@ -104,7 +102,7 @@ export async function renderAuthoritiesPage() {
                                                 ${auth.icon}
                                             </div>
                                             <h3>${auth.name}</h3>
-                                            <p class="hindi-name">${auth.nameHindi}</p>
+                                            <p class="hindi-name" lang="hi">${auth.nameHindi}</p>
                                             <div class="view-details">View Details →</div>
                                         </a>
                                     `).join('')}
@@ -117,7 +115,7 @@ export async function renderAuthoritiesPage() {
                             <h2>Need to File a Complaint?</h2>
                             <p>Our connected departments are ready to help resolve your issues</p>
                             <div class="support-buttons">
-                                <a href="/file-complaint" class="btn btn-primary">File Complaint</a>
+                                <a href="/submit-complaint" class="btn btn-primary">File Complaint</a>
                                 <a href="/how-it-works" class="btn btn-outline-primary">How It Works</a>
                             </div>
                         </section>
@@ -144,14 +142,7 @@ export async function renderAuthoritiesPage() {
         });
     } catch (error) {
         console.error('Error loading authorities:', error);
-        app.innerHTML = `
-            <div class="legal-page">
-                <div class="container">
-                    <h1>Error Loading Departments</h1>
-                    <p>Sorry, we couldn't load the departments. Please try again later.</p>
-                    <a href="/" class="btn btn-primary">Back to Home</a>
-                </div>
-            </div>
-        `;
+        app.innerHTML = `<main class="legal-page container">${Loading.error('Departments unavailable', 'We could not load the department directory. Please try again.', { actionLabel: 'Try again' })}</main>`;
+        app.querySelector('[data-state-action="retry"]')?.addEventListener('click', renderAuthoritiesPage);
     }
 }

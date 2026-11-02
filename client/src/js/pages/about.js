@@ -5,12 +5,12 @@
 
 import { generateNavbar, initializeNavbar } from '../components/navbar.js';
 
-export function renderAboutPage() {
+export function renderAboutPage(_params, lifecycle) {
     const app = document.getElementById('app');
 
     app.innerHTML = `
         <div class="legal-page about-page">
-            ${generateNavbar({ showAuth: true, showLanguage: false })}
+            ${generateNavbar({ showAuth: true })}
             
             <div class="page-header-section">
                 <div class="container">
@@ -256,5 +256,5 @@ export function renderAboutPage() {
     `;
 
     // Initialize navbar
-    initializeNavbar();
+    initializeNavbar(lifecycle);
 }

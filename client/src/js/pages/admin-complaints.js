@@ -87,28 +87,75 @@ export async function renderAdminComplaintsPage() {
                     </div>
                 </div>
 
+                <section id="complaintFilters" class="admin-filter-panel" hidden aria-label="Complaint filters">
+                    <label>Status
+                        <select id="filterStatus" class="form-input">
+                            <option value="">All statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </label>
+                    <label>Priority
+                        <select id="filterPriority" class="form-input">
+                            <option value="">All priorities</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </label>
+                    <label>Search
+                        <input id="filterSearch" class="form-input" type="search" placeholder="Title, ID, category or location">
+                    </label>
+                    <button id="clearComplaintFilters" type="button" class="btn btn-outline">Clear filters</button>
+                </section>
+
                 <!-- Content Area -->
                 <div id="adminContent" style="position: relative; min-height: 400px;"></div>
             </main>
         </div>
 
-        <!-- Detail Modal Placeholder -->
+        <!-- Complaint detail modal -->
         <div id="complaintDetailModal" class="modal-overlay" style="display: none;"></div>
     `;
 
     // Initialize Global for View Switching
     window.switchView = (view) => {
         currentView = view;
-        renderAdminComplaintsPage(); // Re-render with new view
+        document.querySelectorAll('.view-btn').forEach(button => button.classList.remove('active'));
+        document.querySelector(`.view-btn[onclick="switchView('${view}')"]`)?.classList.add('active');
+        renderContent();
     };
 
     window.viewComplaint = {
         filterToggle: () => {
-            // To be implemented: Toggle filter sidebar
-            alert('Advanced filters coming soon');
+            const panel = document.getElementById('complaintFilters');
+            panel.hidden = !panel.hidden;
+            if (!panel.hidden) document.getElementById('filterStatus').focus();
         },
         open: openComplaintDetail
     };
+
+    const applyFilters = () => {
+        currentFilters = {
+            status: document.getElementById('filterStatus').value,
+            priority: document.getElementById('filterPriority').value,
+            search: document.getElementById('filterSearch').value.trim().toLowerCase()
+        };
+        renderContent();
+    };
+    ['filterStatus', 'filterPriority', 'filterSearch'].forEach(id => {
+        document.getElementById(id).addEventListener(id === 'filterSearch' ? 'input' : 'change', applyFilters);
+    });
+    document.getElementById('clearComplaintFilters').addEventListener('click', () => {
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterPriority').value = '';
+        document.getElementById('filterSearch').value = '';
+        currentFilters = {};
+        renderContent();
+    });
 
     // Load Data
     await loadData();
@@ -122,30 +169,51 @@ async function loadData() {
         const response = await complaintAdminService.getComplaints({ limit: 100 }); // Fetch more for Kanban
         complaintsData = response.data.complaints.map(complaint => ({
             ...escapeHtmlDeep(complaint),
+            category: escapeHtml(complaint.category?.name || complaint.category || 'Uncategorized'),
             mediaUrl: safeUrl(complaint.mediaUrl)
         }));
         renderContent();
     } catch (error) {
-        container.innerHTML = `<div class="error-message">Failed to load data: ${escapeHtml(error.message)}</div>`;
+        container.innerHTML = Loading.error('Complaints unavailable', 'We could not load complaint records.', { actionLabel: 'Try again' });
+        container.querySelector('[data-state-action="retry"]')?.addEventListener('click', loadData);
     }
 }
 
 function renderContent() {
     const container = document.getElementById('adminContent');
+    const filteredComplaints = complaintsData.filter(complaint => {
+        if (currentFilters.status && complaint.status !== currentFilters.status) return false;
+        if (currentFilters.priority && complaint.priority?.toLowerCase() !== currentFilters.priority) return false;
+        if (currentFilters.search) {
+            const category = typeof complaint.category === 'object' ? complaint.category?.name : complaint.category;
+            const haystack = [complaint._id, complaint.complaintId, complaint.title, category, complaint.location?.address, complaint.location?.city]
+                .filter(Boolean).join(' ').toLowerCase();
+            if (!haystack.includes(currentFilters.search)) return false;
+        }
+        return true;
+    });
+
+    if (filteredComplaints.length === 0) {
+        container.innerHTML = Loading.empty(
+            currentFilters.search || currentFilters.status || currentFilters.priority ? 'No matching complaints' : 'No complaints yet',
+            currentFilters.search || currentFilters.status || currentFilters.priority ? 'Change or clear the current filters to see more results.' : 'Submitted complaints will appear here.'
+        );
+        return;
+    }
 
     if (currentView === 'kanban') {
-        renderKanban(container);
+        renderKanban(container, filteredComplaints);
     } else {
-        renderList(container);
+        renderList(container, filteredComplaints);
     }
 }
 
-function renderKanban(container) {
+function renderKanban(container, complaints) {
     const columns = {
-        'Pending': complaintsData.filter(c => c.status === 'pending'),
-        'In Progress': complaintsData.filter(c => c.status === 'in_progress'),
-        'Resolved': complaintsData.filter(c => c.status === 'resolved'),
-        'Rejected': complaintsData.filter(c => c.status === 'rejected')
+        'Pending': complaints.filter(c => c.status === 'pending'),
+        'In Progress': complaints.filter(c => c.status === 'in_progress'),
+        'Resolved': complaints.filter(c => c.status === 'resolved'),
+        'Rejected': complaints.filter(c => c.status === 'rejected')
     };
 
     const colClasses = {
@@ -192,7 +260,7 @@ function createKanbanCard(c) {
     `;
 }
 
-function renderList(container) {
+function renderList(container, complaints) {
     const html = `
         <div class="data-table-container">
             <table class="data-table">
@@ -208,7 +276,7 @@ function renderList(container) {
                     </tr>
                 </thead>
                 <tbody>
-                    ${complaintsData.map(c => {
+                    ${complaints.map(c => {
                         c._id = escapeJsString(c._id);
                         return `
                         <tr>
@@ -316,15 +384,15 @@ async function openComplaintDetail(id) {
 
             try {
                 await complaintAdminService.updateComplaintStatus(id, newStatus, reason);
-                alert('Status Updated!');
+                window.appFeedback.notify('Complaint status updated.', { type: 'success' });
                 document.getElementById('complaintDetailModal').style.display = 'none';
                 loadData(); // Refresh board
             } catch (e) {
-                alert('Error updating status');
+                window.appFeedback.notify('Unable to update the complaint status.', { type: 'error' });
             }
         };
 
     } catch (error) {
-        modal.innerHTML = `<div class="error-message">Failed to load details</div>`;
+        modal.innerHTML = Loading.error('Complaint unavailable', 'We could not load the complaint details.', { compact: true });
     }
 }

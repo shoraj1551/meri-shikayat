@@ -112,7 +112,7 @@ export function addOTPStyles() {
             font-weight: 600;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
-            outline: none;
+            outline: 2px solid transparent;
             transition: all 0.2s;
             background: white;
             color: #1f2937;

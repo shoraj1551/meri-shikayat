@@ -467,20 +467,13 @@ function renderPreferencesTab(profile) {
 
                 <div class="section-divider"></div>
 
-                <h4>Privacy & Language</h4>
+                <h4>Privacy</h4>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Profile Visibility</label>
                         <select name="profileVisibility" disabled>
                             <option value="public" ${profile.preferences?.profileVisibility === 'public' ? 'selected' : ''}>Public</option>
                             <option value="private" ${profile.preferences?.profileVisibility === 'private' ? 'selected' : ''}>Private</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Language Preference</label>
-                        <select name="language" disabled>
-                            <option value="en" ${profile.preferences?.language === 'en' ? 'selected' : ''}>English</option>
-                            <option value="hi" ${profile.preferences?.language === 'hi' ? 'selected' : ''}>हिन्दी (Hindi)</option>
                         </select>
                     </div>
                 </div>
@@ -695,12 +688,12 @@ async function handleProfilePictureUpload(e) {
 
     // Validate file
     if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        window.appFeedback.notify('Please select an image file.', { type: 'warning' });
         return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        window.appFeedback.notify('The file size must be less than 5 MB.', { type: 'warning' });
         return;
     }
 
@@ -723,12 +716,12 @@ async function handleProfilePictureUpload(e) {
         }
 
         Loading.hide();
-        alert('Profile picture updated successfully!');
+        window.appFeedback.notify('Profile picture updated successfully.', { type: 'success' });
 
     } catch (error) {
         Loading.hide();
         console.error('Upload error:', error);
-        alert('Failed to upload profile picture. Please try again.');
+        window.appFeedback.notify('Failed to upload the profile picture. Please try again.', { type: 'error' });
     }
 }
 
@@ -778,7 +771,7 @@ async function handleFormSubmit(section, form, profile) {
         if (editBtn) editBtn.style.display = 'block';
 
         Loading.hide();
-        alert('Profile updated successfully!');
+        window.appFeedback.notify('Profile updated successfully.', { type: 'success' });
 
         // Reload page to show updated completion
         setTimeout(() => window.location.reload(), 1000);
@@ -786,7 +779,7 @@ async function handleFormSubmit(section, form, profile) {
     } catch (error) {
         Loading.hide();
         console.error('Update error:', error);
-        alert(error.message || 'Failed to update profile. Please try again.');
+        window.appFeedback.notify(error.message || 'Failed to update the profile. Please try again.', { type: 'error' });
     }
 }
 

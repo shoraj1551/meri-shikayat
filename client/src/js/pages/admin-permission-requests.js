@@ -4,6 +4,7 @@
 
 import { adminService } from '../api/admin.service.js';
 import { escapeHtmlDeep } from '../utils/html.js';
+import { Loading } from '../components/loading.js';
 
 export async function renderPermissionRequestsPage() {
     const app = document.getElementById('app');
@@ -51,7 +52,7 @@ export async function renderPermissionRequestsPage() {
                     </button>
                 </header>
 
-                <div id="loadingState" class="glass-card loading-message">Loading permission requests...</div>
+                <div id="loadingState">${Loading.state('loading', { message: 'Loading permission requests', count: 3 })}</div>
                 <div id="errorState" class="error-message" style="display: none;"></div>
                 
                 <div id="requestsList" class="admin-pending-grid"></div>
@@ -72,7 +73,7 @@ export async function renderPermissionRequestsPage() {
         document.getElementById('loadingState').style.display = 'none';
 
         if (requests.length === 0) {
-            listContainer.innerHTML = '<div class="glass-card empty-state">No pending permission requests.</div>';
+            listContainer.innerHTML = Loading.empty('No permission requests', 'New administrator permission requests will appear here.');
             return;
         }
 
@@ -130,8 +131,9 @@ export async function renderPermissionRequestsPage() {
     } catch (error) {
         document.getElementById('loadingState').style.display = 'none';
         const errorDiv = document.getElementById('errorState');
-        errorDiv.textContent = 'Failed to load permission requests.';
+        errorDiv.innerHTML = Loading.error('Requests unavailable', 'We could not load permission requests.', { actionLabel: 'Try again' });
         errorDiv.style.display = 'block';
+        errorDiv.querySelector('[data-state-action="retry"]')?.addEventListener('click', renderPermissionRequestsPage);
     }
 
     // Handle navigation
@@ -145,7 +147,12 @@ export async function renderPermissionRequestsPage() {
 }
 
 async function handleApproveRequest(id) {
-    if (!confirm('Are you sure you want to approve this permission request?')) return;
+    const approved = await window.appFeedback.confirmAction({
+        title: 'Approve permission request?',
+        message: 'The administrator will receive the requested complaint-management permissions.',
+        confirmLabel: 'Approve request'
+    });
+    if (!approved) return;
 
     try {
         await adminService.approvePermissionRequest(id);
@@ -155,14 +162,22 @@ async function handleApproveRequest(id) {
         card.style.animation = 'slideOut 0.3s ease-out forwards';
         setTimeout(() => card.remove(), 300);
 
-        alert('Permission request approved successfully');
+        window.appFeedback.notify('Permission request approved successfully.', { type: 'success' });
     } catch (error) {
-        alert('Failed to approve request: ' + (error.response?.data?.message || error.message));
+        window.appFeedback.notify('Failed to approve request: ' + (error.response?.data?.message || error.message), { type: 'error' });
     }
 }
 
 async function handleRejectRequest(id) {
-    const notes = prompt('Please provide a reason for rejection (optional):');
+    const notes = await window.appFeedback.requestText({
+        title: 'Reject permission request?',
+        message: 'Add an optional explanation for the administrator.',
+        label: 'Reason for rejection',
+        placeholder: 'Explain why this request is being rejected',
+        confirmLabel: 'Reject request',
+        tone: 'danger'
+    });
+    if (notes === null) return;
 
     try {
         await adminService.rejectPermissionRequest(id, notes || 'No reason provided');
@@ -172,8 +187,8 @@ async function handleRejectRequest(id) {
         card.style.animation = 'slideOut 0.3s ease-out forwards';
         setTimeout(() => card.remove(), 300);
 
-        alert('Permission request rejected');
+        window.appFeedback.notify('Permission request rejected.', { type: 'success' });
     } catch (error) {
-        alert('Failed to reject request: ' + (error.response?.data?.message || error.message));
+        window.appFeedback.notify('Failed to reject request: ' + (error.response?.data?.message || error.message), { type: 'error' });
     }
 }

@@ -4,7 +4,7 @@
 
 import { adminService } from '../api/admin.service.js';
 
-export async function renderAdminDashboard() {
+export async function renderAdminDashboard(_params, lifecycle) {
     const app = document.getElementById('app');
     const admin = adminService.getCurrentAdmin();
 
@@ -180,13 +180,14 @@ export async function renderAdminDashboard() {
 
     // Keep dashboards current when the deployment does not support persistent sockets
     // (for example, a serverless API). Socket events still provide immediate updates.
-    const pollingInterval = setInterval(() => {
+    const pollDashboard = () => {
         if (window.router?.currentRoute !== '/admin/dashboard') {
-            clearInterval(pollingInterval);
             return;
         }
         void updateStats();
-    }, 30000);
+    };
+    if (lifecycle) lifecycle.setInterval(pollDashboard, 30000);
+    else setInterval(pollDashboard, 30000);
 
     // Initialize Real-time Updates
     try {
@@ -226,14 +227,10 @@ export async function renderAdminDashboard() {
         const unsubscribeStatusUpdate = socketService.onStatusUpdate(() => {
             void updateStats();
         });
-
-        const unsubscribeWhenLeaving = setInterval(() => {
-            if (window.router?.currentRoute !== '/admin/dashboard') {
-                unsubscribeNewComplaint?.();
-                unsubscribeStatusUpdate?.();
-                clearInterval(unsubscribeWhenLeaving);
-            }
-        }, 1000);
+        lifecycle?.onCleanup(() => {
+            unsubscribeNewComplaint?.();
+            unsubscribeStatusUpdate?.();
+        });
     } catch (err) {
         console.warn('Real-time updates unavailable:', err);
     }

@@ -4,6 +4,7 @@
 
 import { adminService } from '../api/admin.service.js';
 import { escapeHtmlDeep } from '../utils/html.js';
+import { Loading } from '../components/loading.js';
 
 let currentAdminId = null;
 let currentAction = null;
@@ -54,7 +55,7 @@ export async function renderAdminPendingPage() {
                     </button>
                 </header>
 
-                <div id="loadingState" class="glass-card loading-message">Loading pending requests...</div>
+                <div id="loadingState">${Loading.state('loading', { message: 'Loading pending registrations', count: 3 })}</div>
                 <div id="errorState" class="error-message" style="display: none;"></div>
                 
                 <div id="pendingList" class="admin-pending-grid"></div>
@@ -138,7 +139,7 @@ export async function renderAdminPendingPage() {
         document.getElementById('loadingState').style.display = 'none';
 
         if (pendingAdmins.length === 0) {
-            listContainer.innerHTML = '<div class="glass-card empty-state">No pending admin registrations.</div>';
+            listContainer.innerHTML = Loading.empty('No pending registrations', 'New administrator registrations awaiting review will appear here.');
             return;
         }
 
@@ -193,8 +194,9 @@ export async function renderAdminPendingPage() {
     } catch (error) {
         document.getElementById('loadingState').style.display = 'none';
         const errorDiv = document.getElementById('errorState');
-        errorDiv.textContent = 'Failed to load pending admins.';
+        errorDiv.innerHTML = Loading.error('Registrations unavailable', 'We could not load pending administrator registrations.', { actionLabel: 'Try again' });
         errorDiv.style.display = 'block';
+        errorDiv.querySelector('[data-state-action="retry"]')?.addEventListener('click', renderAdminPendingPage);
     }
 
     // Handle navigation
@@ -222,12 +224,13 @@ function openRejectionModal(id) {
     document.getElementById('rejectBtn').disabled = true;
 }
 
-window.closeModal = function () {
+function closeModal() {
     document.getElementById('approvalModal').style.display = 'none';
     document.getElementById('rejectionModal').style.display = 'none';
     currentAdminId = null;
     currentAction = null;
-};
+}
+window.closeModal = closeModal;
 
 window.confirmApproval = async function () {
     const role = document.getElementById('roleSelect').value;
@@ -241,9 +244,9 @@ window.confirmApproval = async function () {
         setTimeout(() => card.remove(), 300);
 
         closeModal();
-        alert(`✅ ${response.message || 'Admin approved successfully. Notification sent.'}`);
+        window.appFeedback.notify(response.message || 'Admin approved successfully. Notification sent.', { type: 'success' });
     } catch (error) {
-        alert('❌ Failed to approve admin: ' + (error.response?.data?.message || error.message));
+        window.appFeedback.notify('Failed to approve admin: ' + (error.response?.data?.message || error.message), { type: 'error' });
     }
 };
 
@@ -251,7 +254,7 @@ window.confirmRejection = async function () {
     const reason = document.getElementById('rejectionReason').value.trim();
 
     if (reason.length < 20) {
-        alert('Please provide a detailed reason (minimum 20 characters)');
+        window.appFeedback.notify('Please provide a detailed reason (minimum 20 characters).', { type: 'warning' });
         return;
     }
 
@@ -264,8 +267,8 @@ window.confirmRejection = async function () {
         setTimeout(() => card.remove(), 300);
 
         closeModal();
-        alert(`✅ ${response.message || 'Admin rejected successfully. Notification sent.'}`);
+        window.appFeedback.notify(response.message || 'Admin rejected successfully. Notification sent.', { type: 'success' });
     } catch (error) {
-        alert('❌ Failed to reject admin: ' + (error.response?.data?.message || error.message));
+        window.appFeedback.notify('Failed to reject admin: ' + (error.response?.data?.message || error.message), { type: 'error' });
     }
 };

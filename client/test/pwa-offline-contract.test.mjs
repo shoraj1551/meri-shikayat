@@ -53,6 +53,14 @@ test('service worker contains no development precache paths or credential-bearin
     assert.match(source, /SYNC_REQUESTED/);
 });
 
+test('build precaches only the static application shell, not lazy page resources', async () => {
+    const config = await readFile(new URL('../vite.config.js', import.meta.url), 'utf8');
+
+    assert.match(config, /item\.isEntry/);
+    assert.match(config, /item\.imports\.forEach\(visitChunk\)/);
+    assert.doesNotMatch(config, /const generatedAssets = Object\.keys\(bundle\)/);
+});
+
 test('version 1 credential-bearing queue is removed during the IndexedDB upgrade', async () => {
     const source = await readFile(new URL('../src/js/utils/pwa.js', import.meta.url), 'utf8');
     assert.match(source, /indexedDB\.open\('meri-shikayat-offline', 2\)/);

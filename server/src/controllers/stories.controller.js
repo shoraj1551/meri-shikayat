@@ -40,6 +40,7 @@ export const getStoriesFeed = async (req, res) => {
             .limit(parseInt(limit))
             .populate('user', 'firstName lastName')
             .populate('category', 'name')
+            .populate('media', 'url type filename originalName thumbnailUrl')
             .populate('comments.user', 'firstName lastName');
 
         res.json({ success: true, count: stories.length, data: stories });
